@@ -9,6 +9,7 @@ import { CollectionView } from "@/components/CollectionView";
 import { Toaster } from "@/components/ui/sonner";
 import { findCollection, listPrompts, listPromptsForCollection } from "@/lib/mock.server";
 import type { Collection, Prompt } from "@/lib/types";
+import { requireUser } from "@/lib/auth.server";
 
 type LoaderData = {
   collection: Collection;
@@ -16,18 +17,19 @@ type LoaderData = {
   allPrompts: Prompt[];
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
   const { id } = params;
   invariant(id, "Collection id is required");
 
-  const collection = await findCollection(id);
+  const collection = await findCollection(id, user.id);
   if (!collection) {
     throw new Response("Collection not found", { status: 404 });
   }
 
   const [prompts, allPrompts] = await Promise.all([
-    listPromptsForCollection(collection),
-    listPrompts(),
+    listPromptsForCollection(collection, user.id),
+    listPrompts(user.id),
   ]);
 
   return json<LoaderData>({

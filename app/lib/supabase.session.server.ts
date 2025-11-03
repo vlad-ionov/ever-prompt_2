@@ -1,4 +1,10 @@
-import type { User } from "@supabase/supabase-js";
+import {
+  AuthApiError,
+  AuthError,
+  createClient,
+  type SupabaseClient,
+  type User,
+} from "@supabase/supabase-js";
 
 import { getServerEnv } from "../lib/env.server";
 
@@ -12,12 +18,28 @@ export class SupabaseVerificationError extends Error {
   }
 }
 
-export async function verifySupabaseAccessToken(accessToken: string): Promise<User> {
-  const trimmedToken = accessToken.trim();
-  if (!trimmedToken) {
-    throw new SupabaseVerificationError("accessToken is required");
+let verificationClient: SupabaseClient | null = null;
+
+function getSupabaseVerificationClient(): SupabaseClient {
+  if (verificationClient) {
+    return verificationClient;
   }
 
+  const env = getServerEnv();
+  const serviceKey = env.SUPABASE_SERVICE_ROLE?.trim();
+  const key = serviceKey ? serviceKey : env.SUPABASE_ANON_KEY;
+
+  verificationClient = createClient(env.SUPABASE_URL, key, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+
+  return verificationClient;
+}
+
+async function fetchUserViaAuthRest(accessToken: string): Promise<User> {
   const env = getServerEnv();
   const requestUrl = new URL("/auth/v1/user", env.SUPABASE_URL).toString();
 
@@ -25,7 +47,7 @@ export async function verifySupabaseAccessToken(accessToken: string): Promise<Us
   try {
     response = await fetch(requestUrl, {
       headers: {
-        Authorization: `Bearer ${trimmedToken}`,
+        Authorization: `Bearer ${accessToken}`,
         apikey: env.SUPABASE_ANON_KEY,
         Accept: "application/json",
       },
@@ -70,4 +92,58 @@ export async function verifySupabaseAccessToken(accessToken: string): Promise<Us
   }
 
   return userPayload;
+}
+
+export async function verifySupabaseAccessToken(accessToken: string): Promise<User> {
+  const trimmedToken = accessToken.trim();
+  if (!trimmedToken) {
+    throw new SupabaseVerificationError("accessToken is required");
+  }
+
+  try {
+    const client = getSupabaseVerificationClient();
+    const { data, error } = await client.auth.getUser(trimmedToken);
+
+    if (error) {
+      const status =
+        error instanceof AuthApiError
+          ? error.status
+          : error instanceof AuthError
+            ? 401
+            : 500;
+      throw new SupabaseVerificationError(error.message || "Failed to verify Supabase session", status);
+    }
+
+    const user = data?.user;
+    if (!user || typeof user.id !== "string") {
+      throw new SupabaseVerificationError(
+        "Supabase Auth response did not include a valid user payload",
+        500,
+      );
+    }
+
+    return user;
+  } catch (initialError) {
+    const knownError = initialError instanceof SupabaseVerificationError ? initialError : null;
+
+    try {
+      return await fetchUserViaAuthRest(trimmedToken);
+    } catch (fallbackError) {
+      if (fallbackError instanceof SupabaseVerificationError) {
+        throw fallbackError;
+      }
+
+      const status =
+        knownError?.status ??
+        (fallbackError && typeof fallbackError === "object" && "status" in fallbackError && typeof (fallbackError as { status: number }).status === "number"
+          ? (fallbackError as { status: number }).status
+          : 500);
+      const message =
+        fallbackError instanceof Error
+          ? fallbackError.message
+          : knownError?.message ?? "Failed to verify Supabase session";
+
+      throw new SupabaseVerificationError(message, status);
+    }
+  }
 }

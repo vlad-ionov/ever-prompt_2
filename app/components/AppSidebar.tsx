@@ -82,7 +82,10 @@ export function AppSidebar({
                 </div>
               )}
               {isCollapsed && (
-                <Sparkles className={`h-5 w-5 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#E11D48]'}`} />
+                <Sparkles
+                  className={`h-5 w-5 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#E11D48]'}${isCollapsed ? ' hidden' : ''}`}
+                  style={isCollapsed ? { display: 'none' } : {}}
+                />
               )}
               {onToggleCollapse && (
                 <Tooltip>

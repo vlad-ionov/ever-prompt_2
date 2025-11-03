@@ -7,6 +7,8 @@ import {
 } from "./mock-data";
 import { getServiceSupabaseClient } from "../lib/supabase.server";
 
+const DEMO_USER_ID = "demo-user";
+
 function clone<T>(value: T): T {
   if (typeof globalThis !== "undefined" && typeof (globalThis as unknown as { structuredClone: (value: unknown) => unknown }).structuredClone === "function") {
     return (globalThis as unknown as { structuredClone: (value: unknown) => unknown }).structuredClone(value) as T;
@@ -46,12 +48,16 @@ function isUuid(value: string | undefined): boolean {
   );
 }
 
-function safeSupabase() {
+function isDemoUser(userId?: string | null): boolean {
+  return userId === DEMO_USER_ID;
+}
+
+function requireSupabaseClient() {
   try {
-    const client = getServiceSupabaseClient();
-    return client;
-  } catch (_error) {
-    return null;
+    return getServiceSupabaseClient();
+  } catch (error) {
+    console.error("Failed to initialise Supabase service client", error);
+    throw new Error("Supabase client is not configured correctly. Check environment variables.");
   }
 }
 
@@ -109,95 +115,140 @@ function mapCollection(row: CollectionRow): Collection {
   };
 }
 
-export async function listPrompts(userId?: string): Promise<Prompt[]> {
-  const supabase = safeSupabase();
-  if (supabase && isUuid(userId)) {
-    const { data, error } = await supabase
-      .from("prompts")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-    if (!error && Array.isArray(data)) {
-      return (data as PromptRow[]).map(mapPrompt);
-    }
-    if (error) {
-      console.error("Supabase listPrompts error:", error);
-    }
+export async function listPrompts(userId: string): Promise<Prompt[]> {
+  if (isDemoUser(userId)) {
+    return clone(promptFixtures);
   }
-  return clone(promptFixtures);
+
+  if (!isUuid(userId)) {
+    throw new Error("Invalid user id for Supabase prompt query");
+  }
+
+  const supabase = requireSupabaseClient();
+  const { data, error } = await supabase
+    .from("prompts")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch prompts: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as PromptRow[];
+  return rows.map(mapPrompt);
 }
 
-export async function findPrompt(id: string): Promise<Prompt | null> {
-  const supabase = safeSupabase();
-  if (supabase) {
-    const { data, error } = await supabase
-      .from("prompts")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-    if (!error && data) {
-      return mapPrompt(data as PromptRow);
-    }
+export async function findPrompt(id: string, userId: string): Promise<Prompt | null> {
+  if (isDemoUser(userId) || !isUuid(id) || !isUuid(userId)) {
+    const prompt = getPromptFixture(id);
+    return prompt ? clone(prompt) : null;
   }
-  const prompt = getPromptFixture(id);
-  return prompt ? clone(prompt) : null;
+
+  const supabase = requireSupabaseClient();
+  const { data, error } = await supabase
+    .from("prompts")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to fetch prompt: ${error.message}`);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapPrompt(data as PromptRow);
 }
 
-export async function listCollections(userId?: string): Promise<Collection[]> {
-  const supabase = safeSupabase();
-  if (supabase && isUuid(userId)) {
-    const { data, error } = await supabase
-      .from("collections")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-    if (!error && Array.isArray(data)) {
-      return (data as CollectionRow[]).map(mapCollection);
-    }
-    if (error) {
-      console.error("Supabase listCollections error:", error);
-    }
+export async function listCollections(userId: string): Promise<Collection[]> {
+  if (isDemoUser(userId)) {
+    return clone(collectionFixtures);
   }
-  return clone(collectionFixtures);
+
+  if (!isUuid(userId)) {
+    throw new Error("Invalid user id for Supabase collection query");
+  }
+
+  const supabase = requireSupabaseClient();
+  const { data, error } = await supabase
+    .from("collections")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch collections: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as CollectionRow[];
+  return rows.map(mapCollection);
 }
 
-export async function findCollection(id: string): Promise<Collection | null> {
-  const supabase = safeSupabase();
-  if (supabase) {
-    const { data, error } = await supabase
-      .from("collections")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-    if (!error && data) {
-      return mapCollection(data as CollectionRow);
-    }
+export async function findCollection(id: string, userId: string): Promise<Collection | null> {
+  if (isDemoUser(userId) || !isUuid(id) || !isUuid(userId)) {
+    const collection = getCollectionFixture(id);
+    return collection ? clone(collection) : null;
   }
-  const collection = getCollectionFixture(id);
-  return collection ? clone(collection) : null;
+
+  const supabase = requireSupabaseClient();
+  const { data, error } = await supabase
+    .from("collections")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to fetch collection: ${error.message}`);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapCollection(data as CollectionRow);
 }
 
-export async function listPromptsForCollection(collection: Collection): Promise<Prompt[]> {
-  const supabase = safeSupabase();
-  if (supabase) {
-    const ids = collection.promptIds;
-    if (ids.length > 0) {
-      const { data, error } = await supabase
-        .from("prompts")
-        .select("*")
-        .in("id", ids);
-      if (!error && Array.isArray(data)) {
-        const map = new Map((data as PromptRow[]).map((row) => [row.id, mapPrompt(row)]));
-        return ids
-          .map((id) => map.get(id))
-          .filter((prompt): prompt is Prompt => Boolean(prompt));
-      }
-    }
-  }
+export async function listPromptsForCollection(collection: Collection, userId: string): Promise<Prompt[]> {
   const ids = collection.promptIds ?? [];
-  return Promise.all(ids.map((promptId) => findPrompt(promptId))).then((results) =>
-    results.filter((prompt): prompt is Prompt => Boolean(prompt)),
-  );
+
+  if (isDemoUser(userId) || !isUuid(collection.id)) {
+    return Promise.all(ids.map((promptId) => findPrompt(promptId, userId))).then((results) =>
+      results.filter((prompt): prompt is Prompt => Boolean(prompt)),
+    );
+  }
+
+  const supabase = requireSupabaseClient();
+  const validIds = ids.filter((id) => isUuid(id));
+  if (validIds.length === 0) {
+    return [];
+  }
+
+  let query = supabase
+    .from("prompts")
+    .select("*")
+    .in("id", validIds);
+
+  if (isUuid(userId)) {
+    query = query.eq("user_id", userId);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    throw new Error(`Failed to load prompts for collection: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as PromptRow[];
+  const mapped = rows.map(mapPrompt);
+  const promptMap = new Map(mapped.map((prompt) => [prompt.id, prompt]));
+
+  return validIds
+    .map((id) => promptMap.get(id))
+    .filter((prompt): prompt is Prompt => Boolean(prompt));
 }
 
 // CRUD operations for prompts
@@ -209,10 +260,7 @@ export async function createPrompt(userId: string, promptData: {
   tags: string[];
   content: string;
 }): Promise<Prompt> {
-  const supabase = safeSupabase();
-  if (!supabase) {
-    throw new Error("Supabase client not available");
-  }
+  const supabase = requireSupabaseClient();
 
   const { data, error } = await supabase
     .from("prompts")
@@ -245,10 +293,7 @@ export async function updatePrompt(id: string, userId: string, updates: {
   tags?: string[];
   content?: string;
 }): Promise<Prompt> {
-  const supabase = safeSupabase();
-  if (!supabase) {
-    throw new Error("Supabase client not available");
-  }
+  const supabase = requireSupabaseClient();
 
   const { data, error } = await supabase
     .from("prompts")
@@ -270,10 +315,7 @@ export async function updatePrompt(id: string, userId: string, updates: {
 }
 
 export async function deletePrompt(id: string, userId: string): Promise<void> {
-  const supabase = safeSupabase();
-  if (!supabase) {
-    throw new Error("Supabase client not available");
-  }
+  const supabase = requireSupabaseClient();
 
   const { error } = await supabase
     .from("prompts")
@@ -291,10 +333,7 @@ export async function createCollection(userId: string, collectionData: {
   name: string;
   description: string;
 }): Promise<Collection> {
-  const supabase = safeSupabase();
-  if (!supabase) {
-    throw new Error("Supabase client not available");
-  }
+  const supabase = requireSupabaseClient();
 
   const { data, error } = await supabase
     .from("collections")
@@ -319,10 +358,7 @@ export async function updateCollection(id: string, userId: string, updates: {
   description?: string;
   prompt_ids?: string[];
 }): Promise<Collection> {
-  const supabase = safeSupabase();
-  if (!supabase) {
-    throw new Error("Supabase client not available");
-  }
+  const supabase = requireSupabaseClient();
 
   const { data, error } = await supabase
     .from("collections")
@@ -344,10 +380,7 @@ export async function updateCollection(id: string, userId: string, updates: {
 }
 
 export async function deleteCollection(id: string, userId: string): Promise<void> {
-  const supabase = safeSupabase();
-  if (!supabase) {
-    throw new Error("Supabase client not available");
-  }
+  const supabase = requireSupabaseClient();
 
   const { error } = await supabase
     .from("collections")

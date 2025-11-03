@@ -12,16 +12,18 @@ import { PromptDetailSheet } from "@/components/PromptDetailSheet";
 import { Toaster } from "@/components/ui/sonner";
 import { findPrompt } from "@/lib/mock.server";
 import type { Prompt } from "@/lib/types";
+import { requireUser } from "@/lib/auth.server";
 
 type LoaderData = {
   prompt: Prompt;
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
   const { id } = params;
   invariant(id, "Prompt id is required");
 
-  const prompt = await findPrompt(id);
+  const prompt = await findPrompt(id, user.id);
 
   if (!prompt) {
     throw new Response("Prompt not found", { status: 404 });

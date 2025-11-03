@@ -1384,11 +1384,11 @@ export function Dashboard({
                     onClick={() => setIsSidebarOpen(true)}
                     className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#18181b]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
                   >
-                    <ListBullets className="h-5 w-5" weight="thin" />
+                    <ListBullets className="h-5 w-5" weight="regular" />
                   </Button>
                 )}
                 <div className="relative flex-1">
-                  <MagnifyingGlass className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`} weight="thin" />
+                  <MagnifyingGlass className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`} weight="regular" />
                   <Input
                     placeholder="Search prompts by title, tags, or description..."
                     value={searchQuery}
@@ -1403,7 +1403,7 @@ export function Dashboard({
                   className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white text-[#333333] hover:text-[#E11D48] hover:border-[#E11D48]'}`}
                   onClick={() => toast.success("Share link copied to clipboard")}
                 >
-                  <ShareNetwork className="mr-2 h-5 w-5" weight="thin" />
+                  <ShareNetwork className="mr-2 h-5 w-5" weight="regular" />
                   <span className="hidden sm:inline">Share</span>
                 </Button>
                 <Button
@@ -1413,9 +1413,9 @@ export function Dashboard({
                   className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white hover:bg-[#f5f5f5] text-[#333333]'}`}
                 >
                   {isDarkMode ? (
-                    <SunDim className="h-5 w-5" weight="thin" />
+                    <SunDim className="h-5 w-5" weight="regular" />
                   ) : (
-                    <MoonStars className="h-5 w-5" weight="thin" />
+                    <MoonStars className="h-5 w-5" weight="regular" />
                   )}
                 </Button>
                 <DropdownMenu>
@@ -1425,7 +1425,7 @@ export function Dashboard({
                       size="icon"
                       className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white hover:bg-[#f5f5f5] text-[#333333]'}`}
                     >
-                      <CloudArrowDown className="h-5 w-5" weight="thin" />
+                      <CloudArrowDown className="h-5 w-5" weight="regular" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
@@ -1440,7 +1440,7 @@ export function Dashboard({
                       }}
                       className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
                     >
-                      <ListBullets className="h-5 w-5 mr-2" weight="thin" />
+                      <ListBullets className="h-5 w-5 mr-2" weight="regular" />
                       Export as JSON
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -1454,7 +1454,7 @@ export function Dashboard({
                       }}
                       className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
                     >
-                      <List className="h-5 w-5 mr-2" weight="thin" />
+                      <List className="h-5 w-5 mr-2" weight="regular" />
                       Export as Text
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -1466,9 +1466,9 @@ export function Dashboard({
                   className={`${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
                 >
                   {activeView === "collections" ? (
-                    <FolderSimplePlus className="h-5 w-5 md:mr-2" weight="thin" />
+                    <FolderSimplePlus className="h-5 w-5 md:mr-2" weight="regular" />
                   ) : (
-                    <PlusCircle className="h-5 w-5 md:mr-2" weight="thin" />
+                    <PlusCircle className="h-5 w-5 md:mr-2" weight="regular" />
                   )}
                   <span className="hidden md:inline">
                     {activeView === "collections" ? "New Collection" : "Add Prompt"}
@@ -1492,7 +1492,7 @@ export function Dashboard({
                         <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} text-sm leading-tight`}>{userDisplayName}</span>
                         <span className={`${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'} text-xs leading-tight`}>{userSecondaryText}</span>
                       </div>
-                      <CaretDown className={`${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'} h-4 w-4`} weight="thin" />
+                      <CaretDown className={`${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'} h-4 w-4`} weight="regular" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -1510,7 +1510,7 @@ export function Dashboard({
                         onClick={() => setIsSettingsOpen(true)}
                         className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} rounded-xl px-3 py-2`}
                       >
-                        <UserCircle className="mr-3 h-5 w-5" weight="thin" />
+                        <UserCircle className="mr-3 h-5 w-5" weight="regular" />
                         Account Settings
                       </DropdownMenuItem>
                     )}
@@ -1526,7 +1526,7 @@ export function Dashboard({
                         demoMode ? (isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]') : 'text-[#E11D48]'
                       }`}
                     >
-                      <SignOut className="mr-3 h-5 w-5" weight="thin" />
+                      <SignOut className="mr-3 h-5 w-5" weight="regular" />
                       {demoMode ? 'Exit Demo' : 'Sign Out'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -1540,7 +1540,7 @@ export function Dashboard({
         <div className="flex flex-1 overflow-hidden">
           <div
             className={`${viewingCollection ? "" : "px-4 md:px-6 py-4 md:py-8"} flex-1 overflow-y-auto ${
-              isDarkMode ? "bg-[#09090b]" : "bg-[#fafafa]"
+              isDarkMode ? "bg-[#09090b]" : "bg-[#EEECEA]"
             }`}
           >
             {/* Show CollectionView when viewing a collection */}
@@ -1578,145 +1578,138 @@ export function Dashboard({
                   </div>
                 </div>
 
-                <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                {summaryCards.map((card) => {
-                  const Icon = card.icon;
-                  return (
-                    <div
-                      key={card.id}
-                      className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
-                        isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#e5e5e5]"
-                      }`}
-                    >
-                      <div
-                        className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
-                      >
-                        <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"} truncate`}>
-                          {card.label}
-                        </p>
-                        <p className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} text-lg font-semibold`}>
-                          {card.value}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-                </div>
-
-                <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {activeView === "collections" ? (
-                      <Button
-                        variant="outline"
-                        className={`rounded-full px-4 ${
-                          isDarkMode
-                            ? "border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa]"
-                            : "border-[#e5e5e5] text-[#666666] hover:text-[#E11D48]"
-                        }`}
-                        onClick={() => setIsAddCollectionOpen(true)}
-                      >
-                        <FolderSimplePlus className="mr-2 h-4 w-4" weight="regular" />
-                        Create Collection
-                      </Button>
-                    ) : (
-                      filterPills.map((pill) => {
-                        const isActive = selectedModel === pill.value;
+                {activeView !== "collections" && (
+                  <>
+                    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                      {summaryCards.map((card) => {
+                        const Icon = card.icon;
                         return (
-                          <Button
-                            key={pill.value}
-                            variant="outline"
-                            className={`rounded-full px-4 ${
-                              isActive
-                                ? isDarkMode
-                                  ? "bg-[#8b5cf6] text-white border-[#8b5cf6]"
-                                  : "bg-[#E11D48] text-white border-[#E11D48]"
-                                : isDarkMode
-                                ? "border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa]"
-                                : "border-[#e5e5e5] text-[#666666] hover:text-[#E11D48]"
+                          <div
+                            key={card.id}
+                            className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
+                              isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#e5e5e5]"
                             }`}
-                            onClick={() => setSelectedModel(pill.value)}
                           >
-                            <pill.icon className="mr-2 h-4 w-4" weight="regular" />
-                            {pill.label}
-                          </Button>
-                        );
-                      })
-                    )}
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger
-                        className={`min-w-[200px] justify-between rounded-full px-4 h-11 ${
-                          isDarkMode
-                            ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
-                            : "border-[#d4d4d4] bg-white text-[#333333]"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <SelectedSortIcon className="h-5 w-5" weight="thin" />
-                          <span>{selectedSortOption.label}</span>
-                        </div>
-                        <List className="h-4 w-4" weight="thin" />
-                      </SelectTrigger>
-                      <SelectContent
-                        className={`rounded-3xl p-2 shadow-lg ${
-                          isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
-                        }`}
-                      >
-                        {sortOptions.map((option) => {
-                          const Icon = option.icon;
-                          return (
-                            <SelectItem
-                              key={option.value}
-                              value={option.value}
-                              className={`rounded-2xl px-3 py-2 ${
-                                isDarkMode ? "data-[state=checked]:bg-[#1f1f24]" : "data-[state=checked]:bg-[#f1f1f3]"
-                              }`}
+                            <div
+                              className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
                             >
-                              <div className="flex items-start gap-3">
-                                <Icon className="mt-0.5 h-5 w-5" weight="thin" />
-                                <div className="text-left">
-                                  <p className={isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}>{option.label}</p>
-                                  <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
-                                    {option.description}
-                                  </p>
-                                </div>
-                              </div>
-                            </SelectItem>
+                              <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"} truncate`}>
+                                {card.label}
+                              </p>
+                              <p className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} text-lg font-semibold`}>
+                                {card.value}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {filterPills.map((pill) => {
+                          const isActive = selectedModel === pill.value;
+                          return (
+                            <Button
+                              key={pill.value}
+                              variant="outline"
+                              className={`rounded-full px-4 ${
+                                isActive
+                                  ? isDarkMode
+                                    ? "bg-[#8b5cf6] text-white border-[#8b5cf6]"
+                                    : "bg-[#E11D48] text-white border-[#E11D48]"
+                                  : isDarkMode
+                                  ? "border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa]"
+                                  : "border-[#e5e5e5] text-[#666666] hover:text-[#E11D48]"
+                              }`}
+                              onClick={() => setSelectedModel(pill.value)}
+                            >
+                              <pill.icon className="mr-2 h-4 w-4" weight="regular" />
+                              {pill.label}
+                            </Button>
                           );
                         })}
-                      </SelectContent>
-                    </Select>
-                    {activeView !== "collections" && (
-                      <Select value={selectedType} onValueChange={setSelectedType}>
-                        <SelectTrigger
-                          className={`min-w-[160px] ${
-                            isDarkMode
-                              ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
-                              : "border-[#d4d4d4] bg-white text-[#333333]"
-                          }`}
-                        >
-                          <SelectValue placeholder="All Types" />
-                        </SelectTrigger>
-                        <SelectContent
-                          className={
-                            isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
-                          }
-                        >
-                          {typeOptions.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                          <SelectTrigger
+                            className={`min-w-[200px] justify-between rounded-full px-4 h-11 ${
+                              isDarkMode
+                                ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
+                                : "border-[#d4d4d4] bg-white text-[#333333]"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <SelectedSortIcon className="h-5 w-5" weight="regular" />
+                              <span>{selectedSortOption.label}</span>
+                            </div>
+                            <List className="h-4 w-4" weight="regular" />
+                          </SelectTrigger>
+                          <SelectContent
+                            className={`rounded-3xl p-2 shadow-lg ${
+                              isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
+                            }`}
+                          >
+                            {sortOptions.map((option) => {
+                              const Icon = option.icon;
+                              return (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                  className={`rounded-2xl px-3 py-2 ${
+                                    isDarkMode ? "data-[state=checked]:bg-[#1f1f24]" : "data-[state=checked]:bg-[#f1f1f3]"
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <Icon className="mt-0.5 h-5 w-5" weight="regular" />
+                                    <div className="text-left">
+                                      <p className={isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}>{option.label}</p>
+                                      <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
+                                        {option.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <Select value={selectedType} onValueChange={setSelectedType}>
+                          <SelectTrigger
+                            className={`min-w-[160px] ${
+                              isDarkMode
+                                ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
+                                : "border-[#d4d4d4] bg-white text-[#333333]"
+                            }`}
+                          >
+                            <SelectValue placeholder="All Types" />
+                          </SelectTrigger>
+                          <SelectContent
+                            className={
+                              isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
+                            }
+                          >
+                            {typeOptions.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="flex items-center gap-2">{viewToggleControls}</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {activeView === "collections" && (
+                  <div className="mb-6 flex justify-end">
                     <div className="flex items-center gap-2">{viewToggleControls}</div>
                   </div>
-                </div>
+                )}
 
                 {/* Collections or Prompts Grid */}
                 {activeView === "collections" ? (

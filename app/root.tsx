@@ -1,4 +1,4 @@
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -13,7 +13,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import "./root.scss";
 import "./tailwind.css";
 
-export async function loader(_args: LoaderFunctionArgs) {
+export async function loader() {
   try {
     return json({ env: getClientEnv() });
   } catch (error) {
@@ -29,6 +29,7 @@ export const links: LinksFunction = () => {
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
   const env = data?.env ?? {};
+  const serializedEnv = JSON.stringify(env).replace(/</g, "\\u003c");
 
   return (
     <html lang="en" data-theme="light">
@@ -39,7 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(env)};`,
+            __html: `window.ENV = ${serializedEnv};`,
           }}
         />
       </head>

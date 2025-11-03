@@ -59,6 +59,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    const extractMessage = async (response: Response, fallback: string) => {
+      const contentType = response.headers.get("Content-Type") ?? "";
+      if (contentType.includes("application/json")) {
+        const data = await response
+          .json()
+          .catch(() => null) as Record<string, unknown> | null;
+        if (data) {
+          const candidates = ["error", "message", "hint"] as const;
+          for (const key of candidates) {
+            const value = data[key];
+            if (typeof value === "string" && value.trim()) {
+              return value.trim();
+            }
+          }
+        }
+      }
+
+      const text = await response.text().catch(() => "");
+      if (text.trim()) {
+        return text.trim();
+      }
+
+      return `${fallback} (status ${response.status})`;
+    };
+
     try {
       if (session?.access_token) {
         const response = await fetch("/api/auth/session", {
@@ -71,7 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!response.ok) {
-          console.error("Failed syncing Supabase session to server", await response.text());
+          const message = await extractMessage(response, "Failed to sync Supabase session to server");
+          throw new Error(message);
         }
       } else {
         const response = await fetch("/api/auth/session", {
@@ -80,11 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!response.ok) {
-          console.error("Failed clearing server session", await response.text());
+          const message = await extractMessage(response, "Failed to clear Supabase session on server");
+          throw new Error(message);
         }
       }
     } catch (error) {
-      console.error("Error syncing session with server", error);
+      const message = error instanceof Error ? error.message : "Error syncing Supabase session with server";
+      throw new Error(message);
     }
   }, []);
 
@@ -119,7 +147,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user && session?.access_token) {
         void handleProfileLoad(session.user, session.access_token);
       }
-      void syncServerSession(session ?? null);
+      void syncServerSession(session ?? null).catch((error) => {
+        console.error("Error syncing initial Supabase session", error);
+      });
+      setLoading(false);
+    }).catch((error) => {
+      console.error("Error retrieving initial Supabase session", error);
       setLoading(false);
     });
 
@@ -132,7 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setProfile(null);
       }
-      void syncServerSession(session ?? null);
+      void syncServerSession(session ?? null).catch((error) => {
+        console.error("Error syncing Supabase session after auth state change", error);
+      });
     });
 
     return () => {
@@ -155,7 +190,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     if (data.session?.access_token && data.user) {
       await handleProfileLoad(data.user, data.session.access_token);
-      await syncServerSession(data.session);
+      try {
+        await syncServerSession(data.session);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to sync Supabase session with server";
+        throw new Error(message);
+      }
     }
   }, [handleProfileLoad, supabase, syncServerSession]);
 
@@ -197,8 +237,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
     setProfile(null);
     setUser(null);
-    await syncServerSession(null);
-    // Redirect to home page after logout
+    await syncServerSession(null).catch((syncError) => {
+      console.error("Failed to clear Supabase session on server", syncError);
+    });
     window.location.href = "/";
   }, [supabase, syncServerSession]);
 

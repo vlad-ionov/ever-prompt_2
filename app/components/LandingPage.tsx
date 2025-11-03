@@ -1226,10 +1226,9 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
             <div>
               <h4 className={`mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>Company</h4>
               <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>About</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Careers</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Privacy</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Terms</a></li>
+                <li><a href="/about" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>About</a></li>
+                <li><a href="/privacy" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Privacy</a></li>
+                <li><a href="/terms" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Terms</a></li>
               </ul>
             </div>
           </div>
