@@ -11,6 +11,8 @@ import { AddCollectionDialog } from "./AddCollectionDialog";
 import { EditCollectionDialog } from "./EditCollectionDialog";
 import { CollectionView } from "./CollectionView";
 import { AddToCollectionDialog } from "./AddToCollectionDialog";
+import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
+import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -80,6 +82,7 @@ export function Dashboard({
 }: DashboardProps) {
   const { profile, user, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const logoSrc = isDarkMode ? MainLogoDark : MainLogoLight;
   const [prompts, setPrompts] = useState<Prompt[]>(() => [
     ...(initialPrompts ?? promptFixtures),
   ]);
@@ -1763,11 +1766,10 @@ export function Dashboard({
                   )
                 ) : filteredPrompts.length === 0 ? (
                   <div className="text-center py-12 md:py-16">
-                    <Sparkle
-                      className={`h-10 w-10 md:h-12 md:w-12 ${
-                        isDarkMode ? "text-[#52525b]" : "text-[#868686]"
-                      } mx-auto mb-4`}
-                      weight="regular"
+                    <img
+                      src={logoSrc}
+                      alt="EverPrompt logo"
+                      className="h-10 md:h-12 w-auto mx-auto mb-4"
                     />
                     <p className={`text-sm md:text-base ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"}`}>
                       No prompts found. Try adjusting your filters.

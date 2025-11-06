@@ -32,6 +32,8 @@ import { DashboardPromptCard } from "./DashboardPromptCard";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef } from "react";
 import * as React from "react";
+import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
+import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -120,6 +122,7 @@ function BentoCard({ children, className = "", isDarkMode }: BentoCardProps) {
 }
 
 export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggleDarkMode }: LandingPageProps) {
+  const logoSrc = isDarkMode ? MainLogoDark : MainLogoLight;
   const [currentFeature, setCurrentFeature] = useState(0);
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
@@ -220,9 +223,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className={`h-8 w-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${isDarkMode ? 'from-[#8b5cf6] to-[#7c3aed]' : 'from-[#FF5722] to-[#EA4C1E]'}`}>
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
+              <img src={logoSrc} alt="EverPrompt logo" className="h-8 w-auto" />
               <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>EverPrompt</span>
             </div>
             <div className="flex items-center gap-4">
@@ -964,20 +965,13 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
       <section className={`${isDarkMode ? 'bg-[#09090b]' : 'bg-white'} py-20 md:py-32`}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-12 gap-12 items-start mb-16">
-            <div className="lg:col-span-5">
-              <h2 className={`text-4xl md:text-6xl mb-6 leading-tight ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
+            <div className="lg:col-span-12">
+              <h2 className={`text-4xl md:text-6xl mb-6 leading-tight text-center ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
                 Made for AI<br />prompt enthusiasts
               </h2>
-              <p className={`text-lg mb-6 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
+              <p className={`text-lg mb-6 text-center ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
                 EverPrompt is shaped by the practices and principles that distinguish world-class AI workflows from the rest: organization, speed, and commitment to quality.
               </p>
-              <button 
-                onClick={onGetStarted}
-                className={`group inline-flex items-center gap-2 ${isDarkMode ? 'text-[#fafafa] hover:text-[#8b5cf6]' : 'text-[#333333] hover:text-[#CF0707]'} transition-colors`}
-              >
-                <span>Get started now</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
             </div>
           </div>
 

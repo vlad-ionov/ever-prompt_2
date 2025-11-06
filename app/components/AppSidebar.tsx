@@ -1,5 +1,4 @@
 import {
-  Sparkles,
   Home,
   User,
   Globe,
@@ -21,6 +20,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
+import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
 
 interface AppSidebarProps {
   isDarkMode: boolean;
@@ -59,6 +60,8 @@ export function AppSidebar({
   userProfile,
   demoMode = false
 }: AppSidebarProps) {
+  const logoSrc = isDarkMode ? MainLogoDark : MainLogoLight;
+
   const navItems = [
     { id: "all", icon: Home, label: "All Prompts", count: promptCounts.all },
     { id: "personal", icon: User, label: "My Prompts", count: promptCounts.personal },
@@ -77,15 +80,12 @@ export function AppSidebar({
             <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-2'}`}>
               {!isCollapsed && (
                 <div className="flex items-center gap-2">
-                  <Sparkles className={`h-5 w-5 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#E11D48]'}`} />
+                  <img src={logoSrc} alt="EverPrompt logo" className="h-6 w-auto" />
                   <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>PromptHub</span>
                 </div>
               )}
               {isCollapsed && (
-                <Sparkles
-                  className={`h-5 w-5 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#E11D48]'}${isCollapsed ? ' hidden' : ''}`}
-                  style={isCollapsed ? { display: 'none' } : {}}
-                />
+                <img src={logoSrc} alt="EverPrompt logo" className="h-7 w-auto" />
               )}
               {onToggleCollapse && (
                 <Tooltip>
