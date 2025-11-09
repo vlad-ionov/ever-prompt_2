@@ -1649,7 +1649,6 @@ export function Dashboard({
                               <SelectedSortIcon className="h-5 w-5" weight="regular" />
                               <span>{selectedSortOption.label}</span>
                             </div>
-                            <List className="h-4 w-4" weight="regular" />
                           </SelectTrigger>
                           <SelectContent
                             className={`rounded-3xl p-2 shadow-lg ${
