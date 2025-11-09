@@ -1401,14 +1401,14 @@ export function Dashboard({
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-3">
-                <Button
+                {/* <Button
                   variant="outline"
                   className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white text-[#333333] hover:text-[#E11D48] hover:border-[#E11D48]'}`}
                   onClick={() => toast.success("Share link copied to clipboard")}
                 >
                   <ShareNetwork className="mr-2 h-5 w-5" weight="regular" />
                   <span className="hidden sm:inline">Share</span>
-                </Button>
+                </Button> */}
                 <Button
                   onClick={onToggleDarkMode}
                   variant="outline"
@@ -1681,7 +1681,7 @@ export function Dashboard({
                         </Select>
                         <Select value={selectedType} onValueChange={setSelectedType}>
                           <SelectTrigger
-                            className={`min-w-[160px] ${
+                            className={`min-w-[160px] justify-between rounded-full px-4 h-11 ${
                               isDarkMode
                                 ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
                                 : "border-[#d4d4d4] bg-white text-[#333333]"

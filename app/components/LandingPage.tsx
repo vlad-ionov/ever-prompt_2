@@ -428,7 +428,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               </motion.h1>
               
               <motion.p 
-                className={`text-xl ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'} leading-relaxed`}
+                className={`text-xl max-w-lg ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'} leading-relaxed`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
@@ -479,7 +479,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               </motion.div>
               
               <motion.div 
-                className="flex items-center gap-8 pt-4"
+                className="flex items-center gap-8 pt-4 flex-wrap"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
@@ -760,7 +760,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
             <Badge className={`${isDarkMode ? 'bg-[#8b5cf6]/10 text-[#8b5cf6] border-[#8b5cf6]/20' : 'bg-[#CF0707]/10 text-[#CF0707] border-[#CF0707]/20'} mb-4`}>
               Features
             </Badge>
-            <h2 className={`text-4xl md:text-5xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
+            <h2 className={`text-3xl md:text-5xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
               Everything you need to
               <br />
               <span className={isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}>manage AI prompts</span>
@@ -835,7 +835,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                         className: `h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`
                       })}
                     </div>
-                    <h3 className={`text-3xl md:text-4xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
+                    <h3 className={`text-2xl md:text-4xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
                       {features[currentFeature].title}
                     </h3>
                     <p className={`text-lg md:text-xl mb-6 max-w-2xl ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
@@ -1195,7 +1195,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 </div>
                 <span className={isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}>EverPrompt</span>
               </div>
-              <p className={`text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
+              <p className={`text-sm max-w-64 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
                 Your central hub for AI prompt management
               </p>
             </div>
