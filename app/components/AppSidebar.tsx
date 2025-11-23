@@ -84,9 +84,6 @@ export function AppSidebar({
                   <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>PromptHub</span>
                 </div>
               )}
-              {isCollapsed && (
-                <img src={logoSrc} alt="EverPrompt logo" className="h-7 w-auto" />
-              )}
               {onToggleCollapse && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -113,6 +110,7 @@ export function AppSidebar({
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
+              const displayCount = item.count > 99 ? "99+" : item.count;
               const button = (
                 <Button
                   key={item.id}
@@ -128,7 +126,28 @@ export function AppSidebar({
                   }`}
                   onClick={() => onViewChange(item.id)}
                 >
-                  <Icon className="h-4 w-4" />
+                  {isCollapsed ? (
+                    <div className="inline-flex items-center gap-1.5">
+                      <Icon className="h-4 w-4" />
+                      {item.count > 0 && (
+                        <span
+                          className={`text-[11px] font-semibold ${
+                            isDarkMode
+                              ? isActive
+                                ? "text-[#c4b5fd]"
+                                : "text-[#a1a1aa]"
+                              : isActive
+                                ? "text-[#F97393]"
+                                : "text-[#6b6b6b]"
+                          }`}
+                        >
+                          {displayCount}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Icon className="h-4 w-4" />
+                  )}
                   {!isCollapsed && (
                     <>
                       <span className="flex-1 text-left">{item.label}</span>

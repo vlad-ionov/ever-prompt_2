@@ -11,6 +11,7 @@ import { AddCollectionDialog } from "./AddCollectionDialog";
 import { EditCollectionDialog } from "./EditCollectionDialog";
 import { CollectionView } from "./CollectionView";
 import { AddToCollectionDialog } from "./AddToCollectionDialog";
+import { ModelIcon } from "./ModelIcon";
 import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
 import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
 import { Button } from "./ui/button";
@@ -40,7 +41,6 @@ import {
   GlobeHemisphereEast,
   ChartLineUp,
   MagnifyingGlass,
-  ShareNetwork,
   CloudArrowDown,
   PlusCircle,
   List,
@@ -109,7 +109,6 @@ export function Dashboard({
   const [isEditCollectionOpen, setIsEditCollectionOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [collectionToEdit, setCollectionToEdit] = useState<Collection | null>(null);
-  const [isCollectionDetailOpen, setIsCollectionDetailOpen] = useState(false);
   const [viewingCollection, setViewingCollection] = useState(false);
   
   // Add to collection state
@@ -326,8 +325,23 @@ export function Dashboard({
     }
   };
 
-  const handleShare = (id: string) => {
-    toast.success("Share link copied to clipboard");
+  const handleShare = async (id: string) => {
+    const shareUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/prompts/${id}`
+        : `/prompts/${id}`;
+
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Share link copied to clipboard");
+      } else {
+        throw new Error("Clipboard API not available");
+      }
+    } catch (error) {
+      console.error("Share link copy failed:", error);
+      toast.error("Unable to copy share link");
+    }
   };
 
   const handlePromptClick = (id: string) => {
@@ -604,7 +618,7 @@ export function Dashboard({
       setCollections((current) => current.filter((c) => c.id !== id));
       toast.success("Collection deleted");
       if (selectedCollection?.id === id) {
-        setIsCollectionDetailOpen(false);
+        setViewingCollection(false);
         setSelectedCollection(null);
       }
       return;
@@ -630,7 +644,7 @@ export function Dashboard({
       toast.success("Collection deleted");
       
       if (selectedCollection?.id === id) {
-        setIsCollectionDetailOpen(false);
+        setViewingCollection(false);
         setSelectedCollection(null);
       }
     } catch (error) {
@@ -1241,7 +1255,6 @@ export function Dashboard({
   const filterPills = modelOptions.map((model) => ({
     value: model,
     label: model === "all" ? "All" : model,
-    icon: model === "all" ? Sparkle : ListBullets,
   }));
 
   const selectedSortOption = sortOptions.find((option) => option.value === sortBy) ?? sortOptions[0];
@@ -1401,14 +1414,6 @@ export function Dashboard({
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-3">
-                {/* <Button
-                  variant="outline"
-                  className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white text-[#333333] hover:text-[#E11D48] hover:border-[#E11D48]'}`}
-                  onClick={() => toast.success("Share link copied to clipboard")}
-                >
-                  <ShareNetwork className="mr-2 h-5 w-5" weight="regular" />
-                  <span className="hidden sm:inline">Share</span>
-                </Button> */}
                 <Button
                   onClick={onToggleDarkMode}
                   variant="outline"
@@ -1593,11 +1598,13 @@ export function Dashboard({
                               isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#e5e5e5]"
                             }`}
                           >
-                            <div
-                              className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
-                            >
-                              <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
-                            </div>
+                            {(!isSidebarCollapsed || isMobile) && (
+                              <div
+                                className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
+                              >
+                                <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
+                              </div>
+                            )}
                             <div className="min-w-0">
                               <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"} truncate`}>
                                 {card.label}
@@ -1615,6 +1622,7 @@ export function Dashboard({
                       <div className="flex flex-wrap items-center gap-2">
                         {filterPills.map((pill) => {
                           const isActive = selectedModel === pill.value;
+                          const isAll = pill.value === "all";
                           return (
                             <Button
                               key={pill.value}
@@ -1630,7 +1638,11 @@ export function Dashboard({
                               }`}
                               onClick={() => setSelectedModel(pill.value)}
                             >
-                              <pill.icon className="mr-2 h-4 w-4" weight="regular" />
+                              {isAll ? (
+                                <Sparkle className="mr-2 h-4 w-4 shrink-0" weight="regular" />
+                              ) : (
+                                <ModelIcon model={pill.value} size={16} className="mr-2 shrink-0" />
+                              )}
                               {pill.label}
                             </Button>
                           );
