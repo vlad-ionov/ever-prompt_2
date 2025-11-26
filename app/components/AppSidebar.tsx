@@ -4,24 +4,20 @@ import {
   Globe,
   Star,
   Settings,
-  LogOut,
   Bookmark,
-  PanelLeftClose,
-  PanelLeftOpen,
   FolderOpen,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Switch } from "./ui/switch";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
-import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
 
 interface AppSidebarProps {
   isDarkMode: boolean;
@@ -36,15 +32,8 @@ interface AppSidebarProps {
   };
   collectionsCount?: number;
   onOpenSettings?: () => void;
-  onLogout?: () => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
-  userProfile?: {
-    name: string;
-    email: string;
-    avatar_url?: string;
-  } | null;
-  demoMode?: boolean;
 }
 
 export function AppSidebar({
@@ -54,229 +43,192 @@ export function AppSidebar({
   promptCounts,
   collectionsCount = 0,
   onOpenSettings,
-  onLogout,
   isCollapsed = false,
   onToggleCollapse,
-  userProfile,
-  demoMode = false
 }: AppSidebarProps) {
-  const logoSrc = isDarkMode ? MainLogoDark : MainLogoLight;
-
-  const navItems = [
-    { id: "all", icon: Home, label: "All Prompts", count: promptCounts.all },
-    { id: "personal", icon: User, label: "My Prompts", count: promptCounts.personal },
-    { id: "public", icon: Globe, label: "Public Library", count: promptCounts.public },
-    { id: "favorites", icon: Star, label: "Favorites", count: promptCounts.favorites },
-    { id: "saved", icon: Bookmark, label: "Saved", count: promptCounts.saved || 0 },
-    { id: "collections", icon: FolderOpen, label: "Collections", count: collectionsCount },
+  const navGroups = [
+    {
+      id: "core",
+      items: [
+        { id: "personal", icon: User, label: "My Prompts", count: promptCounts.personal },
+        { id: "all", icon: Home, label: "All Prompts", count: promptCounts.all },
+        { id: "public", icon: Globe, label: "Public Library", count: promptCounts.public },
+        { id: "favorites", icon: Star, label: "Favorites", count: promptCounts.favorites },
+      ],
+    },
+    {
+      id: "collections",
+      items: [
+        { id: "saved", icon: Bookmark, label: "Saved", count: promptCounts.saved || 0 },
+        { id: "collections", icon: FolderOpen, label: "Collections", count: collectionsCount },
+      ],
+    },
+    {
+      id: "analytics",
+      items: [
+        { id: "analytics", icon: BarChart3, label: "Analytics", count: 0 },
+      ],
+    },
   ];
 
   return (
     <TooltipProvider>
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-r flex flex-col transition-all duration-300`}>
-        <div className={`flex-1 overflow-y-auto ${isDarkMode ? 'bg-[#0f0f11]' : 'bg-white'}`}>
-          <div className={`${isCollapsed ? 'p-2' : 'p-4'} space-y-6`}>
-            {/* Logo and Collapse Toggle */}
-            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-2'}`}>
-              {!isCollapsed && (
-                <div className="flex items-center gap-2">
-                  <img src={logoSrc} alt="EverPrompt logo" className="h-6 w-auto" />
-                  <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>PromptHub</span>
+      <div
+        className={`${isCollapsed ? "w-16" : "w-64"} ${
+          isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#d4d4d4]"
+        } border-r flex flex-col transition-all duration-300 h-full`}
+      >
+        <div className="flex flex-1 flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto">
+            <div className={`${isCollapsed ? "px-2" : "px-4"} py-4 space-y-6`}>
+              {navGroups.map((group, groupIndex) => (
+                <div key={group.id}>
+                  <div className="space-y-1">
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeView === item.id;
+                      const hasCount = item.count > 0;
+                      const displayCount = hasCount
+                        ? item.count > 99
+                          ? "99+"
+                          : item.count
+                        : null;
+
+                      const buttonElement = (
+                        <Button
+                          key={item.id}
+                          variant="ghost"
+                          className={`w-full ${
+                            isCollapsed ? "justify-center px-0" : "justify-start gap-3 px-3"
+                          } h-10 rounded-xl text-sm transition-colors duration-200 ${
+                            isActive
+                              ? isDarkMode
+                                ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed] focus-visible:ring-[#8b5cf6]"
+                                : "bg-[#E11D48] text-white hover:bg-[#BE123C] focus-visible:ring-[#E11D48]"
+                              : isDarkMode
+                                ? "text-[#f6f6f8] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]"
+                                : "text-[#1f1f1f] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]"
+                          }`}
+                          onClick={() => onViewChange(item.id)}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          {isCollapsed ? (
+                            hasCount && (
+                              <span
+                                className={`text-[11px] font-semibold ${
+                                  isDarkMode ? "text-[#c4b5fd]" : "text-[#F97393]"
+                                }`}
+                              >
+                                {displayCount}
+                              </span>
+                            )
+                          ) : (
+                            <>
+                              <span className="flex-1 text-left">{item.label}</span>
+                              {hasCount && (
+                                <Badge
+                                  variant="secondary"
+                                  className={`${
+                                    isActive
+                                      ? "bg-white/20 text-white"
+                                      : isDarkMode
+                                        ? "bg-[#18181b] text-[#71717a]"
+                                        : "bg-[#f5f5f5] text-[#868686]"
+                                  }`}
+                                >
+                                  {displayCount}
+                                </Badge>
+                              )}
+                            </>
+                          )}
+                        </Button>
+                      );
+
+                      return isCollapsed ? (
+                        <Tooltip key={item.id}>
+                          <TooltipTrigger asChild>{buttonElement}</TooltipTrigger>
+                          <TooltipContent side="right">
+                            <p>
+                              {item.label}
+                              {hasCount && ` (${displayCount})`}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        buttonElement
+                      );
+                    })}
+                  </div>
+                  {groupIndex < navGroups.length - 1 && (
+                    <Separator
+                      className={`my-3 ${isDarkMode ? "bg-[#27272a]" : "bg-[#d4d4d4]"}`}
+                    />
+                  )}
                 </div>
-              )}
-              {onToggleCollapse && (
+              ))}
+            </div>
+          </div>
+          <div
+            className={`${isCollapsed ? "px-2 py-3" : "px-4 py-4"} border-t ${
+              isDarkMode ? "border-[#27272a]" : "border-[#d4d4d4]"
+            }`}
+          >
+            <div
+              className={`flex ${
+                isCollapsed ? "flex-col items-center gap-2" : "items-center justify-between gap-3"
+              }`}
+            >
+              {onOpenSettings && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      onClick={onToggleCollapse}
-                      className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa]' : 'text-[#868686] hover:bg-[#f5f5f5] hover:text-[#333333]'}`}
+                      size={isCollapsed ? "icon" : undefined}
+                      className={`${
+                        isCollapsed
+                          ? "h-9 w-9"
+                          : "h-9 w-full justify-start gap-2 rounded-xl text-sm px-2"
+                      } ${isDarkMode ? "text-[#d4d4d8] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]" : "text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]"}`}
+                      onClick={onOpenSettings}
                     >
-                      {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+                      <Settings className="h-4 w-4" />
+                      {!isCollapsed && <span>Settings</span>}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    <p>{isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}</p>
+                    <p>Settings</p>
                   </TooltipContent>
                 </Tooltip>
               )}
-            </div>
-
-          {!isCollapsed && <Separator className={isDarkMode ? 'bg-[#27272a]' : 'bg-[#d4d4d4]'} />}
-
-          {/* Navigation */}
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeView === item.id;
-              const displayCount = item.count > 99 ? "99+" : item.count;
-              const button = (
-                <Button
-                  key={item.id}
-                  variant="ghost"
-                  className={`w-full ${isCollapsed ? 'justify-center px-0' : 'justify-start gap-3'} h-9 ${
-                    isActive 
-                      ? isDarkMode
-                        ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed] hover:text-white focus-visible:ring-[#8b5cf6]'
-                        : 'bg-[#E11D48] text-white hover:bg-[#BE123C] hover:text-white focus-visible:ring-[#E11D48]'
-                      : isDarkMode 
-                        ? 'text-[#fafafa] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]' 
-                        : 'text-[#333333] hover:bg-[#f5f5f5] hover:text-[#333333] focus-visible:ring-[#E11D48]'
-                  }`}
-                  onClick={() => onViewChange(item.id)}
-                >
-                  {isCollapsed ? (
-                    <div className="inline-flex items-center gap-1.5">
-                      <Icon className="h-4 w-4" />
-                      {item.count > 0 && (
-                        <span
-                          className={`text-[11px] font-semibold ${
-                            isDarkMode
-                              ? isActive
-                                ? "text-[#c4b5fd]"
-                                : "text-[#a1a1aa]"
-                              : isActive
-                                ? "text-[#F97393]"
-                                : "text-[#6b6b6b]"
-                          }`}
-                        >
-                          {displayCount}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <Icon className="h-4 w-4" />
-                  )}
+              {onToggleCollapse && (
+                <div className="flex items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Switch
+                        checked={isCollapsed}
+                        onCheckedChange={() => onToggleCollapse?.()}
+                        aria-label={isCollapsed ? "Expand sidebar" : "Compact sidebar"}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side={isCollapsed ? "right" : "left"}>
+                      <p>{isCollapsed ? "Expand sidebar" : "Compact sidebar"}</p>
+                    </TooltipContent>
+                  </Tooltip>
                   {!isCollapsed && (
-                    <>
-                      <span className="flex-1 text-left">{item.label}</span>
-                      {item.count > 0 && (
-                        <Badge 
-                          variant="secondary" 
-                          className={`${
-                            isActive 
-                              ? 'bg-white/20 text-white' 
-                              : isDarkMode 
-                                ? 'bg-[#18181b] text-[#71717a]' 
-                                : 'bg-[#f5f5f5] text-[#868686]'
-                          }`}
-                        >
-                          {item.count}
-                        </Badge>
-                      )}
-                    </>
+                    <span
+                      className={`text-xs ${
+                        isDarkMode ? "text-[#a1a1aa]" : "text-[#6b6b6b]"
+                      }`}
+                    >
+                      Compact sidebar
+                    </span>
                   )}
-                </Button>
-              );
-              
-              return isCollapsed ? (
-                <Tooltip key={item.id}>
-                  <TooltipTrigger asChild>
-                    {button}
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p>{item.label} {item.count > 0 && `(${item.count})`}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : button;
-            })}
-          </nav>
-
-          {!isCollapsed && <Separator className={isDarkMode ? 'bg-[#27272a]' : 'bg-[#d4d4d4]'} />}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* User Profile */}
-      <div className={`${isCollapsed ? 'p-2' : 'p-4'} ${isDarkMode ? 'border-[#27272a]' : 'border-[#d4d4d4]'} border-t`}>
-        {isCollapsed ? (
-          <div className="space-y-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex justify-center cursor-pointer">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={userProfile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${demoMode ? 'demo' : userProfile?.email || 'user'}`} />
-                    <AvatarFallback>{demoMode ? 'DM' : userProfile?.name?.slice(0, 2).toUpperCase() || 'U'}</AvatarFallback>
-                  </Avatar>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{demoMode ? 'Demo User' : userProfile?.name || 'User'}</p>
-              </TooltipContent>
-            </Tooltip>
-            {!demoMode && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onOpenSettings}
-                    className={`w-full h-9 ${isDarkMode ? 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]' : 'text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]'}`}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Settings</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onLogout}
-                  className={`w-full h-9 ${isDarkMode ? 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]' : 'text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]'}`}
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{demoMode ? 'Exit Demo' : 'Log Out'}</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center gap-3 mb-3">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src={userProfile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${demoMode ? 'demo' : userProfile?.email || 'user'}`} />
-                <AvatarFallback>{demoMode ? 'DM' : userProfile?.name?.slice(0, 2).toUpperCase() || 'U'}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm truncate ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
-                  {demoMode ? 'Demo User' : userProfile?.name || 'User'}
-                </p>
-                <p className={`text-xs truncate ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`}>
-                  {demoMode ? 'demo@example.com' : userProfile?.email || 'user@example.com'}
-                </p>
-              </div>
-            </div>
-            <div className="space-y-1">
-              {!demoMode && (
-                <Button
-                  variant="ghost"
-                  onClick={onOpenSettings}
-                  className={`w-full justify-start gap-3 h-8 text-sm ${isDarkMode ? 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]' : 'text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]'}`}
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                  <span>Settings</span>
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                onClick={onLogout}
-                className={`w-full justify-start gap-3 h-8 text-sm ${isDarkMode ? 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]' : 'text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]'}`}
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span>{demoMode ? 'Exit Demo' : 'Log Out'}</span>
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
     </TooltipProvider>
   );
 }

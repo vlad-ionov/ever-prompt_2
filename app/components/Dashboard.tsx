@@ -53,7 +53,6 @@ import {
   FireSimple,
   SortAscending,
   SortDescending,
-  CaretDown,
   UserCircle,
   SignOut,
 } from "@phosphor-icons/react/dist/ssr";
@@ -80,7 +79,7 @@ export function Dashboard({
   initialPrompts,
   initialCollections,
 }: DashboardProps) {
-  const { profile, user, signOut } = useAuth();
+  const { profile, signOut } = useAuth();
   const isMobile = useIsMobile();
   const logoSrc = isDarkMode ? MainLogoDark : MainLogoLight;
   const [prompts, setPrompts] = useState<Prompt[]>(() => [
@@ -1244,12 +1243,13 @@ export function Dashboard({
   ];
 
   const viewLabels: Record<string, string> = {
-    all: "All Prompts",
     personal: "My Prompts",
+    all: "All Prompts",
     public: "Public Library",
     favorites: "Favorites",
     saved: "Saved",
     collections: "Collections",
+    analytics: "Analytics",
   };
 
   const filterPills = modelOptions.map((model) => ({
@@ -1260,25 +1260,15 @@ export function Dashboard({
   const selectedSortOption = sortOptions.find((option) => option.value === sortBy) ?? sortOptions[0];
   const SelectedSortIcon = selectedSortOption.icon;
 
-  const rawUserEmail = demoMode ? "demo@promptvault.io" : profile?.email ?? user?.email ?? "";
-  const computedNameFromEmail = rawUserEmail ? rawUserEmail.split("@")[0] : "";
-  const userDisplayName = demoMode
-    ? "Demo User"
-    : (profile?.name?.trim() || (user?.user_metadata?.name as string | undefined)?.trim() || computedNameFromEmail || "User");
-  const userSecondaryText = demoMode ? "Preview workspace" : rawUserEmail;
-  const avatarSeed = demoMode ? "demo-user" : rawUserEmail || userDisplayName || "user";
-  const avatarUrl =
-    profile?.avatar_url ||
-    (user?.user_metadata?.avatar_url as string | undefined) ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
-
   const activeViewLabel = viewLabels[activeView] ?? "Prompts";
   const activeViewTotal =
     viewingCollection && selectedCollection
       ? selectedCollection.promptIds.length
       : activeView === "collections"
         ? collections.length
-        : filteredPrompts.length;
+        : activeView === "analytics"
+          ? 0
+          : filteredPrompts.length;
 
   const viewToggleControls = (
     <>
@@ -1329,111 +1319,111 @@ export function Dashboard({
     }
   };
 
+  const rawUserEmail = demoMode ? "demo@promptvault.io" : profile?.email ?? "";
+  const computedNameFromEmail = rawUserEmail ? rawUserEmail.split("@")[0] : "";
+  const userDisplayName = demoMode
+    ? "Demo User"
+    : (profile?.name?.trim() || computedNameFromEmail || "User");
+  const userSecondaryText = demoMode ? "Preview workspace" : rawUserEmail;
+  const avatarSeed = demoMode ? "demo-user" : rawUserEmail || userDisplayName || "user";
+  const avatarUrl =
+    profile?.avatar_url ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+
   const sidebarContent = (
-    <AppSidebar
-      isDarkMode={isDarkMode}
-      activeView={activeView}
-      onViewChange={(view) => {
-        setActiveView(view);
-        if (isMobile) setIsSidebarOpen(false);
-      }}
-      promptCounts={promptCounts}
-      collectionsCount={collections.length}
-      onOpenSettings={() => {
-        setIsSettingsOpen(true);
-        if (isMobile) setIsSidebarOpen(false);
-      }}
-      onLogout={handleLogout}
-      isCollapsed={!isMobile && isSidebarCollapsed}
-      onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-      userProfile={profile}
-      demoMode={demoMode}
-    />
+      <AppSidebar
+        isDarkMode={isDarkMode}
+        activeView={activeView}
+        onViewChange={(view) => {
+          setActiveView(view);
+          if (isMobile) setIsSidebarOpen(false);
+        }}
+        promptCounts={promptCounts}
+        collectionsCount={collections.length}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+          if (isMobile) setIsSidebarOpen(false);
+        }}
+        isCollapsed={!isMobile && isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
   );
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Desktop Sidebar */}
-      {!isMobile && sidebarContent}
-      
-      {/* Mobile Sidebar */}
-      {isMobile && (
-        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-          <SheetContent side="left" className={`p-0 w-64 ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
-            <VisuallyHidden>
-              <SheetTitle>Navigation Menu</SheetTitle>
-              <SheetDescription>Access filters, sorting options, and navigation for your prompts</SheetDescription>
-            </VisuallyHidden>
-            {sidebarContent}
-          </SheetContent>
-        </Sheet>
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Demo Mode Banner */}
+      {demoMode && (
+        <div className={`${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-[#E11D48]'} text-white px-4 py-2 flex items-center justify-between`}>
+          <p className="text-sm">
+            <strong>Demo Mode:</strong> You&apos;re viewing sample data. Sign up to save your own prompts!
+          </p>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onExitDemo}
+            className="text-white hover:bg-white/20 hover:text-white"
+          >
+            Exit Demo
+          </Button>
+        </div>
       )}
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Demo Mode Banner */}
-        {demoMode && (
-          <div className={`${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-[#E11D48]'} text-white px-4 py-2 flex items-center justify-between`}>
-            <p className="text-sm">
-              <strong>Demo Mode:</strong> You&apos;re viewing sample data. Sign up to save your own prompts!
-            </p>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={onExitDemo}
-              className="text-white hover:bg-white/20 hover:text-white"
-            >
-              Exit Demo
-            </Button>
-          </div>
-        )}
-        
-        {/* Header */}
-        <header className={`${isDarkMode ? 'bg-[#09090b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-b sticky top-0 z-10 backdrop-blur-sm`}>
-          <div className="px-4 md:px-6 py-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex w-full items-center gap-3">
-                {isMobile && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsSidebarOpen(true)}
-                    className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#18181b]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
-                  >
-                    <ListBullets className="h-5 w-5" weight="regular" />
-                  </Button>
-                )}
-                <div className="relative flex-1">
-                  <MagnifyingGlass className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`} weight="regular" />
-                  <Input
-                    placeholder="Search prompts by title, tags, or description..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`pl-10 ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
-                  />
-                </div>
+      
+      {/* Header - Full Width */}
+      <header className={`${isDarkMode ? 'bg-[#09090b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-b sticky top-0 z-10 flex-shrink-0`}>
+          <div className="px-4 md:px-6 h-14 flex items-center justify-between gap-4">
+            {/* Left: Logo */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSidebarOpen(true)}
+                  className={`h-8 w-8 ${isDarkMode ? 'text-[#fafafa] hover:bg-[#18181b]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
+                >
+                  <ListBullets className="h-5 w-5" weight="regular" />
+                </Button>
+              )}
+              <div className="flex items-center gap-2">
+                <img src={logoSrc} alt="EverPrompt logo" className="h-6 w-auto" />
+                <span className={`hidden sm:inline text-sm font-medium ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>PromptHub</span>
               </div>
-              <div className="flex items-center gap-2 md:gap-3">
+            </div>
+
+            {/* Right: Search, Actions, Account */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Search */}
+              <div className="hidden lg:block relative w-64">
+                <MagnifyingGlass className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`} weight="regular" />
+                <Input
+                  placeholder="Search prompts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`pl-9 h-8 text-sm ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+                />
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center gap-1">
                 <Button
                   onClick={onToggleDarkMode}
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white hover:bg-[#f5f5f5] text-[#333333]'}`}
+                  className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#18181b]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
                 >
                   {isDarkMode ? (
-                    <SunDim className="h-5 w-5" weight="regular" />
+                    <SunDim className="h-4 w-4" weight="regular" />
                   ) : (
-                    <MoonStars className="h-5 w-5" weight="regular" />
+                    <MoonStars className="h-4 w-4" weight="regular" />
                   )}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
-                      className={`${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] bg-white hover:bg-[#f5f5f5] text-[#333333]'}`}
+                      className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#18181b]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
                     >
-                      <CloudArrowDown className="h-5 w-5" weight="regular" />
+                      <CloudArrowDown className="h-4 w-4" weight="regular" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
@@ -1448,7 +1438,7 @@ export function Dashboard({
                       }}
                       className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
                     >
-                      <ListBullets className="h-5 w-5 mr-2" weight="regular" />
+                      <ListBullets className="h-4 w-4 mr-2" weight="regular" />
                       Export as JSON
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -1462,7 +1452,7 @@ export function Dashboard({
                       }}
                       className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
                     >
-                      <List className="h-5 w-5 mr-2" weight="regular" />
+                      <List className="h-4 w-4 mr-2" weight="regular" />
                       Export as Text
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -1471,84 +1461,99 @@ export function Dashboard({
                   onClick={() =>
                     activeView === "collections" ? setIsAddCollectionOpen(true) : setIsDialogOpen(true)
                   }
-                  className={`${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
+                  size="sm"
+                  className={`h-8 px-3 ${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
                 >
                   {activeView === "collections" ? (
-                    <FolderSimplePlus className="h-5 w-5 md:mr-2" weight="regular" />
+                    <FolderSimplePlus className="h-4 w-4 mr-1.5" weight="regular" />
                   ) : (
-                    <PlusCircle className="h-5 w-5 md:mr-2" weight="regular" />
+                    <PlusCircle className="h-4 w-4 mr-1.5" weight="regular" />
                   )}
-                  <span className="hidden md:inline">
-                    {activeView === "collections" ? "New Collection" : "Add Prompt"}
+                  <span className="hidden sm:inline text-xs">
+                    {activeView === "collections" ? "New" : "New"}
                   </span>
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={`${
-                        isDarkMode
-                          ? "border border-transparent hover:border-[#27272a]"
-                          : "border border-transparent hover:border-[#e5e5e5]"
-                      } inline-flex items-center gap-2 rounded-full pl-1 pr-3 h-11`}
-                    >
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={avatarUrl} alt={userDisplayName} />
-                        <AvatarFallback>{userDisplayName.slice(0, 2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div className="hidden sm:flex flex-col text-left">
-                        <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} text-sm leading-tight`}>{userDisplayName}</span>
-                        <span className={`${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'} text-xs leading-tight`}>{userSecondaryText}</span>
-                      </div>
-                      <CaretDown className={`${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'} h-4 w-4`} weight="regular" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className={`${
-                      isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'
-                    } w-64 rounded-2xl p-2 shadow-lg`}
-                  >
-                    <div className={`${isDarkMode ? 'bg-[#111113]' : 'bg-[#f5f5f7]'} rounded-xl px-3 py-3 mb-2`}>
-                      <p className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} text-sm font-medium`}>{userDisplayName}</p>
-                      <p className={`${isDarkMode ? 'text-[#8e8e9a]' : 'text-[#9a9aa1]'} text-xs`}>{userSecondaryText}</p>
-                    </div>
-                    {!demoMode && (
-                      <DropdownMenuItem
-                        onClick={() => setIsSettingsOpen(true)}
-                        className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} rounded-xl px-3 py-2`}
-                      >
-                        <UserCircle className="mr-3 h-5 w-5" weight="regular" />
-                        Account Settings
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem
-                      onClick={() => {
-                        if (demoMode) {
-                          onExitDemo?.();
-                        } else {
-                          void handleLogout();
-                        }
-                      }}
-                      className={`rounded-xl px-3 py-2 ${
-                        demoMode ? (isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]') : 'text-[#E11D48]'
-                      }`}
-                    >
-                      <SignOut className="mr-3 h-5 w-5" weight="regular" />
-                      {demoMode ? 'Exit Demo' : 'Sign Out'}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
+
+              {/* Account */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-8 w-8 rounded-full ${isDarkMode ? 'hover:bg-[#18181b]' : 'hover:bg-[#f5f5f5]'}`}
+                  >
+                    <Avatar className="h-7 w-7">
+                      <AvatarImage src={avatarUrl} alt={userDisplayName} />
+                      <AvatarFallback className={`text-xs ${isDarkMode ? 'bg-[#18181b] text-[#fafafa]' : 'bg-[#f5f5f5] text-[#333333]'}`}>
+                        {userDisplayName.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className={`${
+                    isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'
+                  } w-64 rounded-2xl p-2 shadow-lg`}
+                >
+                  <div className={`${isDarkMode ? 'bg-[#111113]' : 'bg-[#f5f5f7]'} rounded-xl px-3 py-3 mb-2`}>
+                    <p className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} text-sm font-medium`}>{userDisplayName}</p>
+                    <p className={`${isDarkMode ? 'text-[#8e8e9a]' : 'text-[#9a9aa1]'} text-xs`}>{userSecondaryText}</p>
+                  </div>
+                  {!demoMode && (
+                    <DropdownMenuItem
+                      onClick={() => setIsSettingsOpen(true)}
+                      className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} rounded-xl px-3 py-2`}
+                    >
+                      <UserCircle className="mr-3 h-4 w-4" weight="regular" />
+                      Account Settings
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (demoMode) {
+                        onExitDemo?.();
+                      } else {
+                        void handleLogout();
+                      }
+                    }}
+                    className={`rounded-xl px-3 py-2 ${
+                      demoMode ? (isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]') : 'text-[#E11D48]'
+                    }`}
+                  >
+                    <SignOut className="mr-3 h-4 w-4" weight="regular" />
+                    {demoMode ? 'Exit Demo' : 'Sign Out'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
 
+      {/* Main Layout - Sidebar + Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Desktop Sidebar */}
+        {!isMobile && sidebarContent}
+        
+        {/* Mobile Sidebar */}
+        {isMobile && (
+          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SheetContent side="left" className={`p-0 w-64 ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
+              <VisuallyHidden>
+                <SheetTitle>Navigation Menu</SheetTitle>
+                <SheetDescription>Access filters, sorting options, and navigation for your prompts</SheetDescription>
+              </VisuallyHidden>
+              {sidebarContent}
+            </SheetContent>
+          </Sheet>
+        )}
+
         {/* Main Content */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <div
             className={`${viewingCollection ? "" : "px-4 md:px-6 py-4 md:py-8"} flex-1 overflow-y-auto ${
-              isDarkMode ? "bg-[#09090b]" : "bg-[#EEECEA]"
+              isDarkMode ? "bg-[#161619]" : "bg-[#EEECEA]"
             }`}
           >
             {/* Show CollectionView when viewing a collection */}
@@ -1586,137 +1591,137 @@ export function Dashboard({
                   </div>
                 </div>
 
-                {activeView !== "collections" && (
-                  <>
-                    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                      {summaryCards.map((card) => {
-                        const Icon = card.icon;
-                        return (
-                          <div
-                            key={card.id}
-                            className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
-                              isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#e5e5e5]"
-                            }`}
-                          >
-                            {(!isSidebarCollapsed || isMobile) && (
-                              <div
-                                className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
-                              >
-                                <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"} truncate`}>
-                                {card.label}
-                              </p>
-                              <p className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} text-lg font-semibold`}>
-                                {card.value}
-                              </p>
+                {activeView === "all" && (
+                  <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                    {summaryCards.map((card) => {
+                      const Icon = card.icon;
+                      return (
+                        <div
+                          key={card.id}
+                          className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
+                            isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#e5e5e5]"
+                          }`}
+                        >
+                          {(!isSidebarCollapsed || isMobile) && (
+                            <div
+                              className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
+                            >
+                              <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
                             </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"} truncate`}>
+                              {card.label}
+                            </p>
+                            <p className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} text-lg font-semibold`}>
+                              {card.value}
+                            </p>
                           </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {activeView !== "collections" && activeView !== "analytics" && (
+                  <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {filterPills.map((pill) => {
+                        const isActive = selectedModel === pill.value;
+                        const isAll = pill.value === "all";
+                        return (
+                          <Button
+                            key={pill.value}
+                            variant="outline"
+                            className={`rounded-full px-4 ${
+                              isActive
+                                ? isDarkMode
+                                  ? "bg-[#8b5cf6] text-white border-[#8b5cf6]"
+                                  : "bg-[#E11D48] text-white border-[#E11D48]"
+                                : isDarkMode
+                                ? "border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa]"
+                                : "border-[#e5e5e5] text-[#666666] hover:text-[#E11D48]"
+                            }`}
+                            onClick={() => setSelectedModel(pill.value)}
+                          >
+                            {isAll ? (
+                              <Sparkle className="mr-2 h-4 w-4 shrink-0" weight="regular" />
+                            ) : (
+                              <ModelIcon model={pill.value} size={14} className="shrink-0" />
+                            )}
+                            {pill.label}
+                          </Button>
                         );
                       })}
                     </div>
-
-                    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {filterPills.map((pill) => {
-                          const isActive = selectedModel === pill.value;
-                          const isAll = pill.value === "all";
-                          return (
-                            <Button
-                              key={pill.value}
-                              variant="outline"
-                              className={`rounded-full px-4 ${
-                                isActive
-                                  ? isDarkMode
-                                    ? "bg-[#8b5cf6] text-white border-[#8b5cf6]"
-                                    : "bg-[#E11D48] text-white border-[#E11D48]"
-                                  : isDarkMode
-                                  ? "border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa]"
-                                  : "border-[#e5e5e5] text-[#666666] hover:text-[#E11D48]"
-                              }`}
-                              onClick={() => setSelectedModel(pill.value)}
-                            >
-                              {isAll ? (
-                                <Sparkle className="mr-2 h-4 w-4 shrink-0" weight="regular" />
-                              ) : (
-                                <ModelIcon model={pill.value} size={16} className="mr-2 shrink-0" />
-                              )}
-                              {pill.label}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                          <SelectTrigger
-                            className={`min-w-[200px] justify-between rounded-full px-4 h-11 ${
-                              isDarkMode
-                                ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
-                                : "border-[#d4d4d4] bg-white text-[#333333]"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <SelectedSortIcon className="h-5 w-5" weight="regular" />
-                              <span>{selectedSortOption.label}</span>
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent
-                            className={`rounded-3xl p-2 shadow-lg ${
-                              isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
-                            }`}
-                          >
-                            {sortOptions.map((option) => {
-                              const Icon = option.icon;
-                              return (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                  className={`rounded-2xl px-3 py-2 ${
-                                    isDarkMode ? "data-[state=checked]:bg-[#1f1f24]" : "data-[state=checked]:bg-[#f1f1f3]"
-                                  }`}
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <Icon className="mt-0.5 h-5 w-5" weight="regular" />
-                                    <div className="text-left">
-                                      <p className={isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}>{option.label}</p>
-                                      <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
-                                        {option.description}
-                                      </p>
-                                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <Select value={sortBy} onValueChange={setSortBy}>
+                        <SelectTrigger
+                          className={`min-w-[200px] justify-between rounded-full px-4 h-11 ${
+                            isDarkMode
+                              ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
+                              : "border-[#d4d4d4] bg-white text-[#333333]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <SelectedSortIcon className="h-5 w-5" weight="regular" />
+                            <span>{selectedSortOption.label}</span>
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent
+                          className={`rounded-3xl p-2 shadow-lg ${
+                            isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
+                          }`}
+                        >
+                          {sortOptions.map((option) => {
+                            const Icon = option.icon;
+                            return (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                                className={`rounded-2xl px-3 py-2 ${
+                                  isDarkMode ? "data-[state=checked]:bg-[#1f1f24]" : "data-[state=checked]:bg-[#f1f1f3]"
+                                }`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <Icon className="mt-0.5 h-5 w-5" weight="regular" />
+                                  <div className="text-left">
+                                    <p className={isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}>{option.label}</p>
+                                    <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
+                                      {option.description}
+                                    </p>
                                   </div>
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                        <Select value={selectedType} onValueChange={setSelectedType}>
-                          <SelectTrigger
-                            className={`min-w-[160px] justify-between rounded-full px-4 h-11 ${
-                              isDarkMode
-                                ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
-                                : "border-[#d4d4d4] bg-white text-[#333333]"
-                            }`}
-                          >
-                            <SelectValue placeholder="All Types" />
-                          </SelectTrigger>
-                          <SelectContent
-                            className={
-                              isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
-                            }
-                          >
-                            {typeOptions.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
+                                </div>
                               </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <div className="flex items-center gap-2">{viewToggleControls}</div>
-                      </div>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <Select value={selectedType} onValueChange={setSelectedType}>
+                        <SelectTrigger
+                          className={`min-w-[160px] justify-between rounded-full px-4 h-11 ${
+                            isDarkMode
+                              ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
+                              : "border-[#d4d4d4] bg-white text-[#333333]"
+                          }`}
+                        >
+                          <SelectValue placeholder="All Types" />
+                        </SelectTrigger>
+                        <SelectContent
+                          className={
+                            isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
+                          }
+                        >
+                          {typeOptions.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-2">{viewToggleControls}</div>
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {activeView === "collections" && (
@@ -1725,8 +1730,42 @@ export function Dashboard({
                   </div>
                 )}
 
-                {/* Collections or Prompts Grid */}
-                {activeView === "collections" ? (
+                {/* Collections, Analytics, or Prompts */}
+                {activeView === "analytics" ? (
+                  <div
+                    className={`mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${
+                      isDarkMode ? "text-[#fafafa]" : "text-[#111827]"
+                    }`}
+                  >
+                    {summaryCards.map((card) => {
+                      const Icon = card.icon;
+                      return (
+                        <div
+                          key={card.id}
+                          className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                            isDarkMode ? "bg-[#0b0b0f] border-[#1f2933]" : "bg-white border-[#e5e7eb]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`h-9 w-9 rounded-full flex items-center justify-center ${
+                                isDarkMode ? "bg-[#111827]" : "bg-[#f3f4f6]"
+                              }`}
+                            >
+                              <Icon className="h-4 w-4 text-[#6366f1]" weight="regular" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs ${isDarkMode ? "text-[#9ca3af]" : "text-[#6b7280]"} truncate`}>
+                                {card.label}
+                              </p>
+                              <p className="text-lg font-semibold">{card.value}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : activeView === "collections" ? (
                   collections.length === 0 ? (
                     <div className="text-center py-12 md:py-16">
                       <FolderSimplePlus

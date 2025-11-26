@@ -403,23 +403,23 @@ export function PromptCard({
       onClick={() => onClick?.(id)}
     >
       <div className="p-6 flex flex-col flex-1">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
+        <div className="flex items-start justify-between mb-3 gap-2">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span
-                className={`flex h-6 w-6 min-w-[1.5rem] items-center justify-center rounded-md ${isDarkMode ? "bg-[#18181b] text-[#8b5cf6]" : "bg-[#f5f5f5] text-[#E11D48]"}`}
+                className={`flex h-6 w-6 min-w-[1.5rem] flex-shrink-0 items-center justify-center rounded-md ${isDarkMode ? "bg-[#18181b] text-[#8b5cf6]" : "bg-[#f5f5f5] text-[#E11D48]"}`}
               >
                 <TypeIcon className="h-3.5 w-3.5" />
               </span>
               <h3
-                className={
+                className={`${
                   isDarkMode
                     ? "text-[#fafafa]"
                     : "text-[#333333]"
-                }
+                } line-clamp-2 text-sm font-medium min-w-0 flex-1`}
                 title={title}
               >
-                {truncatedTitle}
+                {title}
               </h3>
             </div>
             <p
