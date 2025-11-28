@@ -342,7 +342,7 @@ export function PromptCard({
                   {isPublic && author && (
                     <div className="flex items-center gap-2">
                       <Avatar className="h-5 w-5">
-                        <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.email}`} />
+                        <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} />
                         <AvatarFallback className="text-xs">{author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <span className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
@@ -595,7 +595,7 @@ export function PromptCard({
           {isPublic && author ? (
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.email}`} />
+                <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} />
                 <AvatarFallback className="text-xs">{author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span

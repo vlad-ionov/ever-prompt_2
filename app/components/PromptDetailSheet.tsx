@@ -242,7 +242,7 @@ export function PromptDetailSheet({
                     <AvatarImage
                       src={
                         prompt.author.avatar ||
-                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${prompt.author.email}`
+                        `https://api.dicebear.com/7.x/bottts/svg?seed=${prompt.author.email}`
                       }
                     />
                     <AvatarFallback className="text-xs">

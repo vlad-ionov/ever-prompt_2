@@ -1328,7 +1328,7 @@ export function Dashboard({
   const avatarSeed = demoMode ? "demo-user" : rawUserEmail || userDisplayName || "user";
   const avatarUrl =
     profile?.avatar_url ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+    `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(avatarSeed)}`;
 
   const sidebarContent = (
       <AppSidebar

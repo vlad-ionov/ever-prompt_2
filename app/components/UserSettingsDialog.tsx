@@ -153,18 +153,18 @@ export function UserSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${isDarkMode ? 'bg-[#1a1a1a] border-[#2a2a2a]' : 'bg-white border-[#d4d4d4]'} sm:max-w-2xl max-h-[90vh]`}>
+      <DialogContent className="bg-background/80 backdrop-blur-md border-border sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+          <DialogTitle className="text-foreground">
             Settings
           </DialogTitle>
-          <DialogDescription className={isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}>
+          <DialogDescription className="text-muted-foreground">
             Manage your account settings and preferences
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="profile" className="mt-4">
-          <TabsList className={`grid w-full grid-cols-4 ${isDarkMode ? 'bg-[#0f0f0f]' : 'bg-[#f5f5f5]'}`}>
+          <TabsList className="grid w-full grid-cols-4 bg-muted">
             <TabsTrigger value="profile" className="text-xs sm:text-sm">
               <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Profile
@@ -188,7 +188,7 @@ export function UserSettingsDialog({
               {/* Profile Picture */}
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.email}`} />
+                  <AvatarImage src={profile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${profile?.email}`} />
                   <AvatarFallback>{profile?.name?.slice(0, 2).toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -204,35 +204,35 @@ export function UserSettingsDialog({
                     size="sm"
                     onClick={handleUploadAvatar}
                     disabled={isUploading}
-                    className={`${isDarkMode ? 'border-[#2a2a2a] text-[#e5e5e5] hover:bg-[#2a2a2a]' : 'border-[#d4d4d4] text-[#333333] hover:bg-[#f5f5f5]'}`}
+                    className="border-border text-foreground hover:bg-muted"
                   >
                     <Upload className="h-3 w-3 mr-2" />
                     {isUploading ? "Uploading..." : "Upload Photo"}
                   </Button>
-                  <p className={`text-xs mt-2 ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                  <p className="text-xs mt-2 text-muted-foreground">
                     JPG, PNG or GIF. Max 2MB
                   </p>
                 </div>
               </div>
 
-              <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+              <Separator className="bg-border" />
 
               {/* Personal Information */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label htmlFor="name" className="text-foreground">
                     Full Name
                   </Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className={`${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5]' : 'border-[#d4d4d4] bg-white'} focus-visible:ring-[#CF0707]`}
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label htmlFor="email" className="text-foreground">
                     Email Address
                   </Label>
                   <Input
@@ -240,32 +240,32 @@ export function UserSettingsDialog({
                     type="email"
                     value={profile?.email || ""}
                     disabled
-                    className={`${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] opacity-60' : 'border-[#d4d4d4] bg-white opacity-60'} focus-visible:ring-[#E11D48]`}
+                    className="bg-background border-border text-foreground opacity-60 focus-visible:ring-primary"
                   />
-                  <p className={`text-xs ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                  <p className="text-xs text-muted-foreground">
                     Email cannot be changed
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label htmlFor="bio" className="text-foreground">
                     Bio
                   </Label>
                   <textarea
                     id="bio"
                     rows={3}
                     placeholder="Tell us about yourself..."
-                    className={`w-full rounded-md px-3 py-2 text-sm ${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] placeholder:text-[#606060]' : 'border-[#d4d4d4] bg-white border'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CF0707]`}
+                    className="w-full rounded-md px-3 py-2 text-sm bg-background border-border border text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   />
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label className="text-foreground">
                     Public Profile
                   </Label>
-                  <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                  <p className="text-sm text-muted-foreground">
                     Make your profile visible to others
                   </p>
                 </div>
@@ -279,7 +279,7 @@ export function UserSettingsDialog({
                 <Button 
                   onClick={handleSaveProfile}
                   disabled={isSaving}
-                  className={`flex-1 ${isDarkMode ? 'bg-[#60a5fa] text-white hover:bg-[#8b5cf6]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'} transition-all duration-200 hover:shadow-lg`}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:shadow-lg"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {isSaving ? "Saving..." : "Save Changes"}
@@ -287,7 +287,7 @@ export function UserSettingsDialog({
                 <Button 
                   onClick={handleSignOut}
                   variant="outline"
-                  className={`${isDarkMode ? 'border-[#2a2a2a] text-[#e5e5e5] hover:bg-[#2a2a2a]' : 'border-[#d4d4d4] text-[#333333] hover:bg-[#f5f5f5]'}`}
+                  className="border-border text-foreground hover:bg-muted"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -299,10 +299,10 @@ export function UserSettingsDialog({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       Email Notifications
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Receive email updates about your prompts
                     </p>
                   </div>
@@ -312,14 +312,14 @@ export function UserSettingsDialog({
                   />
                 </div>
 
-                <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+                <Separator className="bg-border" />
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       Push Notifications
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Receive push notifications in your browser
                     </p>
                   </div>
@@ -329,28 +329,28 @@ export function UserSettingsDialog({
                   />
                 </div>
 
-                <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+                <Separator className="bg-border" />
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       New Likes
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Notify when someone likes your prompt
                     </p>
                   </div>
                   <Switch defaultChecked />
                 </div>
 
-                <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+                <Separator className="bg-border" />
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       Weekly Summary
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Receive a weekly summary of your activity
                     </p>
                   </div>
@@ -362,54 +362,54 @@ export function UserSettingsDialog({
             <TabsContent value="security" className="space-y-6 pr-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="current-password" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label htmlFor="current-password" className="text-foreground">
                     Current Password
                   </Label>
                   <Input
                     id="current-password"
                     type="password"
-                    className={`${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5]' : 'border-[#d4d4d4] bg-white'} focus-visible:ring-[#CF0707]`}
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="new-password" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label htmlFor="new-password" className="text-foreground">
                     New Password
                   </Label>
                   <Input
                     id="new-password"
                     type="password"
-                    className={`${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5]' : 'border-[#d4d4d4] bg-white'} focus-visible:ring-[#CF0707]`}
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                  <Label htmlFor="confirm-password" className="text-foreground">
                     Confirm New Password
                   </Label>
                   <Input
                     id="confirm-password"
                     type="password"
-                    className={`${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5]' : 'border-[#d4d4d4] bg-white'} focus-visible:ring-[#CF0707]`}
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
 
                 <Button 
                   onClick={handleChangePassword}
-                  className="w-full bg-[#CF0707] text-white hover:bg-[#a80606] transition-all duration-200 hover:shadow-lg"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:shadow-lg"
                 >
                   <Lock className="h-4 w-4 mr-2" />
                   Change Password
                 </Button>
 
-                <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+                <Separator className="bg-border" />
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       Two-Factor Authentication
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Add an extra layer of security
                     </p>
                   </div>
@@ -422,10 +422,10 @@ export function UserSettingsDialog({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       Dark Mode
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Toggle dark mode theme
                     </p>
                   </div>
@@ -435,10 +435,10 @@ export function UserSettingsDialog({
                   />
                 </div>
 
-                <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+                <Separator className="bg-border" />
 
                 <div>
-                  <Label className={`mb-3 block ${isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}`}>
+                  <Label className="mb-3 block text-foreground">
                     Accent Color
                   </Label>
                   <div className="grid grid-cols-4 gap-3">
@@ -449,14 +449,14 @@ export function UserSettingsDialog({
                   </div>
                 </div>
 
-                <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
+                <Separator className="bg-border" />
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+                    <Label className="text-foreground">
                       Compact Mode
                     </Label>
-                    <p className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}>
+                    <p className="text-sm text-muted-foreground">
                       Reduce spacing for a denser layout
                     </p>
                   </div>
