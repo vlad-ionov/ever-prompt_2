@@ -97,6 +97,13 @@ export function PromptCard({
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
   const [saved, setSaved] = useState(isSaved);
+  const truncatedTitle = (() => {
+    const words = title.trim().split(/\s+/);
+    if (words.length <= 8) {
+      return title;
+    }
+    return `${words.slice(0, 8).join(" ")}…`;
+  })();
 
   useEffect(() => {
     setLiked(isLiked);
@@ -134,7 +141,7 @@ export function PromptCard({
           <div className="flex items-center gap-4">
             {/* Type Icon */}
             <div
-              className={`h-10 w-10 md:h-12 md:w-12 rounded-lg ${isDarkMode ? "bg-[#18181b]" : "bg-[#f5f5f5]"} flex items-center justify-center flex-shrink-0`}
+              className={`h-10 w-10 md:h-12 md:w-12 min-w-[2.5rem] md:min-w-[3rem] rounded-lg ${isDarkMode ? "bg-[#18181b]" : "bg-[#f5f5f5]"} flex items-center justify-center flex-shrink-0`}
             >
               <TypeIcon
                 className={`h-5 w-5 md:h-6 md:w-6 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#FF5722]"}`}
@@ -145,9 +152,10 @@ export function PromptCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <h3
-                  className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} truncate`}
+                  className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} line-clamp-1`}
+                  title={title}
                 >
-                  {title}
+                  {truncatedTitle}
                 </h3>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -334,7 +342,7 @@ export function PromptCard({
                   {isPublic && author && (
                     <div className="flex items-center gap-2">
                       <Avatar className="h-5 w-5">
-                        <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.email}`} />
+                        <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} />
                         <AvatarFallback className="text-xs">{author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <span className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
@@ -395,18 +403,21 @@ export function PromptCard({
       onClick={() => onClick?.(id)}
     >
       <div className="p-6 flex flex-col flex-1">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
+        <div className="flex items-start justify-between mb-3 gap-2">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <TypeIcon
-                className={`h-4 w-4 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#E11D48]"}`}
-              />
+              <span
+                className={`flex h-6 w-6 min-w-[1.5rem] flex-shrink-0 items-center justify-center rounded-md ${isDarkMode ? "bg-[#18181b] text-[#8b5cf6]" : "bg-[#f5f5f5] text-[#E11D48]"}`}
+              >
+                <TypeIcon className="h-3.5 w-3.5" />
+              </span>
               <h3
-                className={
+                className={`${
                   isDarkMode
                     ? "text-[#fafafa]"
                     : "text-[#333333]"
-                }
+                } line-clamp-2 text-sm font-medium min-w-0 flex-1`}
+                title={title}
               >
                 {title}
               </h3>
@@ -584,7 +595,7 @@ export function PromptCard({
           {isPublic && author ? (
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.email}`} />
+                <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} />
                 <AvatarFallback className="text-xs">{author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span
