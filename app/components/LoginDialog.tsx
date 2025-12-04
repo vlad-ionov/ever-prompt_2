@@ -67,17 +67,17 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${isDarkMode ? 'bg-[#1a1a1a] border-[#2a2a2a]' : 'bg-white border-[#d4d4d4]'} sm:max-w-md`}>
+      <DialogContent className="bg-card dark:bg-background/80 backdrop-blur-md border-border sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${isDarkMode ? 'bg-[#60a5fa]' : 'bg-[#CF0707]'}`}>
+            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-primary">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <DialogTitle className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+            <DialogTitle className="text-foreground">
               {isSignUp ? "Create Account" : "Welcome Back"}
             </DialogTitle>
           </div>
-          <DialogDescription className={isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}>
+          <DialogDescription className="text-muted-foreground">
             {isSignUp 
               ? "Sign up to start managing your AI prompts" 
               : "Sign in to access your prompt library"
@@ -88,7 +88,7 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {isSignUp && (
             <div className="space-y-2">
-              <Label htmlFor="name" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+              <Label htmlFor="name" className="text-foreground">
                 Full Name
               </Label>
               <Input
@@ -97,46 +97,45 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
                 placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] placeholder:text-[#606060] focus-visible:ring-[#60a5fa]' : 'border-[#d4d4d4] bg-white focus-visible:ring-[#CF0707]'}`}
-              />
+               />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+            <Label htmlFor="email" className="text-foreground">
               Email
             </Label>
             <div className="relative">
-              <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`} />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`pl-10 ${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] placeholder:text-[#606060] focus-visible:ring-[#60a5fa]' : 'border-[#d4d4d4] bg-white focus-visible:ring-[#CF0707]'}`}
+                 className="pl-10 w-full"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className={isDarkMode ? 'text-[#e5e5e5]' : 'text-[#333333]'}>
+            <Label htmlFor="password" className="text-foreground">
               Password
             </Label>
             <div className="relative">
-              <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`} />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`pl-10 pr-10 ${isDarkMode ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] placeholder:text-[#606060] focus-visible:ring-[#60a5fa]' : 'border-[#d4d4d4] bg-white focus-visible:ring-[#CF0707]'}`}
+                className="pl-10 pr-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-[#a0a0a0] hover:text-[#e5e5e5]' : 'text-[#868686] hover:text-[#333333]'}`}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -149,18 +148,18 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
                 <input
                   type="checkbox"
                   id="remember"
-                  className="rounded border-[#d4d4d4]"
+                  className="rounded border-border"
                 />
                 <label
                   htmlFor="remember"
-                  className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}
+                  className="text-sm text-muted-foreground"
                 >
                   Remember me
                 </label>
               </div>
               <button
                 type="button"
-                className={`text-sm hover:underline ${isDarkMode ? 'text-[#60a5fa]' : 'text-[#CF0707]'}`}
+                className="text-sm hover:underline text-primary"
               >
                 Forgot password?
               </button>
@@ -170,14 +169,14 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
           <Button
             type="submit"
             disabled={isLoading}
-            className={`w-full ${isDarkMode ? 'bg-[#60a5fa] text-white hover:bg-[#8b5cf6]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isLoading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
           </Button>
 
           <div className="relative my-6">
-            <Separator className={isDarkMode ? 'bg-[#2a2a2a]' : 'bg-[#d4d4d4]'} />
-            <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs ${isDarkMode ? 'bg-[#1a1a1a] text-[#a0a0a0]' : 'bg-white text-[#868686]'}`}>
+            <Separator className="bg-border" />
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs bg-background text-muted-foreground">
               OR CONTINUE WITH
             </span>
           </div>
@@ -187,10 +186,7 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
               type="button"
               variant="outline"
               onClick={handleGoogleLogin}
-              className={isDarkMode 
-                ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] hover:bg-[#2a2a2a]'
-                : 'border-[#d4d4d4] text-[#333333] hover:bg-[#f5f5f5]'
-              }
+              className="border-border bg-background text-foreground hover:bg-muted"
             >
               <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
                 <path
@@ -216,10 +212,7 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
               type="button"
               variant="outline"
               onClick={handleGithubLogin}
-              className={isDarkMode 
-                ? 'border-[#2a2a2a] bg-[#0f0f0f] text-[#e5e5e5] hover:bg-[#2a2a2a]'
-                : 'border-[#d4d4d4] text-[#333333] hover:bg-[#f5f5f5]'
-              }
+              className="border-border bg-background text-foreground hover:bg-muted"
             >
               <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
@@ -232,10 +225,10 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className={`text-sm ${isDarkMode ? 'text-[#a0a0a0]' : 'text-[#868686]'}`}
+              className="text-sm text-muted-foreground"
             >
               {isSignUp ? "Already have an account? " : "Don't have an account? "}
-              <span className={`hover:underline ${isDarkMode ? 'text-[#60a5fa]' : 'text-[#CF0707]'}`}>
+              <span className="hover:underline text-primary">
                 {isSignUp ? "Sign In" : "Sign Up"}
               </span>
             </button>

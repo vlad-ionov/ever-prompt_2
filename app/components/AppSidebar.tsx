@@ -1,17 +1,17 @@
 import {
-  Home,
+  House,
   User,
   Globe,
   Star,
-  Settings,
+  Gear,
   Bookmark,
   FolderOpen,
-  BarChart3,
-} from "lucide-react";
+  ChartBar,
+  CaretDoubleLeft,
+} from "@phosphor-icons/react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
-import { Switch } from "./ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -51,7 +51,7 @@ export function AppSidebar({
       id: "core",
       items: [
         { id: "personal", icon: User, label: "My Prompts", count: promptCounts.personal },
-        { id: "all", icon: Home, label: "All Prompts", count: promptCounts.all },
+        { id: "all", icon: House, label: "All Prompts", count: promptCounts.all },
         { id: "public", icon: Globe, label: "Public Library", count: promptCounts.public },
         { id: "favorites", icon: Star, label: "Favorites", count: promptCounts.favorites },
       ],
@@ -66,10 +66,14 @@ export function AppSidebar({
     {
       id: "analytics",
       items: [
-        { id: "analytics", icon: BarChart3, label: "Analytics", count: 0 },
+        { id: "analytics", icon: ChartBar, label: "Analytics", count: 0 },
       ],
     },
   ];
+
+  const settingsButtonClass = isCollapsed
+    ? "h-9 w-9 rounded-full"
+    : "h-9 flex-1 min-w-0 justify-start gap-2 rounded-xl text-sm px-2";
 
   return (
     <TooltipProvider>
@@ -171,7 +175,7 @@ export function AppSidebar({
           <div
             className={`${isCollapsed ? "px-2 py-3" : "px-4 py-4"} border-t ${
               isDarkMode ? "border-[#27272a]" : "border-[#d4d4d4]"
-            }`}
+            } min-h-[72px]`}
           >
             <div
               className={`flex ${
@@ -184,14 +188,14 @@ export function AppSidebar({
                     <Button
                       variant="ghost"
                       size={isCollapsed ? "icon" : undefined}
-                      className={`${
-                        isCollapsed
-                          ? "h-9 w-9"
-                          : "h-9 w-full justify-start gap-2 rounded-xl text-sm px-2"
-                      } ${isDarkMode ? "text-[#d4d4d8] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]" : "text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]"}`}
+                      className={`${settingsButtonClass} ${
+                        isDarkMode
+                          ? "text-[#d4d4d8] hover:bg-[#18181b] hover:text-[#fafafa] focus-visible:ring-[#8b5cf6]"
+                          : "text-[#333333] hover:bg-[#f5f5f5] focus-visible:ring-[#E11D48]"
+                      }`}
                       onClick={onOpenSettings}
                     >
-                      <Settings className="h-4 w-4" />
+                      <Gear className="h-4 w-4" />
                       {!isCollapsed && <span>Settings</span>}
                     </Button>
                   </TooltipTrigger>
@@ -201,28 +205,32 @@ export function AppSidebar({
                 </Tooltip>
               )}
               {onToggleCollapse && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Switch
-                        checked={isCollapsed}
-                        onCheckedChange={() => onToggleCollapse?.()}
+                      <button
+                        type="button"
                         aria-label={isCollapsed ? "Expand sidebar" : "Compact sidebar"}
+                        onClick={() => onToggleCollapse?.()}
+                        className={`h-9 w-9 rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 justify-center items-center flex ${
+                          isDarkMode
+                            ? "border-[#27272a] bg-[#121217] text-[#f6f6f8] hover:border-[#8b5cf6] hover:bg-[#18181b] focus-visible:ring-[#8b5cf6]"
+                            : "border-[#d4d4d4] bg-white text-[#1f1f1f] hover:border-[#E11D48] hover:bg-[#fef2f2] focus-visible:ring-[#E11D48]"
+                        }`}
+                      >
+                      <CaretDoubleLeft
+                        size={16}
+                        weight="thin"
+                        className={`transition-transform duration-200 ${
+                          isCollapsed ? "rotate-180" : ""
+                        }`}
                       />
+                      </button>
                     </TooltipTrigger>
-                    <TooltipContent side={isCollapsed ? "right" : "left"}>
+                    <TooltipContent side="right">
                       <p>{isCollapsed ? "Expand sidebar" : "Compact sidebar"}</p>
                     </TooltipContent>
                   </Tooltip>
-                  {!isCollapsed && (
-                    <span
-                      className={`text-xs ${
-                        isDarkMode ? "text-[#a1a1aa]" : "text-[#6b6b6b]"
-                      }`}
-                    >
-                      Compact sidebar
-                    </span>
-                  )}
                 </div>
               )}
             </div>

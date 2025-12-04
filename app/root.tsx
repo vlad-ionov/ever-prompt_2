@@ -32,7 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const serializedEnv = JSON.stringify(env).replace(/</g, "\\u003c");
 
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en" data-theme="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
