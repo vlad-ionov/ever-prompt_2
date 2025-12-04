@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { Dashboard } from "@/components/Dashboard";
 import { Toaster } from "@/components/ui/sonner";
+import { useTheme } from "@/hooks/useTheme";
 import type { AppOutletContext } from "./app";
 
 export default function AppHomeRoute() {
@@ -10,11 +11,7 @@ export default function AppHomeRoute() {
   const [searchParams] = useSearchParams();
   const demoMode = searchParams.get("demo") === "1";
   const navigate = useNavigate();
-  const [isDarkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   return (
     <div
@@ -25,7 +22,7 @@ export default function AppHomeRoute() {
       <div className="grain-content">
         <Dashboard
           isDarkMode={isDarkMode}
-          onToggleDarkMode={() => setDarkMode((value) => !value)}
+          onToggleDarkMode={toggleDarkMode}
           demoMode={demoMode}
           initialPrompts={prompts}
           initialCollections={collections}

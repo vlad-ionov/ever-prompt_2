@@ -1385,7 +1385,7 @@ export function Dashboard({
               )}
               <div className="flex items-center gap-2">
                 <img src={logoSrc} alt="EverPrompt logo" className="h-6 w-auto" />
-                <span className={`hidden sm:inline text-sm font-medium ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>PromptHub</span>
+                <span className={`hidden sm:inline text-sm font-medium ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>EverPrompt</span>
               </div>
             </div>
 

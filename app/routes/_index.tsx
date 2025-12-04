@@ -8,6 +8,7 @@ import { LoginDialog } from "../components/LoginDialog";
 import { Toaster } from "../components/ui/sonner";
 import { useAuth } from "../contexts/AuthContext";
 import { getOptionalUser } from "../lib/auth.server";
+import { useTheme } from "../hooks/useTheme";
 
 export const meta: MetaFunction = () => [
   { title: "PromptVault — Organize Your Prompts" },
@@ -35,7 +36,7 @@ export default function Index() {
   const redirectParam = searchParams.get("redirectTo");
   const safeRedirect = redirectParam && redirectParam.startsWith("/") ? redirectParam : "/app";
   const { user, loading } = useAuth();
-  const [isDarkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -43,10 +44,6 @@ export default function Index() {
       setLoginDialogOpen(true);
     }
   }, [loginQuery]);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
 
   useEffect(() => {
     if (!loading && user) {
@@ -111,7 +108,7 @@ export default function Index() {
       <div className="grain-content">
         <LandingPage
           isDarkMode={isDarkMode}
-          onToggleDarkMode={() => setDarkMode((state) => !state)}
+          onToggleDarkMode={toggleDarkMode}
           onGetStarted={showLoginDialog}
           onLogin={showLoginDialog}
           onDemo={() => navigate("/app?demo=1")}
