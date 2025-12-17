@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { Globe, Lock, Eye } from "lucide-react";
 import { PromptCard } from "./PromptCard";
 import { AddPromptDialog } from "./AddPromptDialog";
 import { EditPromptDialog } from "./EditPromptDialog";
@@ -55,6 +56,10 @@ import {
   SortDescending,
   UserCircle,
   SignOut,
+  TextT,
+  Image,
+  VideoCamera,
+  SpeakerHifi,
 } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import { exportPromptsAsJSON, exportPromptsAsPlainText } from "../utils/exportUtils";
@@ -96,6 +101,7 @@ export function Dashboard({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeView, setActiveView] = useState<string>("all");
+  const [allPromptsVisibility, setAllPromptsVisibility] = useState<"all" | "public" | "private">("all");
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [promptToEdit, setPromptToEdit] = useState<Prompt | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
@@ -1105,12 +1111,13 @@ export function Dashboard({
           tag.toLowerCase().includes(searchQuery.toLowerCase())
         );
       const matchesModel =
-        selectedModel === "all" || prompt.model === selectedModel;
+        selectedModel === "all" || prompt.model.toLowerCase().includes(selectedModel.toLowerCase());
       const matchesType =
         selectedType === "all" || prompt.type === selectedType;
       const matchesView =
-        activeView === "all" ||
+        (activeView === "all" && (allPromptsVisibility === "public" ? prompt.isPublic : !prompt.isPublic)) ||
         (activeView === "personal" && !prompt.isPublic) ||
+        (activeView.startsWith("personal-") && !prompt.isPublic && prompt.type === activeView.replace("personal-", "")) ||
         (activeView === "public" && prompt.isPublic) ||
         (activeView === "favorites" && prompt.isLiked) ||
         (activeView === "saved" && prompt.isSaved);
@@ -1130,25 +1137,27 @@ export function Dashboard({
     });
 
   const modelOptions = [
-    "all",
-    ...Array.from(
-      new Set(
-        prompts
-          .map((prompt) => prompt.model)
-          .filter((model): model is string => Boolean(model && model.trim())),
-      ),
-    ),
+    { value: "all", label: "All Models" },
+    { value: "gemini", label: "Gemini" },
+    { value: "grok", label: "Grok" },
+    { value: "gpt", label: "GPT" },
+    { value: "midjourney", label: "Midjourney" },
+    { value: "claude", label: "Claude" },
   ];
   const typeOptions = [
-    { value: "all", label: "All Types" },
-    { value: "text", label: "Text" },
-    { value: "video", label: "Video" },
-    { value: "audio", label: "Audio" },
-    { value: "image", label: "Image" },
+    { value: "all", label: "All Types", icon: Sparkle },
+    { value: "text", label: "Text", icon: TextT },
+    { value: "video", label: "Video", icon: VideoCamera },
+    { value: "audio", label: "Audio", icon: SpeakerHifi },
+    { value: "image", label: "Image", icon: Image },
   ];
   const promptCounts = {
     all: prompts.length,
     personal: prompts.filter((p) => !p.isPublic).length,
+    personalImages: prompts.filter((p) => !p.isPublic && p.type === "image").length,
+    personalVideos: prompts.filter((p) => !p.isPublic && p.type === "video").length,
+    personalText: prompts.filter((p) => !p.isPublic && p.type === "text").length,
+    personalAudio: prompts.filter((p) => !p.isPublic && p.type === "audio").length,
     public: prompts.filter((p) => p.isPublic).length,
     favorites: prompts.filter((p) => p.isLiked).length,
     saved: prompts.filter((p) => p.isSaved).length,
@@ -1244,6 +1253,10 @@ export function Dashboard({
 
   const viewLabels: Record<string, string> = {
     personal: "My Prompts",
+    "personal-image": "My Images",
+    "personal-video": "My Videos",
+    "personal-text": "My Text",
+    "personal-audio": "My Audio",
     all: "All Prompts",
     public: "Public Library",
     favorites: "Favorites",
@@ -1252,10 +1265,7 @@ export function Dashboard({
     analytics: "Analytics",
   };
 
-  const filterPills = modelOptions.map((model) => ({
-    value: model,
-    label: model === "all" ? "All" : model,
-  }));
+
 
   const selectedSortOption = sortOptions.find((option) => option.value === sortBy) ?? sortOptions[0];
   const SelectedSortIcon = selectedSortOption.icon;
@@ -1270,42 +1280,7 @@ export function Dashboard({
           ? 0
           : filteredPrompts.length;
 
-  const viewToggleControls = (
-    <>
-      <Button
-        variant={viewMode === "grid" ? "default" : "outline"}
-        size="icon"
-        onClick={() => setViewMode("grid")}
-        className={
-          viewMode === "grid"
-            ? isDarkMode
-              ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-              : "bg-[#E11D48] text-white hover:bg-[#BE123C]"
-            : isDarkMode
-            ? "border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6] hover:bg-[#18181b]"
-            : "border-[#d4d4d4] text-[#868686] hover:text-[#E11D48] hover:border-[#E11D48]"
-        }
-      >
-        <SquaresFour className="h-5 w-5" weight="regular" />
-      </Button>
-      <Button
-        variant={viewMode === "list" ? "default" : "outline"}
-        size="icon"
-        onClick={() => setViewMode("list")}
-        className={
-          viewMode === "list"
-            ? isDarkMode
-              ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-              : "bg-[#E11D48] text-white hover:bg-[#BE123C]"
-            : isDarkMode
-            ? "border-[#27272a] bg-[#0f0f11] text-[#a1a1aa] hover:text-[#8b5cf6] hover:border-[#8b5cf6] hover:bg-[#18181b]"
-            : "border-[#d4d4d4] text-[#868686] hover:text-[#E11D48] hover:border-[#E11D48]"
-        }
-      >
-        <List className="h-5 w-5" weight="regular" />
-      </Button>
-    </>
-  );
+
 
   const handleLogout = async () => {
     if (demoMode && onExitDemo) {
@@ -1369,164 +1344,188 @@ export function Dashboard({
       )}
       
       {/* Header - Full Width */}
-      <header className={`${isDarkMode ? 'bg-[#09090b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-b sticky top-0 z-10 flex-shrink-0`}>
-          <div className="px-4 md:px-6 h-14 flex items-center justify-between gap-4">
+      <header className={`${isDarkMode ? 'bg-[#09090b]/80 border-[#27272a] supports-[backdrop-filter]:bg-[#09090b]/60' : 'bg-white/80 border-[#d4d4d4] supports-[backdrop-filter]:bg-white/60'} border-b sticky top-0 z-20 backdrop-blur-md transition-colors duration-300`}>
+          <div className="px-4 md:px-6 h-16 flex items-center justify-between gap-4">
             {/* Left: Logo */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0 min-w-[200px]">
               {isMobile && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsSidebarOpen(true)}
-                  className={`h-8 w-8 ${isDarkMode ? 'text-[#fafafa] hover:bg-[#18181b]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
+                  className={`h-9 w-9 rounded-xl ${isDarkMode ? 'text-[#fafafa] hover:bg-[#18181b]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
                 >
                   <ListBullets className="h-5 w-5" weight="regular" />
                 </Button>
               )}
-              <div className="flex items-center gap-2">
-                <img src={logoSrc} alt="EverPrompt logo" className="h-6 w-auto" />
-                <span className={`hidden sm:inline text-sm font-medium ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>EverPrompt</span>
+              <div className="flex items-center gap-2.5 group cursor-pointer select-none">
+                <div className={`p-1.5 rounded-xl ${isDarkMode ? 'bg-[#18181b] group-hover:bg-[#27272a] ring-1 ring-[#27272a]' : 'bg-[#f5f5f5] group-hover:bg-[#e5e5e5] ring-1 ring-[#e5e5e5]'} transition-all duration-200`}>
+                   <img src={logoSrc} alt="EverPrompt" className="h-5 w-5" />
+                </div>
+                <span className={`hidden sm:inline text-sm font-semibold tracking-tight ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>EverPrompt</span>
               </div>
             </div>
 
-            {/* Right: Search, Actions, Account */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Search */}
-              <div className="hidden lg:block relative w-64">
-                <MagnifyingGlass className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`} weight="regular" />
+            {/* Center: Search */}
+            <div className="flex-1 max-w-xl hidden md:block px-4">
+              <div className="relative group">
+                <MagnifyingGlass className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-[#71717a] group-hover:text-[#a1a1aa]' : 'text-[#a1a1aa] group-hover:text-[#737373]'} transition-colors`} weight="regular" />
                 <Input
-                  placeholder="Search prompts..."
+                  placeholder="Search your library..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`pl-9 h-8 text-sm ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+                  className={`pl-10 h-10 w-full rounded-2xl text-sm transition-all duration-200 ${isDarkMode ? 'border-[#27272a] bg-[#18181b]/50 text-[#fafafa] placeholder:text-[#52525b] focus:bg-[#18181b] focus:ring-[#8b5cf6]/50' : 'border-[#e5e5e5] bg-[#f5f5f7]/50 text-[#333333] placeholder:text-[#a1a1aa] focus:bg-white focus:ring-[#E11D48]/20'} shadow-sm`}
                 />
               </div>
-              
-              {/* Actions */}
-              <div className="flex items-center gap-1">
-                <Button
-                  onClick={onToggleDarkMode}
-                  variant="ghost"
-                  size="icon"
-                  className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#18181b]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
-                >
-                  {isDarkMode ? (
-                    <SunDim className="h-4 w-4" weight="regular" />
-                  ) : (
-                    <MoonStars className="h-4 w-4" weight="regular" />
-                  )}
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#18181b]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
-                    >
-                      <CloudArrowDown className="h-4 w-4" weight="regular" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        if (filteredPrompts.length === 0) {
-                          toast.error("No prompts to export");
-                          return;
-                        }
-                        exportPromptsAsJSON(filteredPrompts);
-                        toast.success("Prompts exported as JSON");
-                      }}
-                      className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
-                    >
-                      <ListBullets className="h-4 w-4 mr-2" weight="regular" />
-                      Export as JSON
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        if (filteredPrompts.length === 0) {
-                          toast.error("No prompts to export");
-                          return;
-                        }
-                        exportPromptsAsPlainText(filteredPrompts);
-                        toast.success("Prompts exported as Text");
-                      }}
-                      className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
-                    >
-                      <List className="h-4 w-4 mr-2" weight="regular" />
-                      Export as Text
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button
-                  onClick={() =>
-                    activeView === "collections" ? setIsAddCollectionOpen(true) : setIsDialogOpen(true)
-                  }
-                  size="sm"
-                  className={`h-8 px-3 ${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
-                >
-                  {activeView === "collections" ? (
-                    <FolderSimplePlus className="h-4 w-4 mr-1.5" weight="regular" />
-                  ) : (
-                    <PlusCircle className="h-4 w-4 mr-1.5" weight="regular" />
-                  )}
-                  <span className="hidden sm:inline text-xs">
-                    {activeView === "collections" ? "New" : "New"}
-                  </span>
-                </Button>
-              </div>
+            </div>
 
-              {/* Account */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
+            {/* Right: Stats & Actions */}
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0 justify-end min-w-[200px]">
+               {/* Mobile Search Toggle */}
+               <div className="md:hidden">
+                  <Button variant="ghost" size="icon" className={`h-9 w-9 rounded-xl ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}> 
+                    <MagnifyingGlass className="h-4 w-4" /> 
+                  </Button>
+               </div>
+
+               {/* Stats Pill */}
+               <div className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full border ${isDarkMode ? 'border-[#27272a] bg-[#18181b]/50' : 'border-[#e5e5e5] bg-[#f5f5f7]/50'}`}>
+                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`}>Total</span>
+                  <span className={`text-xs font-bold ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>{prompts.length}</span>
+               </div>
+
+               <div className={`w-px h-6 mx-1 ${isDarkMode ? 'bg-[#27272a]' : 'bg-[#e5e5e5]'} hidden lg:block`} />
+
+               <div className="flex items-center gap-1">
+                 <Button
+                    onClick={onToggleDarkMode}
                     variant="ghost"
                     size="icon"
-                    className={`h-8 w-8 rounded-full ${isDarkMode ? 'hover:bg-[#18181b]' : 'hover:bg-[#f5f5f5]'}`}
-                  >
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage src={avatarUrl} alt={userDisplayName} />
-                      <AvatarFallback className={`text-xs ${isDarkMode ? 'bg-[#18181b] text-[#fafafa]' : 'bg-[#f5f5f5] text-[#333333]'}`}>
-                        {userDisplayName.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className={`${
-                    isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'
-                  } w-64 rounded-2xl p-2 shadow-lg`}
-                >
-                  <div className={`${isDarkMode ? 'bg-[#111113]' : 'bg-[#f5f5f7]'} rounded-xl px-3 py-3 mb-2`}>
-                    <p className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} text-sm font-medium`}>{userDisplayName}</p>
-                    <p className={`${isDarkMode ? 'text-[#8e8e9a]' : 'text-[#9a9aa1]'} text-xs`}>{userSecondaryText}</p>
-                  </div>
-                  {!demoMode && (
-                    <DropdownMenuItem
-                      onClick={() => setIsSettingsOpen(true)}
-                      className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} rounded-xl px-3 py-2`}
-                    >
-                      <UserCircle className="mr-3 h-4 w-4" weight="regular" />
-                      Account Settings
-                    </DropdownMenuItem>
+                    className={`h-9 w-9 rounded-xl transition-colors ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#18181b]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
+                 >
+                    {isDarkMode ? <SunDim className="h-4 w-4" /> : <MoonStars className="h-4 w-4" />}
+                 </Button>
+
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-9 w-9 rounded-xl transition-colors ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#18181b]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
+                      >
+                        <CloudArrowDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          if (filteredPrompts.length === 0) {
+                            toast.error("No prompts to export");
+                            return;
+                          }
+                          exportPromptsAsJSON(filteredPrompts);
+                          toast.success("Prompts exported as JSON");
+                        }}
+                        className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
+                      >
+                        <ListBullets className="h-4 w-4 mr-2" weight="regular" />
+                        Export as JSON
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          if (filteredPrompts.length === 0) {
+                            toast.error("No prompts to export");
+                            return;
+                          }
+                          exportPromptsAsPlainText(filteredPrompts);
+                          toast.success("Prompts exported as Text");
+                        }}
+                        className={`${isDarkMode ? 'text-[#fafafa] hover:bg-[#27272a]' : 'text-[#333333] hover:bg-[#f5f5f5]'}`}
+                      >
+                        <List className="h-4 w-4 mr-2" weight="regular" />
+                        Export as Text
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                 </DropdownMenu>
+               </div>
+
+               <Button
+                  onClick={() => {
+                    if (activeView === "collections") {
+                      setIsAddCollectionOpen(true);
+                    } else if (activeView === "personal-image") {
+                      setIsDialogOpen(true);
+                    } else {
+                      setIsDialogOpen(true);
+                    }
+                  }}
+                  size="sm"
+                  className={`h-9 px-4 rounded-xl shadow-sm transition-all hover:shadow duration-200 ${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
+               >
+                  {activeView === "collections" ? (
+                    <FolderSimplePlus className="h-4 w-4 mr-2" weight="regular" />
+                  ) : activeView === "personal-image" ? (
+                    <CloudArrowDown className="h-4 w-4 mr-2" weight="regular" />
+                  ) : (
+                    <PlusCircle className="h-4 w-4 mr-2" weight="regular" />
                   )}
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (demoMode) {
-                        onExitDemo?.();
-                      } else {
-                        void handleLogout();
-                      }
-                    }}
-                    className={`rounded-xl px-3 py-2 ${
-                      demoMode ? (isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]') : 'text-[#E11D48]'
-                    }`}
-                  >
-                    <SignOut className="mr-3 h-4 w-4" weight="regular" />
-                    {demoMode ? 'Exit Demo' : 'Sign Out'}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <span className="text-sm font-medium">
+                    {activeView === "collections" ? "New" : activeView === "personal-image" ? "Upload" : "New"}
+                  </span>
+               </Button>
+ 
+               {/* Account */}
+               <DropdownMenu>
+                 <DropdownMenuTrigger asChild>
+                   <Button
+                     variant="ghost"
+                     size="icon"
+                     className={`h-9 w-9 rounded-full ml-1 ${isDarkMode ? 'hover:bg-[#18181b]' : 'hover:bg-[#f5f5f5]'}`}
+                   >
+                     <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-2 hover:ring-opacity-50 transition-all duration-200 ring-offset-2 ring-offset-background">
+                       <AvatarImage src={avatarUrl} alt={userDisplayName} />
+                       <AvatarFallback className={`text-xs ${isDarkMode ? 'bg-[#18181b] text-[#fafafa]' : 'bg-[#f5f5f5] text-[#333333]'}`}>
+                         {userDisplayName.slice(0, 2).toUpperCase()}
+                       </AvatarFallback>
+                     </Avatar>
+                   </Button>
+                 </DropdownMenuTrigger>
+                 <DropdownMenuContent
+                   align="end"
+                   className={`${
+                     isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'
+                   } w-64 rounded-2xl p-2 shadow-lg mt-2`}
+                 >
+                   <div className={`${isDarkMode ? 'bg-[#111113]' : 'bg-[#f5f5f7]'} rounded-xl px-3 py-3 mb-2`}>
+                     <p className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} text-sm font-medium`}>{userDisplayName}</p>
+                     <p className={`${isDarkMode ? 'text-[#8e8e9a]' : 'text-[#9a9aa1]'} text-xs`}>{userSecondaryText}</p>
+                   </div>
+                   {!demoMode && (
+                     <DropdownMenuItem
+                       onClick={() => setIsSettingsOpen(true)}
+                       className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} rounded-xl px-3 py-2 cursor-pointer`}
+                     >
+                       <UserCircle className="mr-3 h-4 w-4" weight="regular" />
+                       Account Settings
+                     </DropdownMenuItem>
+                   )}
+                   <DropdownMenuItem
+                     onClick={() => {
+                       if (demoMode) {
+                         onExitDemo?.();
+                       } else {
+                         void handleLogout();
+                       }
+                     }}
+                     className={`rounded-xl px-3 py-2 cursor-pointer ${
+                       demoMode ? (isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]') : 'text-[#E11D48]'
+                     }`}
+                   >
+                     <SignOut className="mr-3 h-4 w-4" weight="regular" />
+                     {demoMode ? 'Exit Demo' : 'Sign Out'}
+                   </DropdownMenuItem>
+                 </DropdownMenuContent>
+               </DropdownMenu>
             </div>
           </div>
         </header>
@@ -1550,310 +1549,274 @@ export function Dashboard({
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden relative">
           <div
-            className={`${viewingCollection ? "" : "px-4 md:px-6 py-4 md:py-8"} flex-1 overflow-y-auto ${
-              isDarkMode ? "bg-[#161619]" : "bg-[#EEECEA]"
+            className={`flex-1 overflow-y-auto ${
+              isDarkMode ? "bg-[#09090b]" : "bg-[#f8fafc]"
             }`}
           >
-            {/* Show CollectionView when viewing a collection */}
-            {viewingCollection && selectedCollection ? (
-              <CollectionView
-                collection={selectedCollection}
-                prompts={prompts.filter((p) => selectedCollection.promptIds.includes(p.id))}
-                allPrompts={prompts}
-                isDarkMode={isDarkMode}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                onBack={handleBackFromCollection}
-                onRemovePrompt={handleRemovePromptFromCollection}
-                onAddPrompts={handleAddPromptsToCollection}
-                onPromptClick={handlePromptClick}
-                onPromptEdit={handleEdit}
-                onPromptDelete={handleDelete}
-                onPromptShare={handleShare}
-                onPromptCopy={handleCopy}
-                onPromptLike={handleToggleLike}
-                onPromptSave={handleSave}
-                onPromptToggleVisibility={handleToggleVisibility}
-                onPromptAddToCollection={handleAddToCollection}
-              />
-            ) : (
-              <>
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <h2 className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} text-lg font-semibold`}>
-                      {activeViewLabel}
-                    </h2>
-                    <span className={`${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"}`}>
-                      {activeViewTotal} {activeViewTotal === 1 ? "item" : "items"}
-                    </span>
-                  </div>
-                </div>
-
-                {activeView === "all" && (
-                  <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                    {summaryCards.map((card) => {
-                      const Icon = card.icon;
-                      return (
-                        <div
-                          key={card.id}
-                          className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
-                            isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#e5e5e5]"
-                          }`}
-                        >
-                          {(!isSidebarCollapsed || isMobile) && (
-                            <div
-                              className={`h-10 w-10 rounded-full flex items-center justify-center ${card.iconBg}`}
-                            >
-                              <Icon className={`h-5 w-5 ${card.iconColor}`} weight="regular" />
+            <div className={`mx-auto max-w-[1920px] ${viewingCollection ? "" : "p-4 md:p-8"}`}>
+              {/* Show CollectionView when viewing a collection */}
+              {viewingCollection && selectedCollection ? (
+                <CollectionView
+                  collection={selectedCollection}
+                  prompts={prompts.filter((p) => selectedCollection.promptIds.includes(p.id))}
+                  allPrompts={prompts}
+                  isDarkMode={isDarkMode}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  onBack={handleBackFromCollection}
+                  onRemovePrompt={handleRemovePromptFromCollection}
+                  onAddPrompts={handleAddPromptsToCollection}
+                  onPromptClick={handlePromptClick}
+                  onPromptEdit={handleEdit}
+                  onPromptDelete={handleDelete}
+                  onPromptShare={handleShare}
+                  onPromptCopy={handleCopy}
+                  onPromptLike={handleToggleLike}
+                  onPromptSave={handleSave}
+                  onPromptToggleVisibility={handleToggleVisibility}
+                  onPromptAddToCollection={handleAddToCollection}
+                />
+              ) : (
+                <div className="space-y-8">
+                  {/* Header / Toolbar Section */}
+                  <div className="sticky top-0 z-10 -mx-4 px-4 py-2 md:-mx-8 md:px-8 md:py-3 backdrop-blur-xl bg-background/95 supports-[backdrop-filter]:bg-background/80 border-b border-transparent transition-all duration-300">
+                      <div className="mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        {/* Mobile Top Row: Title + View Toggle */}
+                        <div className="flex items-center justify-between md:justify-start gap-3">
+                            <div className="flex items-center gap-3">
+                                <h1 className={`text-xl md:text-2xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>
+                                    {activeViewLabel}
+                                </h1>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-semibold ${isDarkMode ? 'bg-[#27272a] text-zinc-400' : 'bg-slate-100 text-slate-500'}`}>
+                                    {activeViewTotal}
+                                </span>
                             </div>
-                          )}
-                          <div className="min-w-0">
-                            <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"} truncate`}>
-                              {card.label}
-                            </p>
-                            <p className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} text-lg font-semibold`}>
-                              {card.value}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
 
-                {activeView !== "collections" && activeView !== "analytics" && (
-                  <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {filterPills.map((pill) => {
-                        const isActive = selectedModel === pill.value;
-                        const isAll = pill.value === "all";
-                        return (
-                          <Button
-                            key={pill.value}
-                            variant="outline"
-                            className={`rounded-full px-4 ${
-                              isActive
-                                ? isDarkMode
-                                  ? "bg-[#8b5cf6] text-white border-[#8b5cf6]"
-                                  : "bg-[#E11D48] text-white border-[#E11D48]"
-                                : isDarkMode
-                                ? "border-[#27272a] text-[#a1a1aa] hover:text-[#fafafa]"
-                                : "border-[#e5e5e5] text-[#666666] hover:text-[#E11D48]"
-                            }`}
-                            onClick={() => setSelectedModel(pill.value)}
-                          >
-                            {isAll ? (
-                              <Sparkle className="mr-2 h-4 w-4 shrink-0" weight="regular" />
-                            ) : (
-                              <ModelIcon model={pill.value} size={14} className="shrink-0" />
+                            {/* Mobile View Toggle */}
+                            {activeView !== "analytics" && (
+                                <div className={`md:hidden p-1 rounded-lg border flex h-8 ${isDarkMode ? "bg-[#18181b]/50 border-[#27272a]" : "bg-white border-[#e2e8f0]"}`}>
+                                    <button
+                                        onClick={() => setViewMode("grid")}
+                                        className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "grid" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                                    >
+                                        <SquaresFour weight="regular" className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode("list")}
+                                        className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                                    >
+                                        <List weight="regular" className="h-4 w-4" />
+                                    </button>
+                                </div>
                             )}
-                            {pill.label}
-                          </Button>
+                        </div>
+
+                        {/* Controls Section */}
+                        {activeView !== "analytics" && (
+                            <div className="w-full md:w-auto">
+                                <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
+                                    {/* Visibility Filter (Replaces Toggle) */}
+                                    {activeView === "all" && (
+                                    <Select value={allPromptsVisibility || "all"} onValueChange={(v) => setAllPromptsVisibility(v as any)}>
+                                        <SelectTrigger className={`col-span-2 md:col-span-1 md:w-auto h-9 min-w-[110px] rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                           <div className="flex items-center gap-2">
+                                                {allPromptsVisibility === "public" ? <Globe className="h-3.5 w-3.5" /> : allPromptsVisibility === "private" ? <Lock className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                                <span className="capitalize">{allPromptsVisibility === "all" || !allPromptsVisibility ? "All Visibility" : allPromptsVisibility}</span>
+                                           </div>
+                                        </SelectTrigger>
+                                        <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
+                                            <SelectItem value="all" className="text-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <Eye className="h-3.5 w-3.5" />
+                                                    <span>All Visibility</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="public" className="text-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <Globe className="h-3.5 w-3.5 text-blue-500" />
+                                                    <span>Public</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="private" className="text-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <Lock className="h-3.5 w-3.5 text-orange-500" />
+                                                    <span>Private</span>
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    )}
+                                    
+                                    {activeView === "all" && <div className={`hidden md:block w-px h-5 ${isDarkMode ? "bg-[#27272a]" : "bg-slate-200"}`} />}
+
+                                    {activeView !== "collections" && (
+                                    <>
+                                        {/* Model Select */}
+                                        <Select value={selectedModel} onValueChange={setSelectedModel}>
+                                            <SelectTrigger className={`col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
+                                                {modelOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value} className="text-xs">
+                                                        <div className="flex items-center gap-2">
+                                                        {option.value === "all" ? <Sparkle className="h-3.5 w-3.5" /> : <ModelIcon model={option.value} size={14} isDarkMode={isDarkMode} />}
+                                                        <span>{option.label}</span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        
+                                        {/* Type Select */}
+                                        <Select value={selectedType} onValueChange={setSelectedType}>
+                                            <SelectTrigger className={`col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                                <SelectValue placeholder="Type" />
+                                            </SelectTrigger>
+                                            <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
+                                                {typeOptions.map((type) => {
+                                                    const TypeIcon = type.icon;
+                                                    return (
+                                                        <SelectItem key={type.value} value={type.value} className="text-xs">
+                                                            <div className="flex items-center gap-2">
+                                                                {TypeIcon && <TypeIcon className="h-3.5 w-3.5" weight="regular" />}
+                                                                <span>{type.label}</span>
+                                                            </div>
+                                                        </SelectItem>
+                                                    )
+                                                })}
+                                            </SelectContent>
+                                        </Select>
+                                        
+                                        {/* Sort Select */}
+                                        <Select value={sortBy} onValueChange={setSortBy}>
+                                            <SelectTrigger className={`col-span-2 md:col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                                <div className="flex items-center justify-center md:justify-start gap-2"><SelectedSortIcon className="h-3.5 w-3.5" /><span>{selectedSortOption.label}</span></div>
+                                            </SelectTrigger>
+                                            <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
+                                                {sortOptions.map((option) => {
+                                                    const Icon = option.icon;
+                                                    return (
+                                                    <SelectItem key={option.value} value={option.value} className="text-xs">
+                                                        <div className="flex items-center gap-2"><Icon className="h-3.5 w-3.5" /><span>{option.label}</span></div>
+                                                    </SelectItem>
+                                                    )
+                                                })}
+                                            </SelectContent>
+                                        </Select>
+                                    </>
+                                    )}
+
+                                    {activeView !== "collections" && <div className={`hidden md:block w-px h-5 ${isDarkMode ? "bg-[#27272a]" : "bg-slate-200"}`} />}
+
+                                    {/* Desktop View Toggle */}
+                                    <div className={`hidden md:flex p-1 rounded-lg border h-9 ${isDarkMode ? "bg-[#18181b]/50 border-[#27272a]" : "bg-white border-[#e2e8f0]"}`}>
+                                        <button
+                                            onClick={() => setViewMode("grid")}
+                                            className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "grid" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                                        >
+                                            <SquaresFour weight="regular" className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => setViewMode("list")}
+                                            className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                                        >
+                                            <List weight="regular" className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                      </div>
+                  </div>
+
+                  {/* Collections, Analytics, or Prompts */}
+                  {activeView === "analytics" ? (
+                    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${isDarkMode ? "text-[#fafafa]" : "text-[#111827]"}`}>
+                      {summaryCards.map((card) => {
+                        const Icon = card.icon;
+                        return (
+                          <div key={card.id} className={`flex items-center justify-between rounded-xl border px-5 py-4 shadow-sm ${isDarkMode ? "bg-[#18181b] border-[#27272a]" : "bg-white border-[#e2e8f0]"}`}>
+                            <div className="flex items-center gap-4">
+                              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${isDarkMode ? "bg-[#27272a]" : "bg-slate-100"}`}>
+                                <Icon className="h-5 w-5 text-[#8b5cf6]" weight="duotone" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className={`text-xs font-medium uppercase tracking-wider ${isDarkMode ? "text-zinc-500" : "text-slate-500"} truncate`}>{card.label}</p>
+                                <p className="text-xl font-bold mt-0.5">{card.value}</p>
+                              </div>
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                      <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger
-                          className={`min-w-[200px] justify-between rounded-full px-4 h-11 ${
-                            isDarkMode
-                              ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
-                              : "border-[#d4d4d4] bg-white text-[#333333]"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <SelectedSortIcon className="h-5 w-5" weight="regular" />
-                            <span>{selectedSortOption.label}</span>
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent
-                          className={`rounded-3xl p-2 shadow-lg ${
-                            isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
-                          }`}
-                        >
-                          {sortOptions.map((option) => {
-                            const Icon = option.icon;
-                            return (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value}
-                                className={`rounded-2xl px-3 py-2 ${
-                                  isDarkMode ? "data-[state=checked]:bg-[#1f1f24]" : "data-[state=checked]:bg-[#f1f1f3]"
-                                }`}
-                              >
-                                <div className="flex items-start gap-3">
-                                  <Icon className="mt-0.5 h-5 w-5" weight="regular" />
-                                  <div className="text-left">
-                                    <p className={isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}>{option.label}</p>
-                                    <p className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
-                                      {option.description}
-                                    </p>
-                                  </div>
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      <Select value={selectedType} onValueChange={setSelectedType}>
-                        <SelectTrigger
-                          className={`min-w-[160px] justify-between rounded-full px-4 h-11 ${
-                            isDarkMode
-                              ? "border-[#27272a] bg-[#0f0f11] text-[#fafafa]"
-                              : "border-[#d4d4d4] bg-white text-[#333333]"
-                          }`}
-                        >
-                          <SelectValue placeholder="All Types" />
-                        </SelectTrigger>
-                        <SelectContent
-                          className={
-                            isDarkMode ? "bg-[#0f0f11] border-[#27272a] text-[#fafafa]" : "bg-white border-[#d4d4d4]"
-                          }
-                        >
-                          {typeOptions.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <div className="flex items-center gap-2">{viewToggleControls}</div>
-                    </div>
-                  </div>
-                )}
-
-                {activeView === "collections" && (
-                  <div className="mb-6 flex justify-end">
-                    <div className="flex items-center gap-2">{viewToggleControls}</div>
-                  </div>
-                )}
-
-                {/* Collections, Analytics, or Prompts */}
-                {activeView === "analytics" ? (
-                  <div
-                    className={`mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${
-                      isDarkMode ? "text-[#fafafa]" : "text-[#111827]"
-                    }`}
-                  >
-                    {summaryCards.map((card) => {
-                      const Icon = card.icon;
-                      return (
-                        <div
-                          key={card.id}
-                          className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
-                            isDarkMode ? "bg-[#0b0b0f] border-[#1f2933]" : "bg-white border-[#e5e7eb]"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`h-9 w-9 rounded-full flex items-center justify-center ${
-                                isDarkMode ? "bg-[#111827]" : "bg-[#f3f4f6]"
-                              }`}
-                            >
-                              <Icon className="h-4 w-4 text-[#6366f1]" weight="regular" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className={`text-xs ${isDarkMode ? "text-[#9ca3af]" : "text-[#6b7280]"} truncate`}>
-                                {card.label}
-                              </p>
-                              <p className="text-lg font-semibold">{card.value}</p>
-                            </div>
-                          </div>
+                  ) : activeView === "collections" ? (
+                    collections.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in-95 duration-500">
+                        <div className={`p-4 rounded-full mb-4 ${isDarkMode ? 'bg-[#18181b]' : 'bg-slate-50'}`}>
+                            <FolderSimplePlus className={`h-8 w-8 ${isDarkMode ? "text-zinc-400" : "text-slate-400"}`} weight="light" />
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : activeView === "collections" ? (
-                  collections.length === 0 ? (
-                    <div className="text-center py-12 md:py-16">
-                      <FolderSimplePlus
-                        className={`h-12 w-12 ${
-                          isDarkMode ? "text-[#8b5cf6]" : "text-[#E11D48]"
-                        } mx-auto mb-4`}
-                        weight="regular"
-                      />
-                      <p className={`text-sm md:text-base mb-2 ${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}`}>
-                        No collections yet
-                      </p>
-                      <p className={`text-sm md:text-base mb-4 ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"}`}>
-                        Create collections to organize your private prompts
-                      </p>
-                      <Button
-                        onClick={() => setIsAddCollectionOpen(true)}
-                        className={
-                          isDarkMode
-                            ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-                            : "bg-[#E11D48] text-white hover:bg-[#BE123C]"
-                        }
-                      >
-                        <FolderSimplePlus className="h-5 w-5 mr-2" weight="regular" />
-                        Create Collection
-                      </Button>
+                        <h3 className={`text-lg font-bold mb-1 ${isDarkMode ? "text-white" : "text-slate-900"}`}>No collections yet</h3>
+                        <p className={`text-sm mb-6 max-w-sm ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>Create collections to organize your prompts into varied groups for easier access.</p>
+                        <Button
+                            onClick={() => setIsAddCollectionOpen(true)}
+                            className={`rounded-xl px-5 h-10 ${isDarkMode ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]" : "bg-[#E11D48] text-white hover:bg-[#BE123C]"}`}
+                        >
+                            <FolderSimplePlus className="h-4 w-4 mr-2" weight="bold" />
+                            Create Collection
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-3"}>
+                        {collections.map((collection) => (
+                          <CollectionCard
+                            key={collection.id}
+                            {...collection}
+                            promptCount={collection.promptIds.length}
+                            isDarkMode={isDarkMode}
+                            viewMode={viewMode}
+                            onClick={handleCollectionClick}
+                            onEdit={handleCollectionEdit}
+                            onDelete={handleDeleteCollection}
+                          />
+                        ))}
+                      </div>
+                    )
+                  ) : filteredPrompts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-24 text-center animate-in fade-in zoom-in-95 duration-500">
+                        <div className={`p-4 rounded-full mb-4 ${isDarkMode ? 'bg-[#18181b]' : 'bg-slate-50'}`}>
+                            <MagnifyingGlass className={`h-8 w-8 ${isDarkMode ? "text-zinc-500" : "text-slate-400"}`} weight="light" />
+                        </div>
+                        <h3 className={`text-lg font-bold mb-1 ${isDarkMode ? "text-white" : "text-slate-900"}`}>No prompts found</h3>
+                        <p className={`text-sm ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>We couldn't find any prompts matching your criteria.</p>
                     </div>
                   ) : (
-                    <div
-                      className={
-                        viewMode === "grid"
-                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4"
-                          : "space-y-3 md:space-y-4"
-                      }
-                    >
-                      {collections.map((collection) => (
-                        <CollectionCard
-                          key={collection.id}
-                          {...collection}
-                          promptCount={collection.promptIds.length}
+                    <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-3"}>
+                      {filteredPrompts.map((prompt) => (
+                        <PromptCard
+                          key={prompt.id}
+                          {...prompt}
                           isDarkMode={isDarkMode}
                           viewMode={viewMode}
-                          onClick={handleCollectionClick}
-                          onEdit={handleCollectionEdit}
-                          onDelete={handleDeleteCollection}
+                          onClick={handlePromptClick}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onShare={handleShare}
+                          onCopy={handleCopy}
+                          onLike={handleToggleLike}
+                          onSave={handleSave}
+                          onToggleVisibility={handleToggleVisibility}
+                          onAddToCollection={handleAddToCollection}
                         />
                       ))}
                     </div>
-                  )
-                ) : filteredPrompts.length === 0 ? (
-                  <div className="text-center py-12 md:py-16">
-                    <img
-                      src={logoSrc}
-                      alt="EverPrompt logo"
-                      className="h-10 md:h-12 w-auto mx-auto mb-4"
-                    />
-                    <p className={`text-sm md:text-base ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"}`}>
-                      No prompts found. Try adjusting your filters.
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    className={
-                      viewMode === "grid"
-                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4"
-                        : "space-y-3 md:space-y-4"
-                    }
-                  >
-                    {filteredPrompts.map((prompt) => (
-                      <PromptCard
-                        key={prompt.id}
-                        {...prompt}
-                        isDarkMode={isDarkMode}
-                        viewMode={viewMode}
-                        onClick={handlePromptClick}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onShare={handleShare}
-                        onCopy={handleCopy}
-                        onLike={handleToggleLike}
-                        onSave={handleSave}
-                        onToggleVisibility={handleToggleVisibility}
-                        onAddToCollection={handleAddToCollection}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1864,6 +1827,7 @@ export function Dashboard({
         onOpenChange={setIsDialogOpen}
         onSave={handleSavePrompt}
         isDarkMode={isDarkMode}
+        initialType={activeView.startsWith("personal-") ? (activeView.replace("personal-", "") as "image" | "video" | "text" | "audio") : undefined}
       />
 
       {/* Edit Prompt Dialog */}

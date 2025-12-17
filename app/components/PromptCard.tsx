@@ -31,6 +31,10 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ModelIcon } from "./ModelIcon";
+import TextPlaceholder from "../assets/images/text-placeholder.png";
+import VideoPlaceholder from "../assets/images/video-placeholder.png";
+import AudioPlaceholder from "../assets/images/audio-placeholder.png";
+import ImagePlaceholder from "../assets/images/image-placeholder.png";
 
 const TYPE_ICONS = {
   video: Video,
@@ -39,12 +43,27 @@ const TYPE_ICONS = {
   text: FileText,
 };
 
+const getPlaceholder = (type: string) => {
+  switch (type) {
+    case "video":
+      return VideoPlaceholder;
+    case "audio":
+      return AudioPlaceholder;
+    case "image":
+      return ImagePlaceholder;
+    case "text":
+    default:
+      return TextPlaceholder;
+  }
+};
+
 interface PromptCardProps {
   id: string;
   title: string;
   description: string;
   model: string;
   type: "video" | "audio" | "image" | "text";
+  content?: string;
   tags: string[];
   likes: number;
   isLiked: boolean;
@@ -93,6 +112,7 @@ export function PromptCard({
   onClick,
   onToggleVisibility,
   onAddToCollection,
+  content,
 }: PromptCardProps) {
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
@@ -402,39 +422,53 @@ export function PromptCard({
       className={`group relative overflow-hidden ${isDarkMode ? "bg-[#0f0f11] border-[#27272a] hover:border-[#8b5cf6]" : "bg-white border-[#d4d4d4] hover:border-[#E11D48]"} hover:shadow-lg transition-all duration-200 cursor-pointer flex flex-col`}
       onClick={() => onClick?.(id)}
     >
-      <div className="p-6 flex flex-col flex-1">
-        <div className="flex items-start justify-between mb-3 gap-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span
-                className={`flex h-6 w-6 min-w-[1.5rem] flex-shrink-0 items-center justify-center rounded-md ${isDarkMode ? "bg-[#18181b] text-[#8b5cf6]" : "bg-[#f5f5f5] text-[#E11D48]"}`}
-              >
-                <TypeIcon className="h-3.5 w-3.5" />
-              </span>
-              <h3
-                className={`${
-                  isDarkMode
-                    ? "text-[#fafafa]"
-                    : "text-[#333333]"
-                } line-clamp-2 text-sm font-medium min-w-0 flex-1`}
-                title={title}
-              >
-                {title}
-              </h3>
-            </div>
-            <p
-              className={`text-sm ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"} line-clamp-2`}
-            >
-              {description}
-            </p>
+      <div className="p-0">
+        <div className="w-full aspect-video relative overflow-hidden bg-muted/20 border-b">
+          <img 
+            src={type === "image" && content ? content : getPlaceholder(type)} 
+            alt={title} 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              e.currentTarget.src = getPlaceholder(type);
+            }} 
+          />
+          
+          {/* Overlay: Type (Top Left) */}
+          <div className="absolute top-3 left-3">
+             <span className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-sm backdrop-blur-md ${isDarkMode ? "bg-black/50 text-white" : "bg-white/90 text-black/80"}`}>
+                <TypeIcon className="h-4 w-4" />
+             </span>
           </div>
-          <DropdownMenu>
+
+          {/* Overlay: Model & Status (Top Right) */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+             <span className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-sm backdrop-blur-md ${isDarkMode ? "bg-black/50 text-white" : "bg-white/90 text-black/80"}`} title={model}>
+                <ModelIcon model={model} size={16} isDarkMode={isDarkMode} />
+             </span>
+             <span className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-sm backdrop-blur-md ${isDarkMode ? "bg-black/50 text-white" : "bg-white/90 text-black/80"}`} title={isPublic ? "Public" : "Private"}>
+                {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+             </span>
+          </div>
+        </div>
+      </div>
+      <div className="p-5 flex flex-col flex-1 gap-4">
+        {/* Header Row: Title & Menu */}
+        <div className="flex items-start justify-between gap-3">
+           <h3
+             className={`${
+               isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
+             } line-clamp-2 text-base font-semibold leading-tight flex-1`}
+             title={title}
+           >
+             {title}
+           </h3>
+           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={(event: MouseEvent<HTMLElement>) => event.stopPropagation()}
-                className={`h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? "text-[#71717a] hover:text-[#8b5cf6]" : "text-[#868686] hover:text-[#E11D48]"} hover:bg-transparent`}
+                className={`h-8 w-8 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? "text-[#71717a] hover:text-[#8b5cf6]" : "text-[#868686] hover:text-[#E11D48]"} hover:bg-transparent`}
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
@@ -544,102 +578,48 @@ export function PromptCard({
           </DropdownMenu>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4 flex-1">
-          <Badge
-            variant="secondary"
-            className={`${
-              isDarkMode
-                ? "bg-[#18181b] text-[#fafafa] hover:bg-[#8b5cf6] hover:text-white"
-                : "bg-[#f5f5f5] text-[#333333] hover:bg-[#E11D48] hover:text-white"
-            } transition-colors flex items-center gap-1.5`}
-          >
-            <ModelIcon model={model} size={12} />
-            {model}
-          </Badge>
-          <Badge
-            variant="outline"
-            className={`${
-              isPublic
-                ? isDarkMode
-                  ? "border-[#8b5cf6] text-[#8b5cf6] bg-[#8b5cf6]/10"
-                  : "border-[#E11D48] text-[#E11D48] bg-[#E11D48]/10"
-                : isDarkMode
-                  ? "border-[#27272a] text-[#71717a] bg-[#18181b]"
-                  : "border-[#d4d4d4] text-[#868686] bg-[#f5f5f5]"
-            } flex items-center gap-1.5`}
-          >
-            {isPublic ? (
-              <Globe className="h-3 w-3" />
-            ) : (
-              <Lock className="h-3 w-3" />
-            )}
-            {isPublic ? "Public" : "Private"}
-          </Badge>
+        <p
+           className={`text-sm ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"} line-clamp-2 leading-relaxed`}
+        >
+           {description}
+        </p>
+
+        <div className="flex flex-wrap gap-2 mt-auto">
           {tags.map((tag) => (
             <Badge
               key={tag}
-              variant="outline"
+              variant="secondary"
               className={`${
                 isDarkMode
-                  ? "border-[#27272a] text-[#a1a1aa] hover:border-[#8b5cf6] hover:text-[#8b5cf6]"
-                  : "border-[#d4d4d4] text-[#868686] hover:border-[#E11D48] hover:text-[#E11D48]"
-              } transition-colors`}
+                  ? "bg-[#18181b] text-[#a1a1aa] border border-[#27272a]"
+                  : "bg-[#f5f5f5] text-[#868686] border border-[#e5e5e5]"
+              } transition-colors whitespace-nowrap px-2.5 py-1 font-normal`}
             >
               {tag}
             </Badge>
           ))}
         </div>
 
-        <div className="flex items-center justify-between mt-auto">
-          {/* Author info for public prompts */}
-          {isPublic && author ? (
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} />
-                <AvatarFallback className="text-xs">{author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <span
-                className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}
+        <div className="flex items-center justify-between mt-4 border-t pt-4 border-dashed border-border/50">
+           <div className="flex items-center gap-4">
+              <button 
+                 onClick={(e) => { e.stopPropagation(); handleLike(); }}
+                 className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${liked ? "text-pink-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
               >
-                {author.name}
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <Calendar className={`h-3 w-3 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`} />
-              <span
-                className={`text-xs ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}
+                 <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
+                 <span>{likeCount}</span>
+              </button>
+              <button
+                 onClick={(e) => { e.stopPropagation(); handleSave(); }} 
+                 className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${saved ? "text-blue-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
               >
-                {createdAt}
-              </span>
-            </div>
-          )}
-          
-          {/* Show likes only for public prompts */}
-          {isPublic && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(event: MouseEvent<HTMLElement>) => {
-                event.stopPropagation();
-                handleLike();
-              }}
-              className={`h-8 gap-1.5 hover:bg-transparent ${
-                liked
-                  ? isDarkMode
-                    ? "text-[#8b5cf6]"
-                    : "text-[#E11D48]"
-                  : isDarkMode
-                    ? "text-[#71717a] hover:text-[#8b5cf6]"
-                    : "text-[#868686] hover:text-[#E11D48]"
-              }`}
-            >
-              <Heart
-                className={`h-4 w-4 ${liked ? "fill-current" : ""}`}
-              />
-              <span className="text-sm">{likeCount}</span>
-            </Button>
-          )}
+                 <Bookmark className={`h-4 w-4 ${saved ? "fill-current" : ""}`} />
+              </button>
+           </div>
+           
+           <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
+              {model}
+           </span>
         </div>
       </div>
     </Card>

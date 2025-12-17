@@ -110,3 +110,32 @@ CREATE INDEX IF NOT EXISTS idx_prompts_created_at ON prompts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_collections_user_id ON collections(user_id);
 CREATE INDEX IF NOT EXISTS idx_collections_created_at ON collections(created_at DESC);
 
+-- Storage Bucket Setup
+-- Create prompt-images bucket if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('prompt-images', 'prompt-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Drop existing policies to ensure clean state
+DROP POLICY IF EXISTS "Authenticated users can upload images" ON storage.objects;
+DROP POLICY IF EXISTS "Public can view images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own uploaded images" ON storage.objects;
+
+-- Policy to allow authenticated users to upload images
+CREATE POLICY "Authenticated users can upload images"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK ( bucket_id = 'prompt-images' );
+
+-- Policy to allow public to view images
+CREATE POLICY "Public can view images"
+ON storage.objects FOR SELECT
+TO public
+USING ( bucket_id = 'prompt-images' );
+
+-- Policy to allow users to delete their own uploaded images
+CREATE POLICY "Users can delete their own uploaded images"
+ON storage.objects FOR DELETE
+TO authenticated
+USING ( bucket_id = 'prompt-images' AND auth.uid() = owner );
+
