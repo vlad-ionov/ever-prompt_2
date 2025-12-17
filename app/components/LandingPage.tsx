@@ -516,7 +516,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 The next-generation platform for AI prompt management. Organize, share, and discover 
-                prompts across GPT-4, Claude, Gemini, and more. Built for creators who craft the future.
+                prompts across GPT, Claude, Gemini, and more. Built for creators who craft the future.
               </motion.p>
               
               <motion.div 

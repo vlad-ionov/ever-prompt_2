@@ -11,7 +11,7 @@
 
 ### Step 1: Create Tables in Supabase
 
-1. Go to your Supabase SQL Editor: https://supabase.com/dashboard/project/yylqckhrqyoxcbseitzq/sql/new
+1. Go to your Supabase SQL Editor (Dashboard -> Your Project -> SQL Editor)
 2. Copy the contents of `supabase-schema.sql`
 3. Paste it into the SQL editor
 4. Click "Run" to execute
@@ -23,7 +23,7 @@ This creates:
 
 ### Step 2: Verify Tables
 
-Go to: https://supabase.com/dashboard/project/yylqckhrqyoxcbseitzq/editor
+Go to: Your Supabase Project Dashboard -> Table Editor
 
 You should see:
 - ✅ `prompts` table
