@@ -291,7 +291,33 @@ export function PromptDetailSheet({
                          )}
                     </div>
 
-                    {/* Compact Author */}
+                     {/* Initial Prompt (for images) */}
+                     {prompt.initialPrompt && (
+                        <div className="space-y-2">
+                             <div className="flex items-center justify-between">
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Generation Prompt</h3>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={async () => {
+                                        await copyToClipboard(prompt.initialPrompt!);
+                                        toast.success("Initial prompt copied");
+                                    }} 
+                                    className="h-6 gap-1.5 text-xs hover:bg-muted"
+                                >
+                                    <Copy className="h-3 w-3" />
+                                    Copy
+                                </Button>
+                             </div>
+                             <div className={`relative rounded-xl border p-4 ${isDarkMode ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                                <div className="text-sm italic leading-relaxed text-foreground/80">
+                                    "{prompt.initialPrompt}"
+                                </div>
+                             </div>
+                        </div>
+                     )}
+
+                     {/* Compact Author */}
                     {prompt.author && (
                          <div className="flex items-center gap-3 pt-2 border-t border-dashed">
                             <Avatar className="h-8 w-8 border">

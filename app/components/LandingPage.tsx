@@ -721,6 +721,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       isSaved: false,
                       isPublic: true,
                       createdAt: '2024-01-15',
+                      content: 'Write a blog post about...',
                       delay: 0.6
                     },
                     { 
@@ -735,6 +736,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       isSaved: true,
                       isPublic: true,
                       createdAt: '2024-01-14',
+                      content: 'Create a video script for...',
                       delay: 0.8
                     },
                     { 
@@ -749,6 +751,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       isSaved: false,
                       isPublic: false,
                       createdAt: '2024-01-13',
+                      content: 'A futuristic city in the style of cyberpunk with neon lights and flying cars...',
                       delay: 1.0
                     }
                   ].map((prompt, index) => (

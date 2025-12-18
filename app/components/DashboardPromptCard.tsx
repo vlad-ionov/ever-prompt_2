@@ -32,6 +32,7 @@ interface DashboardPromptCardProps {
   isSaved: boolean;
   isPublic: boolean;
   createdAt: string;
+  content: string;
   isDarkMode?: boolean;
 }
 
@@ -45,6 +46,7 @@ export function DashboardPromptCard({
   isLiked,
   isSaved,
   isPublic,
+  content,
   isDarkMode = false,
 }: DashboardPromptCardProps) {
   const TypeIcon = TYPE_ICONS[type];
@@ -128,6 +130,17 @@ export function DashboardPromptCard({
             </Badge>
           ))}
         </div>
+
+        {/* Image Preview for image prompts */}
+        {type === 'image' && content && (content.startsWith('http') || content.startsWith('blob:')) && (
+          <div className="relative mb-3 group/img overflow-hidden rounded-xl border border-border/50">
+            <img
+              src={content}
+              alt={title}
+              className="w-full h-40 object-cover transition-transform duration-500 group-hover/img:scale-105"
+            />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex items-center justify-between">
