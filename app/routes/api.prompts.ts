@@ -7,6 +7,8 @@ import {
 } from "@/lib/mock.server";
 import { requireUser } from "@/lib/auth.server";
 
+import { getServiceSupabaseClient } from "@/lib/supabase.server";
+
 export async function action({ request }: ActionFunctionArgs) {
   const user = await requireUser(request);
   const formData = await request.formData();
@@ -40,6 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const model = formData.get("model") as string;
       const type = formData.get("type") as string;
       const content = formData.get("content") as string;
+      const initialPrompt = formData.get("initialPrompt") as string;
       let tags: string[] = [];
 
       try {
@@ -51,7 +54,35 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      if (!title || !model || !content) {
+      let finalContent = content;
+
+      // Handle image upload if a file is provided
+      const file = formData.get("file") as File | null;
+      if (type === "image" && file && file.size > 0) {
+        const supabase = await getServiceSupabaseClient();
+        const fileExt = file.name.split('.').pop() || 'png';
+        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('prompt-images')
+          .upload(fileName, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error("Server-side upload error:", uploadError);
+          return json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('prompt-images')
+          .getPublicUrl(fileName);
+
+        finalContent = publicUrl;
+      }
+
+      if (!title || !model || !finalContent) {
         return json({ error: "Title, model, and content are required" }, { status: 400 });
       }
 
@@ -61,7 +92,8 @@ export async function action({ request }: ActionFunctionArgs) {
         model,
         type,
         tags,
-        content,
+        content: finalContent,
+        initialPrompt,
       });
 
       return json({ prompt });
@@ -102,6 +134,9 @@ export async function action({ request }: ActionFunctionArgs) {
       if (formData.has("content")) {
         updates.content = (formData.get("content") ?? "").toString();
       }
+      if (formData.has("initialPrompt")) {
+        updates.initial_prompt = (formData.get("initialPrompt") ?? "").toString();
+      }
       if (formData.has("is_public")) {
         const next = parseBoolean(formData.get("is_public"));
         if (next === undefined) {
@@ -130,6 +165,32 @@ export async function action({ request }: ActionFunctionArgs) {
           return json({ error: "likes must be a number" }, { status: 400 });
         }
         updates.likes = likes;
+      }
+
+      // Handle image update if a file is provided
+      const file = formData.get("file") as File | null;
+      if (updates.type === "image" && file && file.size > 0) {
+        const supabase = await getServiceSupabaseClient();
+        const fileExt = file.name.split('.').pop() || 'png';
+        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('prompt-images')
+          .upload(fileName, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error("Server-side update upload error:", uploadError);
+          return json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('prompt-images')
+          .getPublicUrl(fileName);
+
+        updates.content = publicUrl;
       }
       if (Object.keys(updates).length === 0) {
         return json({ error: "No updates provided" }, { status: 400 });

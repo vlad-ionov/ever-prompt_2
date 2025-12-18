@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS prompts (
   is_saved BOOLEAN DEFAULT false,
   is_public BOOLEAN DEFAULT false,
   author JSONB,
+  initial_prompt TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

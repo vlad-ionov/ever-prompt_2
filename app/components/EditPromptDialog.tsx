@@ -37,6 +37,8 @@ interface EditPromptDialogProps {
       type: PromptType;
       tags: string[];
       content: string;
+      initialPrompt?: string;
+      file?: File;
     },
   ) => void;
 }
@@ -50,6 +52,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
   const [type, setType] = useState<PromptType>("text");
   const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
+  const [initialPrompt, setInitialPrompt] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -67,6 +70,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
       setType(prompt.type);
       setTags(prompt.tags.join(", "));
       setContent(prompt.content);
+      setInitialPrompt(prompt.initialPrompt || "");
       setFile(null);
     }
   }, [prompt, open]);
@@ -84,47 +88,21 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
     if (!prompt) return;
 
     try {
-      let finalContent = content;
-
-      if (type === "image" && file) {
-        setUploading(true);
-        const supabase = createClient();
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('prompt-images')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('prompt-images')
-          .getPublicUrl(filePath);
-          
-        finalContent = publicUrl;
-      }
-    
       onSave(prompt.id, {
         title,
         description,
         model,
         type,
         tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-        content: finalContent,
+        content: content,
+        initialPrompt: initialPrompt || undefined,
+        file: file || undefined,
       });
       
       onOpenChange(false);
     } catch (error) {
-      console.error("Error uploading image:", error);
-      const message = error instanceof Error ? error.message : "Unknown error occurred";
-      alert(`Failed to upload image: ${message}`);
-    } finally {
-      setUploading(false);
+      console.error("Error saving prompt:", error);
+      alert(`Failed to save prompt: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -247,6 +225,21 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
                 />
              )}
           </div>
+
+          {type === "image" && (
+            <div className="grid gap-2">
+              <Label htmlFor="edit-initial-prompt" className={`text-sm font-medium ${isDarkMode ? 'text-[#e4e4e7]' : 'text-[#333333]'}`}>
+                Initial Prompt <span className={`text-xs font-normal ${isDarkMode ? 'text-[#71717a]' : 'text-[#a1a1aa]'}`}>(Prompt used to generate this image)</span>
+              </Label>
+              <Textarea
+                id="edit-initial-prompt"
+                value={initialPrompt}
+                onChange={(e) => setInitialPrompt(e.target.value)}
+                placeholder="Paste the prompt you used to generate this image..."
+                className={`min-h-[80px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+              />
+            </div>
+          )}
 
           <div className="grid gap-2">
             <Label htmlFor="edit-tags" className={`text-sm font-medium ${isDarkMode ? 'text-[#e4e4e7]' : 'text-[#333333]'}`}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Globe, Lock, Eye } from "lucide-react";
 import { PromptCard } from "./PromptCard";
@@ -109,6 +109,21 @@ export function Dashboard({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
+  // Handlers for search focus
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  // Keyboard shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        document.getElementById("main-search")?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+  
   // Collection state
   const [isAddCollectionOpen, setIsAddCollectionOpen] = useState(false);
   const [isEditCollectionOpen, setIsEditCollectionOpen] = useState(false);
@@ -154,6 +169,12 @@ export function Dashboard({
       formData.append("type", newPrompt.type);
       formData.append("tags", JSON.stringify(newPrompt.tags));
       formData.append("content", newPrompt.content);
+      if (newPrompt.initialPrompt) {
+        formData.append("initialPrompt", newPrompt.initialPrompt);
+      }
+      if (newPrompt.file) {
+        formData.append("file", newPrompt.file);
+      }
 
       const response = await fetch("/api/prompts", {
         method: "POST",
@@ -190,6 +211,8 @@ export function Dashboard({
     type: "video" | "audio" | "image" | "text";
     tags: string[];
     content: string;
+    initialPrompt?: string;
+    file?: File;
   }) => {
     if (demoMode) {
       setPrompts((current) =>
@@ -216,6 +239,12 @@ export function Dashboard({
       formData.append("type", updatedPrompt.type);
       formData.append("tags", JSON.stringify(updatedPrompt.tags));
       formData.append("content", updatedPrompt.content);
+      if (updatedPrompt.initialPrompt) {
+        formData.append("initialPrompt", updatedPrompt.initialPrompt);
+      }
+      if (updatedPrompt.file) {
+        formData.append("file", updatedPrompt.file);
+      }
 
       const response = await fetch("/api/prompts", {
         method: "POST",
@@ -1137,7 +1166,7 @@ export function Dashboard({
     });
 
   const modelOptions = [
-    { value: "all", label: "All Models" },
+    { value: "all", label: "View All" },
     { value: "gemini", label: "Gemini" },
     { value: "grok", label: "Grok" },
     { value: "gpt", label: "GPT" },
@@ -1145,7 +1174,7 @@ export function Dashboard({
     { value: "claude", label: "Claude" },
   ];
   const typeOptions = [
-    { value: "all", label: "All Types", icon: Sparkle },
+    { value: "all", label: "View All", icon: Sparkle },
     { value: "text", label: "Text", icon: TextT },
     { value: "video", label: "Video", icon: VideoCamera },
     { value: "audio", label: "Audio", icon: SpeakerHifi },
@@ -1344,7 +1373,11 @@ export function Dashboard({
       )}
       
       {/* Header - Full Width */}
-      <header className={`${isDarkMode ? 'bg-[#09090b]/80 border-[#27272a] supports-[backdrop-filter]:bg-[#09090b]/60' : 'bg-white/80 border-[#d4d4d4] supports-[backdrop-filter]:bg-white/60'} border-b sticky top-0 z-20 backdrop-blur-md transition-colors duration-300`}>
+      <header className={`${
+        isDarkMode 
+          ? 'bg-gradient-to-r from-[#09090b]/80 via-[#0f0f11]/90 to-[#09090b]/80 border-white/5' 
+          : 'bg-gradient-to-r from-white/80 via-slate-50/90 to-white/80 border-slate-200'
+      } border-b sticky top-0 z-30 backdrop-blur-xl transition-all duration-500 shadow-sm`}>
           <div className="px-4 md:px-6 h-16 flex items-center justify-between gap-4">
             {/* Left: Logo */}
             <div className="flex items-center gap-3 flex-shrink-0 min-w-[200px]">
@@ -1367,15 +1400,41 @@ export function Dashboard({
             </div>
 
             {/* Center: Search */}
-            <div className="flex-1 max-w-xl hidden md:block px-4">
-              <div className="relative group">
-                <MagnifyingGlass className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 ${isDarkMode ? 'text-[#71717a] group-hover:text-[#a1a1aa]' : 'text-[#a1a1aa] group-hover:text-[#737373]'} transition-colors`} weight="regular" />
+            <div className={`flex-1 transition-all duration-500 hidden md:block px-4 ${isSearchFocused ? 'max-w-2xl' : 'max-w-xl'}`}>
+              <div className="relative group/search">
+                <MagnifyingGlass 
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-all duration-300 ${
+                    isSearchFocused 
+                      ? (isDarkMode ? 'text-[#8b5cf6]' : 'text-[#E11D48]') 
+                      : (isDarkMode ? 'text-[#71717a]' : 'text-[#a1a1aa]')
+                  }`} 
+                  weight={isSearchFocused ? "bold" : "regular"} 
+                />
                 <Input
-                  placeholder="Search your library..."
+                  id="main-search"
+                  placeholder="Search prompts, tags, or models..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`pl-10 h-10 w-full rounded-2xl text-sm transition-all duration-200 ${isDarkMode ? 'border-[#27272a] bg-[#18181b]/50 text-[#fafafa] placeholder:text-[#52525b] focus:bg-[#18181b] focus:ring-[#8b5cf6]/50' : 'border-[#e5e5e5] bg-[#f5f5f7]/50 text-[#333333] placeholder:text-[#a1a1aa] focus:bg-white focus:ring-[#E11D48]/20'} shadow-sm`}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  className={`pl-12 pr-12 h-12 w-full rounded-2xl text-base transition-all duration-500 border-0 ${
+                    isDarkMode 
+                      ? `bg-[#18181b]/40 text-white placeholder:text-[#52525b] ${isSearchFocused ? 'bg-[#18181b] shadow-[0_0_20px_rgba(139,92,246,0.15)]' : ''}` 
+                      : `bg-[#f5f5f7] text-[#0f172a] placeholder:text-[#94a3b8] ${isSearchFocused ? 'bg-white shadow-[0_4px_20px_rgba(225,29,72,0.08)]' : ''}`
+                  } ring-1 ${isSearchFocused ? (isDarkMode ? 'ring-[#8b5cf6]/50' : 'ring-[#E11D48]/30') : (isDarkMode ? 'ring-white/5' : 'ring-black/[0.03]')}`}
                 />
+                <div className={`absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 transition-opacity duration-300 ${isSearchFocused ? 'opacity-0' : 'opacity-100'}`}>
+                  <kbd className={`h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded border text-[10px] font-sans font-medium uppercase tracking-widest ${
+                    isDarkMode ? 'bg-[#27272a] border-white/5 text-[#71717a]' : 'bg-white border-slate-200 text-slate-400'
+                  }`}>
+                    {typeof window !== 'undefined' && /Mac/i.test(navigator.userAgent) ? '⌘' : 'Ctrl'}
+                  </kbd>
+                  <kbd className={`h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded border text-[10px] font-sans font-medium uppercase tracking-widest ${
+                    isDarkMode ? 'bg-[#27272a] border-white/5 text-[#71717a]' : 'bg-white border-slate-200 text-slate-400'
+                  }`}>
+                    K
+                  </kbd>
+                </div>
               </div>
             </div>
 
@@ -1449,30 +1508,32 @@ export function Dashboard({
                  </DropdownMenu>
                </div>
 
-               <Button
+                <Button
                   onClick={() => {
                     if (activeView === "collections") {
                       setIsAddCollectionOpen(true);
-                    } else if (activeView === "personal-image") {
-                      setIsDialogOpen(true);
                     } else {
                       setIsDialogOpen(true);
                     }
                   }}
-                  size="sm"
-                  className={`h-9 px-4 rounded-xl shadow-sm transition-all hover:shadow duration-200 ${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'}`}
-               >
-                  {activeView === "collections" ? (
-                    <FolderSimplePlus className="h-4 w-4 mr-2" weight="regular" />
-                  ) : activeView === "personal-image" ? (
-                    <CloudArrowDown className="h-4 w-4 mr-2" weight="regular" />
-                  ) : (
-                    <PlusCircle className="h-4 w-4 mr-2" weight="regular" />
-                  )}
-                  <span className="text-sm font-medium">
-                    {activeView === "collections" ? "New" : activeView === "personal-image" ? "Upload" : "New"}
-                  </span>
-               </Button>
+                  className={`h-10 px-5 rounded-2xl shadow-lg transition-all duration-300 relative group/add overflow-hidden border-0 ${
+                    isDarkMode 
+                      ? 'bg-gradient-to-br from-[#8b5cf6] to-[#6d28d9] text-white hover:shadow-purple-500/20' 
+                      : 'bg-gradient-to-br from-[#E11D48] to-[#BE123C] text-white hover:shadow-rose-500/20'
+                  }`}
+                >
+                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/add:opacity-100 transition-opacity duration-300" />
+                  <div className="flex items-center gap-2 relative z-10">
+                    {activeView === "collections" ? (
+                      <FolderSimplePlus className="h-4 w-4 transition-transform group-hover/add:scale-110" weight="bold" />
+                    ) : (
+                      <PlusCircle className="h-4 w-4 transition-transform group-hover/add:rotate-90 duration-500" weight="bold" />
+                    )}
+                    <span className="text-sm font-bold tracking-tight">
+                      {activeView === "collections" ? "New Collection" : "New Prompt"}
+                    </span>
+                  </div>
+                </Button>
  
                {/* Account */}
                <DropdownMenu>
@@ -1556,7 +1617,7 @@ export function Dashboard({
               isDarkMode ? "bg-[#09090b]" : "bg-[#f8fafc]"
             }`}
           >
-            <div className={`mx-auto max-w-[1920px] ${viewingCollection ? "" : "p-4 md:p-8"}`}>
+            <div className={`mx-auto max-w-[1920px] ${viewingCollection ? "" : "p-4 md:p-8 md:pt-0 pt-0"}`}>
               {/* Show CollectionView when viewing a collection */}
               {viewingCollection && selectedCollection ? (
                 <CollectionView
@@ -1582,7 +1643,11 @@ export function Dashboard({
               ) : (
                 <div className="space-y-8">
                   {/* Header / Toolbar Section */}
-                  <div className="sticky top-0 z-10 -mx-4 px-4 py-2 md:-mx-8 md:px-8 md:py-3 backdrop-blur-xl bg-background/95 supports-[backdrop-filter]:bg-background/80 border-b border-transparent transition-all duration-300">
+                  <div className={`sticky top-0 z-10 -mx-4 px-4 py-3 md:-mx-8 md:px-8 md:py-4 backdrop-blur-2xl border-b transition-all duration-500 ${
+                    isDarkMode 
+                      ? "bg-gradient-to-r from-purple-900/10 via-[#09090b]/90 to-blue-900/10 border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]" 
+                      : "bg-gradient-to-r from-purple-50/40 via-white/80 to-blue-50/40 border-black/[0.03] shadow-[0_4px_16px_0_rgba(31,38,135,0.07)]"
+                  }`}>
                       <div className="mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         {/* Mobile Top Row: Title + View Toggle */}
                         <div className="flex items-center justify-between md:justify-start gap-3">
@@ -1621,17 +1686,20 @@ export function Dashboard({
                                     {/* Visibility Filter (Replaces Toggle) */}
                                     {activeView === "all" && (
                                     <Select value={allPromptsVisibility || "all"} onValueChange={(v) => setAllPromptsVisibility(v as any)}>
-                                        <SelectTrigger className={`col-span-2 md:col-span-1 md:w-auto h-9 min-w-[110px] rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
-                                           <div className="flex items-center gap-2">
+                                        <SelectTrigger className={`relative col-span-2 md:col-span-1 md:w-auto h-9 min-w-[110px] rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                           <span className={`absolute -top-1.5 left-2 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider rounded-sm z-10 leading-none shadow-sm transition-transform group-hover/filter:-translate-y-0.5 ${isDarkMode ? "bg-[#8b5cf6] text-white" : "bg-[#ede9fe] text-[#7c3aed]"}`}>
+                                                Visibility
+                                           </span>
+                                           <div className="flex items-center gap-2 mt-0.5">
                                                 {allPromptsVisibility === "public" ? <Globe className="h-3.5 w-3.5" /> : allPromptsVisibility === "private" ? <Lock className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                                                <span className="capitalize">{allPromptsVisibility === "all" || !allPromptsVisibility ? "All Visibility" : allPromptsVisibility}</span>
+                                                <span className="capitalize">{allPromptsVisibility === "all" || !allPromptsVisibility ? "View All" : allPromptsVisibility}</span>
                                            </div>
                                         </SelectTrigger>
                                         <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
                                             <SelectItem value="all" className="text-xs">
                                                 <div className="flex items-center gap-2">
                                                     <Eye className="h-3.5 w-3.5" />
-                                                    <span>All Visibility</span>
+                                                    <span>View All</span>
                                                 </div>
                                             </SelectItem>
                                             <SelectItem value="public" className="text-xs">
@@ -1656,8 +1724,13 @@ export function Dashboard({
                                     <>
                                         {/* Model Select */}
                                         <Select value={selectedModel} onValueChange={setSelectedModel}>
-                                            <SelectTrigger className={`col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
-                                                <SelectValue />
+                                            <SelectTrigger className={`relative col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                                <span className={`absolute -top-1.5 left-2 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider rounded-sm z-10 leading-none shadow-sm transition-transform group-hover/filter:-translate-y-0.5 ${isDarkMode ? "bg-[#8b5cf6] text-white" : "bg-[#ede9fe] text-[#7c3aed]"}`}>
+                                                    Models
+                                                </span>
+                                                <div className="mt-0.5">
+                                                    <SelectValue />
+                                                </div>
                                             </SelectTrigger>
                                             <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
                                                 {modelOptions.map((option) => (
@@ -1673,8 +1746,13 @@ export function Dashboard({
                                         
                                         {/* Type Select */}
                                         <Select value={selectedType} onValueChange={setSelectedType}>
-                                            <SelectTrigger className={`col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
-                                                <SelectValue placeholder="Type" />
+                                            <SelectTrigger className={`relative col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                                <span className={`absolute -top-1.5 left-2 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider rounded-sm z-10 leading-none shadow-sm transition-transform group-hover/filter:-translate-y-0.5 ${isDarkMode ? "bg-[#8b5cf6] text-white" : "bg-[#ede9fe] text-[#7c3aed]"}`}>
+                                                    Type
+                                                </span>
+                                                <div className="mt-0.5">
+                                                    <SelectValue placeholder="View All" />
+                                                </div>
                                             </SelectTrigger>
                                             <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
                                                 {typeOptions.map((type) => {
@@ -1693,8 +1771,11 @@ export function Dashboard({
                                         
                                         {/* Sort Select */}
                                         <Select value={sortBy} onValueChange={setSortBy}>
-                                            <SelectTrigger className={`col-span-2 md:col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
-                                                <div className="flex items-center justify-center md:justify-start gap-2"><SelectedSortIcon className="h-3.5 w-3.5" /><span>{selectedSortOption.label}</span></div>
+                                            <SelectTrigger className={`relative col-span-2 md:col-span-1 md:w-auto h-9 rounded-lg border-2 border-dashed shadow-sm text-xs font-medium transition-all hover:border-primary/50 ${isDarkMode ? "bg-[#18181b]/30 border-[#27272a] text-zinc-300 hover:bg-[#18181b]" : "bg-white/50 border-[#e2e8f0] text-slate-700 hover:bg-white"}`}>
+                                                <span className={`absolute -top-1.5 left-2 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider rounded-sm z-10 leading-none shadow-sm transition-transform group-hover/filter:-translate-y-0.5 ${isDarkMode ? "bg-[#8b5cf6] text-white" : "bg-[#ede9fe] text-[#7c3aed]"}`}>
+                                                    Sort by
+                                                </span>
+                                                <div className="flex items-center justify-center md:justify-start gap-2 mt-0.5"><SelectedSortIcon className="h-3.5 w-3.5" /><span>{selectedSortOption.label}</span></div>
                                             </SelectTrigger>
                                             <SelectContent className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-[#d4d4d4]"}>
                                                 {sortOptions.map((option) => {
@@ -1819,6 +1900,21 @@ export function Dashboard({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Floating Action Button (FAB) */}
+      <div className="fixed bottom-8 right-8 z-40 lg:block">
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          className={`h-14 w-14 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-0 transition-all duration-500 hover:scale-110 active:scale-95 group/fab overflow-hidden p-0 ${
+            isDarkMode 
+              ? 'bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed] text-white hover:shadow-purple-500/40' 
+              : 'bg-gradient-to-br from-[#E11D48] to-[#BE123C] text-white hover:shadow-rose-500/40'
+          }`}
+        >
+          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/fab:opacity-100 transition-opacity duration-300" />
+          <PlusCircle size={28} weight="bold" className="relative z-10 transition-transform duration-500 group-hover/fab:rotate-90" />
+        </Button>
       </div>
 
       {/* Add Prompt Dialog */}

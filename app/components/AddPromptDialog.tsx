@@ -20,10 +20,9 @@ import {
 } from "./ui/select";
 import { Video, Music, Image as ImageIcon, FileText, Upload } from "lucide-react";
 import { ModelIcon } from "./ModelIcon";
-import { createClient } from "@/utils/supabase/client";
 import type { Prompt, PromptType } from "@/lib/types";
 
-export type PromptDraft = Pick<Prompt, "title" | "description" | "model" | "type" | "tags" | "content">;
+export type PromptDraft = Pick<Prompt, "title" | "description" | "model" | "type" | "tags" | "content" | "initialPrompt"> & { file?: File };
 
 interface AddPromptDialogProps {
   open: boolean;
@@ -42,6 +41,7 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
   const [type, setType] = useState<PromptType>("text");
   const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
+  const [initialPrompt, setInitialPrompt] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -58,6 +58,7 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
       setModel("");
       setTags("");
       setContent("");
+      setInitialPrompt("");
       setFile(null);
     }
   }, [open, initialType]);
@@ -73,47 +74,21 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
 
   const handleSave = async () => {
     try {
-      let finalContent = content;
-
-      if (type === "image" && file) {
-        setUploading(true);
-        const supabase = createClient();
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('prompt-images')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('prompt-images')
-          .getPublicUrl(filePath);
-          
-        finalContent = publicUrl;
-      }
-
       onSave({
         title,
         description,
         model,
         type,
         tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-        content: finalContent,
+        content: content,
+        initialPrompt: initialPrompt || undefined,
+        file: file || undefined,
       });
       
       onOpenChange(false);
     } catch (error) {
-      console.error("Error uploading image:", error);
-      const message = error instanceof Error ? error.message : "Unknown error occurred";
-      alert(`Failed to upload image: ${message}`);
-    } finally {
-      setUploading(false);
+      console.error("Error saving prompt:", error);
+      alert(`Failed to save prompt: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -234,6 +209,21 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
                 />
              )}
           </div>
+
+          {type === "image" && (
+            <div className="grid gap-2">
+              <Label htmlFor="initial-prompt" className={`text-sm font-medium ${isDarkMode ? 'text-[#e4e4e7]' : 'text-[#333333]'}`}>
+                Initial Prompt <span className={`text-xs font-normal ${isDarkMode ? 'text-[#71717a]' : 'text-[#a1a1aa]'}`}>(Prompt used to generate this image)</span>
+              </Label>
+              <Textarea
+                id="initial-prompt"
+                value={initialPrompt}
+                onChange={(e) => setInitialPrompt(e.target.value)}
+                placeholder="Paste the prompt you used to generate this image..."
+                className={`min-h-[80px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+              />
+            </div>
+          )}
 
           <div className="grid gap-2">
             <Label htmlFor="tags" className={`text-sm font-medium ${isDarkMode ? 'text-[#e4e4e7]' : 'text-[#333333]'}`}>
