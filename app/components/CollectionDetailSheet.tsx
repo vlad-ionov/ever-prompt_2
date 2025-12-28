@@ -117,12 +117,12 @@ export function CollectionDetailSheet({
                   className={`p-3 rounded-xl ${
                     isDarkMode
                       ? "bg-gradient-to-br from-[#8b5cf6]/10 to-[#a78bfa]/5 border-[#8b5cf6]/20"
-                      : "bg-gradient-to-br from-[#CF0707]/10 to-[#E11D48]/5 border-[#CF0707]/20"
+                      : "bg-zinc-100/50 border-zinc-200"
                   } border`}
                 >
                   <FolderOpen
                     className={`h-6 w-6 ${
-                      isDarkMode ? "text-[#8b5cf6]" : "text-[#CF0707]"
+                      isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"
                     }`}
                   />
                 </div>
@@ -140,7 +140,7 @@ export function CollectionDetailSheet({
                       className={
                         isDarkMode
                           ? "bg-[#18181b] text-[#a1a1aa] border-[#27272a]"
-                          : "bg-[#f5f5f5] text-[#868686] border-[#e5e5e5]"
+                          : "bg-[#f1f5f9] text-[#868686] border-[#e5e5e5]"
                       }
                     >
                       <Lock className="h-3 w-3 mr-1" />
@@ -178,7 +178,7 @@ export function CollectionDetailSheet({
                   className={
                     isDarkMode
                       ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-                      : "bg-[#CF0707] text-white hover:bg-[#a80606]"
+                      : "bg-[#111111] text-white hover:bg-zinc-800"
                   }
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -197,10 +197,10 @@ export function CollectionDetailSheet({
                       viewMode === "grid"
                         ? isDarkMode
                           ? "bg-[#18181b] text-[#8b5cf6]"
-                          : "bg-[#f5f5f5] text-[#CF0707]"
+                          : "bg-[#f1f5f9] text-[#111111]"
                         : isDarkMode
                         ? "text-[#a1a1aa] hover:bg-[#18181b]"
-                        : "text-[#868686] hover:bg-[#f5f5f5]"
+                        : "text-[#868686] hover:bg-[#f1f5f9]"
                     }`}
                   >
                     <Grid3x3 className="h-4 w-4" />
@@ -213,10 +213,10 @@ export function CollectionDetailSheet({
                       viewMode === "list"
                         ? isDarkMode
                           ? "bg-[#18181b] text-[#8b5cf6]"
-                          : "bg-[#f5f5f5] text-[#CF0707]"
+                          : "bg-[#f1f5f9] text-[#111111]"
                         : isDarkMode
                         ? "text-[#a1a1aa] hover:bg-[#18181b]"
-                        : "text-[#868686] hover:bg-[#f5f5f5]"
+                        : "text-[#868686] hover:bg-[#f1f5f9]"
                     }`}
                   >
                     <List className="h-4 w-4" />
@@ -253,7 +253,7 @@ export function CollectionDetailSheet({
                     className={
                       isDarkMode
                         ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-                        : "bg-[#CF0707] text-white hover:bg-[#a80606]"
+                        : "bg-[#111111] text-white hover:bg-zinc-800"
                     }
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -357,10 +357,10 @@ export function CollectionDetailSheet({
                         selectedPrompts.includes(prompt.id)
                           ? isDarkMode
                             ? "bg-[#8b5cf6]/10 border-[#8b5cf6]"
-                            : "bg-[#CF0707]/10 border-[#CF0707]"
+                            : "bg-zinc-100 border-zinc-300"
                           : isDarkMode
                           ? "bg-[#18181b] border-[#27272a] hover:border-[#8b5cf6]/50"
-                          : "bg-white border-[#d4d4d4] hover:border-[#CF0707]/50"
+                          : "bg-white border-[#d4d4d4] hover:border-[#111111]/50"
                       }`}
                       onClick={() => togglePromptSelection(prompt.id)}
                     >
@@ -370,7 +370,7 @@ export function CollectionDetailSheet({
                             selectedPrompts.includes(prompt.id)
                               ? isDarkMode
                                 ? "bg-[#8b5cf6] border-[#8b5cf6]"
-                                : "bg-[#CF0707] border-[#CF0707]"
+                                : "bg-[#111111] border-[#111111]"
                               : isDarkMode
                               ? "border-[#27272a]"
                               : "border-[#d4d4d4]"
@@ -433,7 +433,7 @@ export function CollectionDetailSheet({
                 className={
                   isDarkMode
                     ? "border-[#27272a] bg-transparent text-[#fafafa] hover:bg-[#18181b]"
-                    : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f5f5f5]"
+                    : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f1f5f9]"
                 }
               >
                 Cancel
@@ -444,7 +444,7 @@ export function CollectionDetailSheet({
                 className={
                   isDarkMode
                     ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed] disabled:opacity-50"
-                    : "bg-[#CF0707] text-white hover:bg-[#a80606] disabled:opacity-50"
+                    : "bg-[#111111] text-white hover:bg-zinc-800 disabled:opacity-50"
                 }
               >
                 Add {selectedPrompts.length > 0 && `(${selectedPrompts.length})`}

@@ -9,14 +9,8 @@ import {
 import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 
 import { createClient } from "../utils/supabase/client";
+import type { UserProfile } from "@/lib/types";
 
-interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  avatar_url?: string;
-  created_at: string;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -25,7 +19,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  updateProfile: (name: string, avatarUrl?: string) => Promise<void>;
+  updateProfile: (name: string, avatarUrl?: string, bio?: string, isPublic?: boolean) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -243,7 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = "/";
   }, [supabase, syncServerSession]);
 
-  const updateProfile = useCallback(async (name: string, avatarUrl?: string) => {
+  const updateProfile = useCallback(async (name: string, avatarUrl?: string, bio?: string, isPublic?: boolean) => {
     if (!supabase) {
       throw new Error("Supabase client is not available");
     }
@@ -261,7 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({ name, avatar_url: avatarUrl }),
+      body: JSON.stringify({ name, avatar_url: avatarUrl, bio, is_public: isPublic }),
     });
 
     if (!response.ok) {

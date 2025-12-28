@@ -62,26 +62,24 @@ export function CollectionCard({
   if (viewMode === "list") {
     return (
       <Card
-        className={`group relative overflow-hidden ${
+        className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border-none ${
           isDarkMode
-            ? "bg-[#0f0f11] border-[#27272a] hover:border-[#8b5cf6]"
-            : "bg-white border-[#d4d4d4] hover:border-[#CF0707]"
-        } hover:shadow-lg transition-all duration-200 cursor-pointer`}
+            ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50"
+            : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"
+        }`}
         onClick={handleClick}
       >
         <div className="p-4 flex items-center gap-4">
           {/* Icon */}
           <div
-            className={`p-3 rounded-xl ${
+            className={`p-3 rounded-xl transition-all ${
               isDarkMode
                 ? "bg-gradient-to-br from-[#8b5cf6]/10 to-[#a78bfa]/5 border-[#8b5cf6]/20"
-                : "bg-gradient-to-br from-[#CF0707]/10 to-[#E11D48]/5 border-[#CF0707]/20"
-            } border`}
+                : "bg-white shadow-none border border-slate-200/50"
+            }`}
           >
             <FolderOpen
-              className={`h-6 w-6 ${
-                isDarkMode ? "text-[#8b5cf6]" : "text-[#CF0707]"
-              }`}
+              className={`h-6 w-6 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
             />
           </div>
 
@@ -100,7 +98,7 @@ export function CollectionCard({
                 className={`flex-shrink-0 ${
                   isDarkMode
                     ? "bg-[#18181b] text-[#a1a1aa] border-[#27272a]"
-                    : "bg-[#f5f5f5] text-[#868686] border-[#e5e5e5]"
+                    : "bg-white text-[#868686] border-[#e5e5e5]"
                 }`}
               >
                 <Lock className="h-3 w-3 mr-1" />
@@ -144,7 +142,7 @@ export function CollectionCard({
                   className={`${
                     isDarkMode
                       ? "hover:bg-[#18181b] text-[#a1a1aa]"
-                      : "hover:bg-[#f5f5f5] text-[#868686]"
+                      : "hover:bg-white text-[#868686]"
                   }`}
                   onClick={(event: MouseEvent<HTMLButtonElement>) =>
                     event.stopPropagation()
@@ -166,7 +164,7 @@ export function CollectionCard({
                   className={
                     isDarkMode
                       ? "text-[#fafafa] hover:bg-[#18181b]"
-                      : "text-[#333333] hover:bg-[#f5f5f5]"
+                      : "text-[#333333] hover:bg-white"
                   }
                 >
                   <Edit className="h-4 w-4 mr-2" />
@@ -177,7 +175,7 @@ export function CollectionCard({
                   className={
                     isDarkMode
                       ? "text-[#ef4444] hover:bg-[#18181b]"
-                      : "text-[#ef4444] hover:bg-[#f5f5f5]"
+                      : "text-[#ef4444] hover:bg-white"
                   }
                 >
                   <Trash className="h-4 w-4 mr-2" />
@@ -198,11 +196,11 @@ export function CollectionCard({
       transition={{ duration: 0.2 }}
     >
       <Card
-        className={`group relative overflow-hidden ${
+        className={`group relative overflow-hidden transition-all duration-300 cursor-pointer h-full border-none ${
           isDarkMode
-            ? "bg-[#0f0f11] border-[#27272a] hover:border-[#8b5cf6]"
-            : "bg-white border-[#d4d4d4] hover:border-[#CF0707]"
-        } hover:shadow-lg transition-all duration-200 cursor-pointer h-full`}
+            ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50"
+            : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"
+        }`}
         onClick={handleClick}
       >
         {/* Hover effect gradient */}
@@ -210,14 +208,14 @@ export function CollectionCard({
           className={`absolute inset-0 ${
             isDarkMode
               ? "bg-gradient-to-br from-[#8b5cf6]/5 to-transparent"
-              : "bg-gradient-to-br from-[#CF0707]/5 to-transparent"
+            : "bg-gradient-to-br from-[#111111]/5 to-transparent"
           } opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}
         />
 
         {/* Hover accent line */}
         <motion.div
           className={`absolute left-0 top-0 bottom-0 w-1 ${
-            isDarkMode ? "bg-[#8b5cf6]" : "bg-[#CF0707]"
+            isDarkMode ? "bg-[#8b5cf6]" : "bg-[#111111]"
           }`}
           initial={{ scaleY: 0 }}
           whileHover={{ scaleY: 1 }}
@@ -228,16 +226,14 @@ export function CollectionCard({
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div
-              className={`p-3 rounded-xl ${
+              className={`p-3 rounded-xl transition-all ${
                 isDarkMode
                   ? "bg-gradient-to-br from-[#8b5cf6]/10 to-[#a78bfa]/5 border-[#8b5cf6]/20"
-                  : "bg-gradient-to-br from-[#CF0707]/10 to-[#E11D48]/5 border-[#CF0707]/20"
-              } border`}
+                  : "bg-white shadow-none border border-slate-200/50"
+              }`}
             >
               <FolderOpen
-                className={`h-6 w-6 ${
-                  isDarkMode ? "text-[#8b5cf6]" : "text-[#CF0707]"
-                }`}
+                className={`h-6 w-6 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
               />
             </div>
 
@@ -249,7 +245,7 @@ export function CollectionCard({
                   className={`${
                     isDarkMode
                       ? "hover:bg-[#18181b] text-[#a1a1aa]"
-                      : "hover:bg-[#f5f5f5] text-[#868686]"
+                      : "hover:bg-white text-[#868686]"
                   }`}
                   onClick={(event: MouseEvent<HTMLButtonElement>) =>
                     event.stopPropagation()
@@ -271,7 +267,7 @@ export function CollectionCard({
                   className={
                     isDarkMode
                       ? "text-[#fafafa] hover:bg-[#18181b]"
-                      : "text-[#333333] hover:bg-[#f5f5f5]"
+                      : "text-[#333333] hover:bg-white"
                   }
                 >
                   <Edit className="h-4 w-4 mr-2" />
@@ -282,7 +278,7 @@ export function CollectionCard({
                   className={
                     isDarkMode
                       ? "text-[#ef4444] hover:bg-[#18181b]"
-                      : "text-[#ef4444] hover:bg-[#f5f5f5]"
+                      : "text-[#ef4444] hover:bg-white"
                   }
                 >
                   <Trash className="h-4 w-4 mr-2" />
@@ -324,7 +320,7 @@ export function CollectionCard({
                 className={`${
                   isDarkMode
                     ? "bg-[#18181b] text-[#a1a1aa] border-[#27272a]"
-                    : "bg-[#f5f5f5] text-[#868686] border-[#e5e5e5]"
+                    : "bg-white text-[#868686] border-[#e5e5e5]"
                 }`}
               >
                 <Lock className="h-3 w-3 mr-1" />

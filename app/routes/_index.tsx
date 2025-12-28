@@ -87,10 +87,10 @@ export default function Index() {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
-          isDarkMode ? "grain-bg-dark" : "grain-bg-light"
+          isDarkMode ? "bg-[#09090b]" : "bg-white"
         }`}
       >
-        <div className="grain-content">
+        <div>
           <p className={isDarkMode ? "text-[#f5f5f5]" : "text-[#333333]"}>
             Loading...
           </p>
@@ -102,10 +102,10 @@ export default function Index() {
   return (
     <div
       className={`min-h-screen ${
-        isDarkMode ? "grain-bg-dark" : "grain-bg-light"
+        isDarkMode ? "bg-[#09090b]" : "bg-white"
       }`}
     >
-      <div className="grain-content">
+      <div>
         <LandingPage
           isDarkMode={isDarkMode}
           onToggleDarkMode={toggleDarkMode}

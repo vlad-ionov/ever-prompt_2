@@ -111,7 +111,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`sm:max-w-[600px] max-h-[90svh] flex flex-col gap-0 p-0 overflow-hidden ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
-        <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f5f5f5]'}`}>
+        <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f1f5f9]'}`}>
           <DialogTitle className={isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}>Edit Prompt</DialogTitle>
           <DialogDescription className={isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}>
             Update your prompt details
@@ -128,7 +128,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter prompt title"
-              className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+              className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#111111]'}`}
             />
           </div>
 
@@ -138,7 +138,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
                    Type
                 </Label>
                 <Select value={type} onValueChange={(value: PromptType) => setType(value)}>
-                   <SelectTrigger className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] focus:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus:ring-[#E11D48]'}`}>
+                   <SelectTrigger className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] focus:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus:ring-[#111111]'}`}>
                       <SelectValue placeholder="Select type" />
                    </SelectTrigger>
                    <SelectContent className={isDarkMode ? 'bg-[#18181b] border-[#27272a] text-[#fafafa]' : 'bg-white border-[#d4d4d4]'}>
@@ -154,7 +154,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
                    Model
                 </Label>
                 <Select value={model} onValueChange={setModel}>
-                   <SelectTrigger className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] focus:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus:ring-[#E11D48]'}`}>
+                   <SelectTrigger className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] focus:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus:ring-[#111111]'}`}>
                       <SelectValue placeholder="Select model" />
                    </SelectTrigger>
                    <SelectContent className={isDarkMode ? 'bg-[#18181b] border-[#27272a] text-[#fafafa]' : 'bg-white border-[#d4d4d4]'}>
@@ -180,7 +180,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of the prompt"
-              className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+              className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#111111]'}`}
             />
           </div>
 
@@ -190,7 +190,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
              </Label>
              
              {type === "image" ? (
-               <div className={`border-2 border-dashed rounded-xl p-6 transition-colors ${isDarkMode ? 'border-[#27272a] hover:border-[#8b5cf6]/50 bg-[#18181b]/50' : 'border-[#d4d4d4] hover:border-[#E11D48]/50 bg-[#fafafa]'}`}>
+               <div className={`border-2 border-dashed rounded-xl p-6 transition-colors ${isDarkMode ? 'border-[#27272a] hover:border-[#8b5cf6]/50 bg-[#18181b]/50' : 'border-[#d4d4d4] hover:border-[#111111]/30 bg-[#fafafa]'}`}>
                   {!content && !file ? (
                      <div className="flex flex-col items-center justify-center text-center">
                         <div className={`p-3 rounded-full mb-3 ${isDarkMode ? 'bg-[#27272a]' : 'bg-[#e5e5e5]'}`}>
@@ -221,7 +221,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
                    value={content}
                    onChange={(e) => setContent(e.target.value)}
                    placeholder="Enter your prompt content here..."
-                   className={`min-h-[120px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+                   className={`min-h-[120px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#111111]'}`}
                 />
              )}
           </div>
@@ -236,7 +236,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
                 value={initialPrompt}
                 onChange={(e) => setInitialPrompt(e.target.value)}
                 placeholder="Paste the prompt you used to generate this image..."
-                className={`min-h-[80px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+                className={`min-h-[80px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#111111]'}`}
               />
             </div>
           )}
@@ -250,16 +250,16 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="coding, text-generation, creative..."
-              className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#E11D48]'}`}
+              className={`h-10 ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#111111]'}`}
             />
           </div>
         </div>
 
-        <DialogFooter className={`px-6 py-4 border-t ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11]' : 'border-[#f5f5f5] bg-white'}`}>
+        <DialogFooter className={`px-6 py-4 border-t ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11]' : 'border-[#f1f5f9] bg-white'}`}>
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className={`${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f5f5f5]'}`}
+            className={`${isDarkMode ? 'text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a]' : 'text-[#666666] hover:text-[#333333] hover:bg-[#f1f5f9]'}`}
           >
             Cancel
           </Button>
@@ -269,7 +269,7 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
             className={`${
               isDarkMode
                 ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]'
-                : 'bg-[#E11D48] text-white hover:bg-[#BE123C]'
+                : 'bg-[#111111] text-white hover:bg-[#222222]'
             } min-w-[100px]`}
           >
             {uploading ? "Uploading..." : "Save Changes"}

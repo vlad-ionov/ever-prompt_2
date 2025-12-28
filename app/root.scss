@@ -1,5 +1,7 @@
-@use "./styles/_themes";
-@use "./styles/_variables" as *;
+@use "styles/_themes";
+@use "styles/abstracts/variables" as *;
+@use "styles/abstracts/mixins" as *;
+@use "styles/base/utilities";
 
 :root {
   font-size: rem(16px);
@@ -14,10 +16,59 @@ body {
   margin: 0;
   background-color: $color-bg;
   color: $color-text;
-  font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.4;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Outfit", sans-serif;
 }
 
 a {
   color: inherit;
+}
+
+/* Modern Global Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(155, 155, 155, 0.2);
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(155, 155, 155, 0.4);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/* Firefox support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.2) transparent;
+}
+
+/* Specific overrides for dark mode if needed via data-theme or parent class */
+[data-theme="dark"], .dark {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+    background-clip: content-box;
+  }
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
