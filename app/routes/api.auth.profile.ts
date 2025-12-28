@@ -48,6 +48,8 @@ export async function action({ request }: ActionFunctionArgs) {
       email: user.email ?? "",
       name: user.user_metadata?.name ?? "",
       avatar_url: user.user_metadata?.avatar_url ?? undefined,
+      bio: user.user_metadata?.bio ?? "",
+      is_public: user.user_metadata?.is_public ?? false,
       created_at: user.created_at ?? new Date().toISOString(),
     };
     return json(profile);
@@ -75,14 +77,14 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ error: "Failed to update profile" }, { status: 500 });
   }
 
-  const body = await request.json() as { name?: string; avatar_url?: string };
+  const body = await request.json() as { name?: string; avatar_url?: string; bio?: string; is_public?: boolean };
 
   // Use Admin API to update user metadata
   const serviceRoleKey = env.SUPABASE_SERVICE_ROLE;
   if (!serviceRoleKey) {
     return json({ error: "Supabase service role key is not configured on the server" }, { status: 500 });
   }
-  
+
   const updateResponse = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
     method: "PUT",
     headers: {
@@ -94,10 +96,12 @@ export async function action({ request }: ActionFunctionArgs) {
       user_metadata: {
         name: body.name ?? user.user_metadata?.name,
         avatar_url: body.avatar_url ?? user.user_metadata?.avatar_url,
+        bio: body.bio ?? user.user_metadata?.bio,
+        is_public: body.is_public ?? user.user_metadata?.is_public,
       },
     })
   });
-  
+
   if (!updateResponse.ok) {
     const errorData = await updateResponse.json().catch(() => ({}));
     return json({ error: errorData?.message ?? "Failed to update user" }, { status: 400 });
@@ -110,11 +114,11 @@ export async function action({ request }: ActionFunctionArgs) {
       "apikey": serviceRoleKey,
     }
   });
-  
+
   if (!getUserResponse.ok) {
     return json({ error: "Failed to fetch updated user" }, { status: 500 });
   }
-  
+
   const updatedUserData = await getUserResponse.json();
 
   const updatedUser = updatedUserData;
@@ -124,6 +128,8 @@ export async function action({ request }: ActionFunctionArgs) {
     email: updatedUser.email ?? "",
     name: updatedUser.user_metadata?.name ?? "",
     avatar_url: updatedUser.user_metadata?.avatar_url ?? undefined,
+    bio: updatedUser.user_metadata?.bio ?? "",
+    is_public: updatedUser.user_metadata?.is_public ?? false,
     created_at: updatedUser.created_at ?? new Date().toISOString(),
   };
 

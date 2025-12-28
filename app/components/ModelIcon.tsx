@@ -5,6 +5,7 @@ import OpenAIIcon from "../assets/icons/openai.svg";
 import GeminiIcon from "../assets/icons/gemini-color.svg";
 import MidjourneyIcon from "../assets/icons/midjourney.svg";
 import GrokIcon from "../assets/icons/grok.svg";
+import QwenIcon from "../assets/icons/qwen-color.svg";
 
 interface ModelConfig {
   keywords: string[];
@@ -32,6 +33,10 @@ const MODEL_MAPPINGS: ModelConfig[] = [
     keywords: ["grok", "xai"],
     icon: GrokIcon,
   },
+  {
+    keywords: ["qwen"],
+    icon: QwenIcon,
+  },
 ];
 
 interface ModelIconProps {
@@ -48,6 +53,8 @@ export function ModelIcon({ model, className = "", size = 14, isDarkMode = false
   const needsInversion = isDarkMode && (
     modelLower.includes("gpt") || 
     modelLower.includes("openai") || 
+    modelLower.includes("dall-e") || 
+    modelLower.includes("dalle") || 
     modelLower.includes("midjourney") || 
     modelLower.includes("mj") ||
     modelLower.includes("grok") ||

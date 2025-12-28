@@ -34,9 +34,15 @@ interface DashboardPromptCardProps {
   createdAt: string;
   content: string;
   isDarkMode?: boolean;
+  author?: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
 }
 
 export function DashboardPromptCard({
+  id,
   title,
   description,
   model,
@@ -48,21 +54,23 @@ export function DashboardPromptCard({
   isPublic,
   content,
   isDarkMode = false,
+  author,
+  createdAt,
 }: DashboardPromptCardProps) {
   const TypeIcon = TYPE_ICONS[type];
 
   return (
     <Card
-      className={`group relative overflow-hidden ${
+      className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border-none ${
         isDarkMode
-          ? "bg-[#0f0f11] border-[#27272a] hover:border-[#8b5cf6]"
-          : "bg-white border-[#d4d4d4] hover:border-[#CF0707]"
-      } hover:shadow-lg transition-all duration-200 cursor-pointer`}
+          ? "bg-[#0f0f11] shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50"
+          : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"
+      }`}
     >
       {/* Hover effect line */}
       <motion.div
         className={`absolute left-0 top-0 bottom-0 w-1 ${
-          isDarkMode ? "bg-[#8b5cf6]" : "bg-[#CF0707]"
+          isDarkMode ? "bg-[#8b5cf6]" : "bg-[#111111]"
         }`}
         initial={{ scaleY: 0 }}
         whileHover={{ scaleY: 1 }}
@@ -74,9 +82,7 @@ export function DashboardPromptCard({
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <TypeIcon
-              className={`h-4 w-4 flex-shrink-0 ${
-                isDarkMode ? "text-[#8b5cf6]" : "text-[#CF0707]"
-              }`}
+              className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
             />
             <h3
               className={`text-sm truncate ${
@@ -87,14 +93,14 @@ export function DashboardPromptCard({
             </h3>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <ModelIcon model={model} size={16} />
+            <ModelIcon model={model} size={16} isDarkMode={isDarkMode} />
             <Badge
               variant="outline"
               className={`text-xs ${
                 isPublic
                   ? isDarkMode
                     ? "border-[#8b5cf6]/30 text-[#8b5cf6]"
-                    : "border-[#CF0707]/30 text-[#CF0707]"
+                    : "border-[#111111]/30 text-[#111111]"
                   : isDarkMode
                   ? "border-[#71717a] text-[#71717a]"
                   : "border-[#868686] text-[#868686]"
@@ -123,7 +129,7 @@ export function DashboardPromptCard({
               className={`text-xs px-2 py-0.5 ${
                 isDarkMode
                   ? "bg-[#18181b] text-[#a1a1aa] border-[#27272a]"
-                  : "bg-[#f5f5f5] text-[#868686] border-[#e5e5e5]"
+                  : "bg-white text-[#868686] border-[#e5e5e5]"
               }`}
             >
               {tag}
@@ -154,7 +160,7 @@ export function DashboardPromptCard({
                   isLiked
                     ? isDarkMode
                       ? "text-[#8b5cf6] fill-[#8b5cf6]"
-                      : "text-[#CF0707] fill-[#CF0707]"
+                      : "text-[#111111] fill-[#111111]"
                     : isDarkMode
                     ? "text-[#71717a]"
                     : "text-[#868686]"
@@ -175,7 +181,7 @@ export function DashboardPromptCard({
                   isSaved
                     ? isDarkMode
                       ? "text-[#8b5cf6] fill-[#8b5cf6]"
-                      : "text-[#CF0707] fill-[#CF0707]"
+                      : "text-[#111111] fill-[#111111]"
                     : isDarkMode
                     ? "text-[#71717a]"
                     : "text-[#868686]"
@@ -185,14 +191,29 @@ export function DashboardPromptCard({
           </div>
 
           <motion.div
-            className={`text-xs ${
-              isDarkMode ? "text-[#52525b]" : "text-[#a1a1aa]"
-            }`}
+            className="flex items-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            {model}
+            {isPublic && author ? (
+              <>
+                <div className={`h-5 w-5 rounded-full overflow-hidden border ${isDarkMode ? "border-[#27272a]" : "border-gray-200"}`}>
+                  <img 
+                    src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} 
+                    alt={author.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#333333]"}`}>
+                  {author.name}
+                </span>
+              </>
+            ) : (
+              <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#a1a1aa]"}`}>
+                {createdAt}
+              </span>
+            )}
           </motion.div>
         </div>
       </div>
@@ -202,7 +223,7 @@ export function DashboardPromptCard({
         className={`absolute inset-0 ${
           isDarkMode
             ? "bg-gradient-to-br from-[#8b5cf6]/5 to-transparent"
-            : "bg-gradient-to-br from-[#CF0707]/5 to-transparent"
+            : "bg-gradient-to-br from-[#111111]/5 to-transparent"
         } opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}
       />
     </Card>

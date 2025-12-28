@@ -75,12 +75,12 @@ export function AddToCollectionDialog({
               className={`p-2 rounded-lg ${
                 isDarkMode
                   ? "bg-gradient-to-br from-[#8b5cf6]/10 to-[#a78bfa]/5 border-[#8b5cf6]/20"
-                  : "bg-gradient-to-br from-[#CF0707]/10 to-[#E11D48]/5 border-[#CF0707]/20"
+                  : "bg-gradient-to-br from-[#8b5cf6]/10 to-[#8b5cf6]/5 border-[#8b5cf6]/20"
               } border`}
             >
               <FolderOpen
                 className={`h-5 w-5 ${
-                  isDarkMode ? "text-[#8b5cf6]" : "text-[#CF0707]"
+                  isDarkMode ? "text-[#8b5cf6]" : "text-[#8b5cf6]"
                 }`}
               />
             </div>
@@ -117,7 +117,7 @@ export function AddToCollectionDialog({
                     className={
                       isDarkMode
                         ? "bg-[#8b5cf6]/10 text-[#8b5cf6] border-[#8b5cf6]/20"
-                        : "bg-[#CF0707]/10 text-[#CF0707] border-[#CF0707]/20"
+                        : "bg-[#8b5cf6]/10 text-[#8b5cf6] border-[#8b5cf6]/20"
                     }
                   >
                     <Check className="h-3 w-3 mr-1" />
@@ -165,10 +165,10 @@ export function AddToCollectionDialog({
                         selectedCollections.includes(collection.id)
                           ? isDarkMode
                             ? "bg-[#8b5cf6]/10 border-[#8b5cf6]"
-                            : "bg-[#CF0707]/10 border-[#CF0707]"
+                            : "bg-[#8b5cf6]/10 border-[#8b5cf6]"
                           : isDarkMode
                           ? "bg-[#18181b] border-[#27272a] hover:border-[#8b5cf6]/50"
-                          : "bg-white border-[#d4d4d4] hover:border-[#CF0707]/50"
+                          : "bg-white border-[#d4d4d4] hover:border-[#8b5cf6]/50"
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -177,7 +177,7 @@ export function AddToCollectionDialog({
                             selectedCollections.includes(collection.id)
                               ? isDarkMode
                                 ? "bg-[#8b5cf6] border-[#8b5cf6]"
-                                : "bg-[#CF0707] border-[#CF0707]"
+                                : "bg-[#8b5cf6] border-[#8b5cf6]"
                               : isDarkMode
                               ? "border-[#27272a]"
                               : "border-[#d4d4d4]"
@@ -242,7 +242,7 @@ export function AddToCollectionDialog({
               className={
                 isDarkMode
                   ? "border-[#27272a] bg-transparent text-[#fafafa] hover:bg-[#18181b]"
-                  : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f5f5f5]"
+                  : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f1f5f9]"
               }
             >
               Cancel
@@ -253,7 +253,7 @@ export function AddToCollectionDialog({
               className={
                 isDarkMode
                   ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed] disabled:opacity-50"
-                  : "bg-[#CF0707] text-white hover:bg-[#a80606] disabled:opacity-50"
+                  : "bg-[#8b5cf6] text-white hover:bg-[#a80606] disabled:opacity-50"
               }
             >
               Add to{" "}

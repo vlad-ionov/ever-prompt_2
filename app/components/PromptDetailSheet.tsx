@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sheet, SheetContent } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
@@ -7,24 +7,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   Copy,
   Heart,
-  Share2,
-  Video,
-  Music,
+  ShareNetwork,
+  VideoCamera,
+  MusicNotes,
   Image as ImageIcon,
-  FileText,
-  MoreVertical,
+  TextT,
+  DotsThreeVertical,
   Check,
-  Edit,
+  PencilSimple,
   Trash,
-  Bookmark,
+  BookmarkSimple,
   Eye,
-  EyeOff,
+  EyeSlash,
   Globe,
   Lock,
-  FolderOpen,
+  FolderSimplePlus,
   X,
-  Type
-} from "lucide-react";
+  Shapes,
+  Clock,
+  TextAa,
+  ArrowSquareOut
+} from "@phosphor-icons/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,12 +39,13 @@ import {
 import { toast } from "sonner";
 import { ModelIcon } from "./ModelIcon";
 import type { Prompt } from "@/lib/types";
+import { motion, AnimatePresence } from "motion/react";
 
 const TYPE_ICONS = {
-  video: Video,
-  audio: Music,
+  video: VideoCamera,
+  audio: MusicNotes,
   image: ImageIcon,
-  text: FileText,
+  text: TextT,
 };
 
 interface PromptDetailSheetProps {
@@ -78,7 +82,7 @@ export function PromptDetailSheet({
 
   if (!prompt) return null;
 
-  const TypeIcon = TYPE_ICONS[prompt.type] || Type;
+  const TypeIcon = TYPE_ICONS[prompt.type] || Shapes;
 
   // --- Helpers ---
   const copyToClipboard = async (text: string) => {
@@ -98,7 +102,10 @@ export function PromptDetailSheet({
 
   const handleCopy = async () => {
     try {
-      await copyToClipboard(prompt.content);
+      const textToCopy = prompt.type === 'image' && prompt.initialPrompt 
+        ? prompt.initialPrompt 
+        : prompt.content;
+      await copyToClipboard(textToCopy);
       setCopied(true);
       toast.success("Copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
@@ -129,7 +136,25 @@ export function PromptDetailSheet({
     onSave?.(prompt.id);
   };
 
-  const wordCount = prompt.content.trim().split(/\s+/).length;
+  const contentForStats = prompt.type === 'image' && prompt.initialPrompt ? prompt.initialPrompt : prompt.content;
+  const wordCount = contentForStats.trim().split(/\s+/).length;
+
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -137,210 +162,303 @@ export function PromptDetailSheet({
         side="right"
         className={`w-full sm:max-w-xl p-0 flex flex-col gap-0 border-l shadow-2xl transition-all duration-300 ${
           isDarkMode 
-            ? "bg-[#09090b]/95 backdrop-blur-xl border-[#27272a] text-zinc-100" 
-            : "bg-white/95 backdrop-blur-xl border-slate-200 text-slate-900"
-        }`}
+            ? "bg-[#09090b]/95 border-[#27272a] text-zinc-100" 
+            : "bg-white/95 border-slate-200 text-slate-900"
+        } backdrop-blur-2xl`}
       >
-        {/* Compact Header */}
-        <div className={`flex items-center justify-between px-4 py-3 border-b shrink-0 ${isDarkMode ? "border-white/5 bg-[#09090b]/50" : "border-slate-100 bg-white/50"}`}>
-            <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => onOpenChange(false)}
-                className="rounded-full hover:bg-muted h-8 w-8"
-            >
-                <X className="h-4 w-4" />
-            </Button>
-            
-            <div className="flex items-center gap-1">
-                 <Button
+        {/* Decorative Background Glows */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className={`absolute top-0 right-0 w-64 h-64 blur-[100px] opacity-20 rounded-full ${isDarkMode ? "bg-violet-500" : "bg-rose-500"}`} />
+          <div className={`absolute bottom-0 left-0 w-64 h-64 blur-[100px] opacity-10 rounded-full ${isDarkMode ? "bg-blue-500" : "bg-blue-400"}`} />
+        </div>
+
+        {/* Custom Header with Integrated Navigation/Shortcuts */}
+        <div className={`relative flex flex-col px-6 pt-6 pb-4 border-b shrink-0 z-10 ${
+          isDarkMode ? "border-white/5 bg-[#09090b]/40" : "border-slate-100 bg-white/40"
+        }`}>
+            {/* Top row: Badges and More actions */}
+            <div className="flex items-center justify-between mb-4 pr-20">
+                <div className="flex items-center gap-2">
+                    <Badge variant="outline" className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
+                        isDarkMode ? "bg-violet-500/10 text-violet-400 border-violet-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                    }`}>
+                        {prompt.type}
+                    </Badge>
+                    <Badge variant="outline" className={`px-2 py-0.5 text-[10px] font-medium flex items-center gap-1.5 ${
+                        isDarkMode ? "bg-white/5 border-white/10 text-zinc-400" : "bg-slate-100 border-slate-200 text-slate-500"
+                    }`}>
+                        <ModelIcon model={prompt.model} size={10} isDarkMode={isDarkMode} />
+                        {prompt.model}
+                    </Badge>
+                </div>
+
+                <div className="flex items-center gap-1">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                          <DotsThreeVertical weight="bold" className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-slate-200"}>
+                        <DropdownMenuLabel>Prompt Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator className={isDarkMode ? "bg-[#27272a]" : "bg-slate-100"} />
+                        {onEdit && (
+                            <DropdownMenuItem onClick={() => onEdit(prompt.id)} className="gap-2">
+                                <PencilSimple weight="bold" className="h-4 w-4" /> Edit Details
+                            </DropdownMenuItem>
+                        )}
+                        {onToggleVisibility && (
+                            <DropdownMenuItem onClick={() => onToggleVisibility(prompt.id)} className="gap-2">
+                                {prompt.isPublic ? <EyeSlash weight="bold" className="h-4 w-4 text-amber-500" /> : <Eye weight="bold" className="h-4 w-4 text-blue-500" />}
+                                {prompt.isPublic ? "Set to Private" : "Make Public"}
+                            </DropdownMenuItem>
+                        )}
+                        {onAddToCollection && !prompt.isPublic && (
+                            <DropdownMenuItem onClick={() => onAddToCollection(prompt.id)} className="gap-2">
+                                <FolderSimplePlus weight="bold" className="h-4 w-4" /> Add to Collection
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator className={isDarkMode ? "bg-[#27272a]" : "bg-slate-100"} />
+                        <DropdownMenuItem onClick={handleShare} className="gap-2">
+                            <ShareNetwork weight="bold" className="h-4 w-4" /> Share Link
+                        </DropdownMenuItem>
+                        {onDelete && (
+                            <>
+                                <DropdownMenuSeparator className={isDarkMode ? "bg-[#27272a]" : "bg-slate-100"} />
+                                <DropdownMenuItem onClick={() => onDelete(prompt.id)} className="text-rose-500 focus:text-rose-500 gap-2">
+                                    <Trash weight="bold" className="h-4 w-4" /> Delete Prompt
+                                </DropdownMenuItem>
+                            </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+
+            {/* Middle row: Title */}
+            <h2 className="text-2xl font-bold tracking-tight mb-4 pr-20">{prompt.title}</h2>
+
+            {/* Bottom row: Quick Shortcut Icons (Navigation Improvement) */}
+            <div className={`flex items-center gap-1.5 p-1 rounded-2xl w-fit ${
+                isDarkMode ? "bg-white/5 border border-white/5" : "bg-slate-100/50 border border-slate-200/50"
+            }`}>
+                <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={handleLike}
-                    className={`h-8 w-8 rounded-full transition-colors ${isLiked ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                  >
-                    <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-                  </Button>
-                  <Button
+                    className={`h-9 gap-2 px-3 rounded-xl transition-all ${
+                        isLiked 
+                          ? "text-rose-500 bg-rose-500/10 hover:bg-rose-500/20" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                >
+                    <Heart weight={isLiked ? "fill" : "bold"} className="h-4 w-4" />
+                    <span className="text-xs font-semibold">{likeCount}</span>
+                </Button>
+
+                <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={handleSave}
-                    className={`h-8 w-8 rounded-full transition-colors ${isSaved ? (isDarkMode ? "text-violet-400 bg-violet-400/10" : "text-rose-500 bg-rose-500/10") : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                  >
-                    <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
-                  </Button>
-                  
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className={isDarkMode ? "bg-[#18181b] border-[#27272a] text-zinc-300" : "bg-white border-slate-200"}>
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator className={isDarkMode ? "bg-[#27272a]" : "bg-slate-100"} />
-                    {onEdit && (
-                        <DropdownMenuItem onClick={() => onEdit(prompt.id)}>
-                            <Edit className="h-4 w-4 mr-2" /> Edit Prompt
-                        </DropdownMenuItem>
-                    )}
-                    {onToggleVisibility && (
-                        <DropdownMenuItem onClick={() => onToggleVisibility(prompt.id)}>
-                            {prompt.isPublic ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                            {prompt.isPublic ? "Make Private" : "Make Public"}
-                        </DropdownMenuItem>
-                    )}
-                    {onAddToCollection && !prompt.isPublic && (
-                        <DropdownMenuItem onClick={() => onAddToCollection(prompt.id)}>
-                            <FolderOpen className="h-4 w-4 mr-2" /> Add to Collection
-                        </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator className={isDarkMode ? "bg-[#27272a]" : "bg-slate-100"} />
-                    {onDelete && (
-                        <DropdownMenuItem onClick={() => onDelete(prompt.id)} className="text-red-500 focus:text-red-500">
-                            <Trash className="h-4 w-4 mr-2" /> Delete
-                        </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    className={`h-9 px-3 rounded-xl transition-all ${
+                        isSaved 
+                          ? (isDarkMode ? "text-violet-400 bg-violet-400/10 hover:bg-violet-400/20" : "text-rose-500 bg-rose-500/10 hover:bg-rose-500/20") 
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                >
+                    <BookmarkSimple weight={isSaved ? "fill" : "bold"} className="h-4 w-4" />
+                </Button>
+
+                <div className={`w-px h-4 mx-1 ${isDarkMode ? "bg-white/10" : "bg-slate-200"}`} />
+
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="h-9 gap-2 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                >
+                    {copied ? <Check weight="bold" className="h-4 w-4 text-green-500" /> : <Copy weight="bold" className="h-4 w-4" />}
+                    <span className="text-xs font-semibold">{copied ? "Copied" : "Copy"}</span>
+                </Button>
+
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit?.(prompt.id)}
+                    className="h-9 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                >
+                    <PencilSimple weight="bold" className="h-4 w-4" />
+                </Button>
+
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleShare}
+                    className="h-9 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                >
+                    <ShareNetwork weight="bold" className="h-4 w-4" />
+                </Button>
             </div>
         </div>
 
-        <ScrollArea className="flex-1 w-full">
-            <div className="pb-10">
-                {/* Hero for Image */}
+        <ScrollArea className="flex-1 w-full bg-transparent min-h-0">
+            <motion.div 
+                className="pb-20"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+                {/* Hero for Image (Vibrant Display) */}
                 {prompt.type === 'image' && (
-                    <div className="w-full bg-black/5 dark:bg-black/40 border-b border-border/50">
-                        <div className="w-full flex items-center justify-center p-0">
+                    <motion.div 
+                        variants={itemVariants}
+                        className="w-full bg-black/5 dark:bg-black/40 border-b border-border/50 relative group"
+                    >
+                        <div className="w-full flex items-center justify-center p-0 overflow-hidden">
                             <img 
                                 src={prompt.content} 
                                 alt={prompt.title}
-                                className="w-full h-auto object-cover max-h-[400px]"
+                                className="w-full h-auto object-cover max-h-[450px] transition-transform duration-700 group-hover:scale-105"
                             />
                         </div>
-                    </div>
+                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                            <Button variant="secondary" size="sm" className="bg-white/20 backdrop-blur-md text-white border-white/20 hover:bg-white/30 gap-2" onClick={() => window.open(prompt.content, '_blank')}>
+                                <ArrowSquareOut weight="bold" className="h-4 w-4" />
+                                View Full Image
+                            </Button>
+                        </div>
+                    </motion.div>
                 )}
 
-                <div className="px-5 py-6 space-y-6">
-                    {/* Header Info */}
-                    <div className="space-y-3">
-                         <div className="flex gap-3 items-start">
-                             <div className={`p-2.5 rounded-xl shrink-0 ${
-                                isDarkMode ? "bg-white/5 ring-1 ring-white/10" : "bg-slate-100 ring-1 ring-slate-200"
-                             }`}>
-                                <TypeIcon className={`h-5 w-5 ${isDarkMode ? "text-violet-400" : "text-rose-500"}`} />
-                             </div>
-                             <div>
-                                <h2 className="text-xl font-bold leading-tight">{prompt.title}</h2>
-                                {prompt.description && <p className={`mt-1 text-sm leading-relaxed ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>
-                                    {prompt.description}
-                                </p>}
-                             </div>
-                        </div>
+                <div className="px-6 py-8 space-y-10">
+                    {/* Header Info / Description */}
+                    <motion.div variants={itemVariants} className="space-y-4">
+                        {prompt.description && (
+                            <div className={`p-4 rounded-2xl border ${
+                                isDarkMode ? "bg-white/[0.02] border-white/5 text-zinc-400" : "bg-slate-50 border-slate-200 text-slate-500"
+                            }`}>
+                                <p className="text-[13px] leading-relaxed italic">
+                                    “{prompt.description}”
+                                </p>
+                            </div>
+                        )}
 
-                        {/* Compact Metadata Strip */}
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                             <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50">
-                                <ModelIcon model={prompt.model} size={12} />
-                                <span className="font-medium">{prompt.model}</span>
+                        {/* Metadata Strip */}
+                        <div className="flex flex-wrap items-center gap-4 text-xs">
+                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
+                                {prompt.isPublic ? <Globe weight="bold" className="h-3.5 w-3.5 text-blue-500" /> : <Lock weight="bold" className="h-3.5 w-3.5 text-amber-500" />}
+                                <span className="font-medium">{prompt.isPublic ? "Public Access" : "Private Vault"}</span>
                              </div>
-                             <div className="w-px h-3 bg-border" />
-                             <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50">
-                                {prompt.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                                <span>{prompt.isPublic ? "Public" : "Private"}</span>
+                             
+                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
+                                <Clock weight="bold" className="h-3.5 w-3.5" />
+                                <span>{prompt.createdAt}</span>
                              </div>
-                             <div className="w-px h-3 bg-border" />
-                             <span>{likeCount} likes</span>
-                             <span>•</span>
-                             <span>{wordCount} words</span>
-                             <span>•</span>
-                             <span>{prompt.createdAt}</span>
+
+                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
+                                <TextAa weight="bold" className="h-3.5 w-3.5" />
+                                <span>{wordCount} words</span>
+                             </div>
                         </div>
                          
-                         <div className="flex flex-wrap gap-1.5">
-                             {prompt.tags.map(tag => (
-                                 <span key={tag} className="px-2 py-0.5 text-[10px] font-medium rounded-full border border-border text-muted-foreground">
-                                    #{tag}
-                                 </span>
-                             ))}
-                        </div>
-                    </div>
+                        {prompt.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {prompt.tags.map(tag => (
+                                    <span key={tag} className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all ${
+                                        isDarkMode 
+                                            ? "bg-white/5 border-white/10 text-zinc-400 hover:text-violet-400 hover:border-violet-400/30" 
+                                            : "bg-slate-50 border-slate-200 text-slate-500 hover:text-rose-500 hover:border-rose-500/30"
+                                    }`}>
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                    </motion.div>
 
-                    {/* Prompt Content */}
-                    <div className="space-y-2">
+                    {/* Prompt Content Section */}
+                    <motion.div variants={itemVariants} className="space-y-4">
                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Prompt Content</h3>
-                            <Button variant="ghost" size="sm" onClick={handleCopy} className="h-6 gap-1.5 text-xs hover:bg-muted">
-                                {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                                {copied ? "Copied" : "Copy"}
+                            <div className="flex items-center gap-2">
+                                <div className={`p-1.5 rounded-lg ${isDarkMode ? "bg-violet-500/10 text-violet-400" : "bg-rose-500/10 text-rose-500"}`}>
+                                    <TypeIcon weight="bold" className="h-4 w-4" />
+                                </div>
+                                <h3 className="text-sm font-bold uppercase tracking-wider opacity-60">Prompt Content</h3>
+                            </div>
+                            <Button variant="ghost" size="sm" onClick={handleCopy} className={`h-8 gap-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                                isDarkMode ? "hover:bg-violet-500/10 hover:text-violet-400" : "hover:bg-rose-500/10 hover:text-rose-500"
+                            }`}>
+                                {copied ? <Check weight="bold" className="h-3.5 w-3.5 text-green-500" /> : <Copy weight="bold" className="h-3.5 w-3.5" />}
+                                {copied ? "Copied" : "Copy to Clipboard"}
                             </Button>
                          </div>
                          
-                         {prompt.type !== 'image' && (
-                             <div className={`relative rounded-xl border p-4 ${isDarkMode ? "bg-[#18181b]/50 border-white/10" : "bg-slate-50/80 border-slate-200"}`}>
-                                <div className="font-mono text-sm leading-relaxed whitespace-pre-wrap break-words text-foreground/90">
-                                    {prompt.content}
-                                </div>
-                             </div>
-                         )}
-
-                         {prompt.type === 'image' && (
-                            <div className="p-3 rounded-lg border border-dashed text-xs text-muted-foreground text-center">
-                                Image generated from parameters.
-                            </div>
-                         )}
-                    </div>
-
-                     {/* Initial Prompt (for images) */}
-                     {prompt.initialPrompt && (
-                        <div className="space-y-2">
-                             <div className="flex items-center justify-between">
-                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Generation Prompt</h3>
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    onClick={async () => {
-                                        await copyToClipboard(prompt.initialPrompt!);
-                                        toast.success("Initial prompt copied");
-                                    }} 
-                                    className="h-6 gap-1.5 text-xs hover:bg-muted"
-                                >
-                                    <Copy className="h-3 w-3" />
-                                    Copy
-                                </Button>
-                             </div>
-                             <div className={`relative rounded-xl border p-4 ${isDarkMode ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
-                                <div className="text-sm italic leading-relaxed text-foreground/80">
-                                    "{prompt.initialPrompt}"
-                                </div>
-                             </div>
-                        </div>
-                     )}
-
-                     {/* Compact Author */}
-                    {prompt.author && (
-                         <div className="flex items-center gap-3 pt-2 border-t border-dashed">
-                            <Avatar className="h-8 w-8 border">
-                                <AvatarImage src={prompt.author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${prompt.author.email}`} />
-                                <AvatarFallback>{prompt.author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col">
-                                <span className="text-sm font-medium leading-none">{prompt.author.name}</span>
-                                <span className="text-[10px] text-muted-foreground">Creator</span>
+                         <div className={`relative rounded-3xl border p-6 overflow-hidden ${
+                            isDarkMode 
+                                ? "bg-[#111113] border-white/10 shadow-[inner_0_2px_4px_rgba(0,0,0,0.3)]" 
+                                : "bg-slate-50/50 border-slate-200 shadow-sm"
+                         }`}>
+                            {/* Decorative accent for content box */}
+                            <div className={`absolute top-0 left-0 w-1 h-full ${isDarkMode ? "bg-violet-500/50" : "bg-rose-500/50"}`} />
+                            
+                            <div className={`text-[15px] leading-relaxed whitespace-pre-wrap break-words text-foreground/90 ${
+                                prompt.type !== 'image' ? "font-mono" : "italic font-serif"
+                            }`}>
+                                {prompt.type === 'image' ? (prompt.initialPrompt || prompt.content) : prompt.content}
                             </div>
                          </div>
+                    </motion.div>
+
+                    {/* Author Section */}
+                    {prompt.author && (
+                        <motion.div variants={itemVariants} className={`flex items-center gap-4 p-4 rounded-3xl border border-dashed ${
+                            isDarkMode ? "border-white/10 bg-white/[0.01]" : "border-slate-200 bg-slate-50/30"
+                        }`}>
+                            <Avatar className="h-10 w-10 ring-2 ring-white/10 ring-offset-2 ring-offset-background">
+                                <AvatarImage src={prompt.author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${prompt.author.email}`} />
+                                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-blue-500 text-white">
+                                    {prompt.author.name?.slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold tracking-tight">{prompt.author.name}</span>
+                                <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-widest opacity-60">Creator of this Prompt</span>
+                            </div>
+                        </motion.div>
                     )}
                 </div>
-            </div>
+            </motion.div>
         </ScrollArea>
         
-        {/* Footer Actions */}
-        <div className={`p-4 border-t flex gap-3 ${isDarkMode ? "border-white/5 bg-[#09090b]/80" : "border-slate-100 bg-white/80"}`}>
-             <Button className={`flex-1 h-10 font-semibold shadow-md ${isDarkMode ? "bg-violet-600 hover:bg-violet-700 text-white" : "bg-rose-600 hover:bg-rose-700 text-white"}`} onClick={handleCopy}>
-                Copy Prompt
+        {/* Fixed Footer Actions (Vibrant) */}
+        <div className={`p-6 border-t flex gap-4 z-10 ${
+            isDarkMode 
+                ? "border-white/5 bg-[#09090b]/80 backdrop-blur-md" 
+                : "border-slate-100 bg-white/80 backdrop-blur-md"
+        }`}>
+             <Button 
+                className={`flex-1 h-12 text-sm font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] ${
+                    isDarkMode 
+                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/20" 
+                        : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-500/20"
+                }`} 
+                onClick={handleCopy}
+             >
+                <div className="flex items-center gap-2">
+                    <Copy weight="bold" className="h-5 w-5" />
+                    Copy Original Prompt
+                </div>
              </Button>
-             <Button variant="outline" size="icon" className="h-10 w-10 shrink-0" onClick={handleShare}>
-                <Share2 className="h-4 w-4" />
+             
+             <Button 
+                variant="outline" 
+                size="icon" 
+                className={`h-12 w-12 shrink-0 rounded-xl transition-all hover:scale-105 active:scale-95 ${
+                    isDarkMode ? "border-white/10 hover:bg-white/5" : "border-slate-200 hover:bg-slate-50"
+                }`}
+                onClick={handleShare}
+             >
+                <ShareNetwork weight="bold" className="h-5 w-5" />
              </Button>
         </div>
 

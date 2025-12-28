@@ -10,8 +10,8 @@ import {
 } from "@remix-run/react";
 import { getClientEnv } from "@/lib/env.server";
 import { AuthProvider } from "@/contexts/AuthContext";
-import "./root.scss";
-import "./tailwind.css";
+import tailwindStylesheet from "./tailwind.css?url";
+import rootStylesheet from "./root.scss?url";
 
 export async function loader() {
   try {
@@ -22,9 +22,16 @@ export async function loader() {
   }
 }
 
-export const links: LinksFunction = () => {
-  return [];
-};
+export const links: LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap",
+  },
+  { rel: "stylesheet", href: tailwindStylesheet },
+  { rel: "stylesheet", href: rootStylesheet },
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();

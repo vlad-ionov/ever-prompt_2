@@ -1,0 +1,39 @@
+@use "variables" as *;
+
+@mixin neuro-raised($size: "md") {
+  background-color: var(--surface-raised);
+  
+  @if $size == "sm" {
+    box-shadow: var(--shadow-raised-sm);
+  } @else {
+    box-shadow: var(--shadow-raised);
+  }
+  
+  transition: var(--transition);
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    box-shadow: var(--shadow-pressed-sm);
+    transform: translateY(0);
+  }
+}
+
+@mixin neuro-pressed($size: "md") {
+  background-color: var(--bg);
+  
+  @if $size == "sm" {
+    box-shadow: var(--shadow-pressed-sm);
+  } @else {
+    box-shadow: var(--shadow-pressed);
+  }
+}
+
+@mixin glass($opacity: 0.1) {
+  background: rgba(var(--surface-rgb), $opacity);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--text-rgb), 0.1);
+}

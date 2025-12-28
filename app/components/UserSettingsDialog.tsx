@@ -39,9 +39,10 @@ export function UserSettingsDialog({
 }: UserSettingsDialogProps) {
   const { profile, updateProfile, signOut, refreshProfile } = useAuth();
   const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
-  const [publicProfile, setPublicProfile] = useState(true);
+  const [publicProfile, setPublicProfile] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +64,8 @@ export function UserSettingsDialog({
   useEffect(() => {
     if (profile) {
       setName(profile.name || "");
+      setBio(profile.bio || "");
+      setPublicProfile(!!profile.is_public);
     }
   }, [profile]);
 
@@ -74,7 +77,7 @@ export function UserSettingsDialog({
 
     setIsSaving(true);
     try {
-      await updateProfile(name, profile?.avatar_url);
+      await updateProfile(name, profile?.avatar_url, bio, publicProfile);
       toast.success("Profile updated successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile");
@@ -126,7 +129,7 @@ export function UserSettingsDialog({
       });
 
       // Update profile with base64 image (as avatar_url)
-      await updateProfile(name || profile?.name || "", base64String);
+      await updateProfile(name || profile?.name || "", base64String, bio, publicProfile);
       await refreshProfile();
       toast.success("Avatar updated successfully!");
     } catch (error: any) {
@@ -254,6 +257,8 @@ export function UserSettingsDialog({
                   <textarea
                     id="bio"
                     rows={3}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
                     placeholder="Tell us about yourself..."
                     className="w-full rounded-md px-3 py-2 text-sm bg-background border-border border text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   />
@@ -442,7 +447,7 @@ export function UserSettingsDialog({
                     Accent Color
                   </Label>
                   <div className="grid grid-cols-4 gap-3">
-                    <button className="h-12 rounded-lg bg-[#CF0707] hover:ring-2 ring-[#CF0707] ring-offset-2 transition-all" />
+                    <button className="h-12 rounded-lg bg-[#8b5cf6] hover:ring-2 ring-[#8b5cf6] ring-offset-2 transition-all" />
                     <button className="h-12 rounded-lg bg-blue-600 hover:ring-2 ring-blue-600 ring-offset-2 transition-all" />
                     <button className="h-12 rounded-lg bg-green-600 hover:ring-2 ring-green-600 ring-offset-2 transition-all" />
                     <button className="h-12 rounded-lg bg-purple-600 hover:ring-2 ring-purple-600 ring-offset-2 transition-all" />

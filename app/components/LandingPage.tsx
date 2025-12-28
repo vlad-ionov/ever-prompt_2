@@ -27,10 +27,9 @@ import {
   Grid3x3,
   Bookmark
 } from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { DashboardPromptCard } from "./DashboardPromptCard";
 import { motion, AnimatePresence } from "motion/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import * as React from "react";
 import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
 import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
@@ -98,9 +97,9 @@ function BentoCard({ children, className = "", isDarkMode }: BentoCardProps) {
       }}
       className={`${
         isDarkMode 
-          ? 'bg-[#0f0f0f] border-[#262626] hover:border-[#60a5fa]/50' 
-          : 'bg-white border-[#d4d4d4] hover:border-[#E11D48]/50'
-      } border rounded-2xl transition-all duration-300 relative overflow-hidden ${className}`}
+          ? 'bg-[#0f0f0f] border-[#262626] hover:border-[#8b5cf6]/50 shadow-2xl' 
+          : 'bg-[#f6f7f8] border-white shadow-[var(--shadow-elevated)]'
+      } rounded-[2rem] p-8 overflow-hidden relative group`}
     >
       <motion.div
         animate={{
@@ -109,8 +108,8 @@ function BentoCard({ children, className = "", isDarkMode }: BentoCardProps) {
         transition={{ duration: 0.3 }}
         className={`absolute inset-0 ${
           isDarkMode 
-            ? 'bg-gradient-to-br from-[#60a5fa]/5 to-transparent' 
-            : 'bg-gradient-to-br from-[#E11D48]/5 to-transparent'
+            ? 'bg-gradient-to-br from-[#8b5cf6]/20 to-transparent'
+            : 'bg-gradient-to-br from-[#111111]/5 to-transparent'
         }`}
         style={{ pointerEvents: 'none' }}
       />
@@ -239,9 +238,9 @@ function BeamsBackground({ isDarkMode }: { isDarkMode: boolean }) {
       {beamConfigs.map((beam, index) => (
         <motion.div
           key={`beam-${index}`}
-          className="absolute left-[-60%] right-[-60%]"
-          initial={{ x: "-120%" }}
-          animate={{ x: "120%" }}
+          className="absolute left-[-100%] right-[-100%]"
+          initial={{ x: "-100%" }}
+          animate={{ x: "100%" }}
           transition={{
             duration: beam.duration,
             repeat: Infinity,
@@ -251,10 +250,10 @@ function BeamsBackground({ isDarkMode }: { isDarkMode: boolean }) {
           style={{
             top: beam.top,
             height: beam.height,
-            opacity: beam.opacity,
+            opacity: (beam.opacity || 0.8) * 0.4,
             filter: `blur(${beam.blur}px)`,
             transform: `rotate(${beam.rotate}deg)`,
-            width: "160%",
+            width: "200%",
             backgroundImage: beam.gradient,
           }}
         />
@@ -271,11 +270,11 @@ function BeamsBackground({ isDarkMode }: { isDarkMode: boolean }) {
             left: glow.left,
             right: glow.right,
             background: glowColor,
-            filter: "blur(70px)",
+            filter: "blur(100px)",
           }}
           animate={{
-            opacity: [0, 0.6, 0],
-            scale: [1, 1.15, 1],
+            opacity: [0, 0.4, 0],
+            scale: [1, 1.2, 1],
           }}
           transition={{
             duration: glow.duration,
@@ -334,6 +333,15 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedStep, setSelectedStep] = useState<number | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   
   const features = [
     {
@@ -426,24 +434,35 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
   return (
     <div className="min-h-screen">
       {/* Navigation */}
-      <nav className={`${isDarkMode ? 'bg-[#09090b]/80 border-[#27272a]' : 'bg-white/80 border-[#d4d4d4]'} border-b backdrop-blur-md sticky top-0 z-50`}>
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-none ${
+          isScrolled 
+            ? (isDarkMode ? 'bg-black/60 backdrop-blur-2xl' : 'bg-[#f6f7f8]/80 backdrop-blur-2xl shadow-[var(--shadow-elevated)]') 
+            : 'bg-transparent'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src={logoSrc} alt="EverPrompt logo" className="h-8 w-auto" />
-              <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>EverPrompt</span>
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isDarkMode ? 'bg-white/[0.03] border-white/[0.05]' : 'bg-black/[0.03] border-black/[0.05]'} border group-hover:scale-105`}>
+                <img src={logoSrc} alt="EverPrompt logo" className="h-5 w-auto transition-transform duration-500 group-hover:rotate-12" />
+              </div>
+              <span className={`text-lg font-semibold tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>EverPrompt</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={onLogin}
-                className={isDarkMode ? 'text-[#fafafa] hover:text-[#8b5cf6] hover:bg-[#18181b]' : 'text-[#333333] hover:text-[#CF0707] hover:bg-[#f5f5f5]'}
+                className={`${isDarkMode ? 'text-zinc-400 hover:text-white hover:bg-white/[0.03]' : 'text-slate-600 hover:text-black hover:bg-black/[0.03]'} font-medium transition-colors`}
               >
-                Log In
+                Sign In
               </Button>
+              <div className={`w-[1px] h-4 ${isDarkMode ? 'bg-white/[0.1]' : 'bg-black/[0.1]'} mx-2`} />
               <Button
+                size="sm"
                 onClick={onGetStarted}
-                className={`${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#CF0707] text-white hover:bg-[#a80606]'} transition-all duration-200 hover:shadow-lg hover:scale-105`}
+                className={`${isDarkMode ? 'bg-white text-black hover:bg-zinc-200' : 'bg-[#0f172a] text-white hover:bg-slate-800'} rounded-full px-5 font-semibold shadow-sm transition-transform hover:scale-105 active:scale-95`}
               >
                 Get Started
               </Button>
@@ -451,9 +470,9 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 variant="ghost"
                 size="icon"
                 onClick={onToggleDarkMode}
-                className={`${isDarkMode ? 'border-[#27272a] text-[#a1a1aa] hover:text-[#8b5cf6] hover:bg-[#18181b] hover:border-[#8b5cf6]' : 'border-[#d4d4d4] text-[#333333] hover:text-[#CF0707] hover:bg-[#f5f5f5] hover:border-[#CF0707]'} border transition-all duration-200 hover:scale-105`}
+                className={`h-9 w-9 rounded-full ${isDarkMode ? 'text-[#a1a1aa] hover:text-white hover:bg-white/[0.05]' : 'text-[#333333] hover:text-black hover:bg-black/[0.05]'} transition-all`}
               >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -461,9 +480,30 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
       </nav>
 
       {/* Hero Section with Futuristic Ambient Animation */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
         <BeamsBackground isDarkMode={isDarkMode} />
-        <div className="max-w-7xl mx-auto px-6 py-20 md:py-32 relative z-10">
+        
+        {/* Ambient Hero Blobs */}
+        <motion.div 
+          className={`absolute top-[10%] left-[-5%] w-[35%] h-[35%] rounded-full blur-[120px] pointer-events-none opacity-20 ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-slate-200'}`}
+          animate={{
+            x: [0, 40, 0],
+            y: [0, -40, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className={`absolute bottom-[10%] right-[-5%] w-[40%] h-[40%] rounded-full blur-[120px] pointer-events-none opacity-20 ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-zinc-100'}`}
+          animate={{
+            x: [0, -50, 0],
+            y: [0, 30, 0],
+            scale: [1.1, 1, 1.1],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+
+        <div className="max-w-7xl mx-auto px-6 py-20 md:py-32 relative z-10 w-full">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left content */}
             <motion.div 
@@ -477,14 +517,16 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <Badge className={`${isDarkMode ? 'bg-[#8b5cf6]/10 text-[#8b5cf6] border-[#8b5cf6]/20' : 'bg-[#CF0707]/10 text-[#CF0707] border-[#CF0707]/20'}`}>
+                <Badge className={`${isDarkMode 
+                  ? 'bg-[#8b5cf6]/10 text-[#8b5cf6] border-[#8b5cf6]/20' 
+                  : 'bg-[#f6f7f8] text-[#111111] border-white shadow-[var(--shadow-elevated)]'}`}>
                   <Sparkles className="h-3 w-3 mr-1" />
                   AI Prompt Management
                 </Badge>
               </motion.div>
               
               <motion.h1 
-                className={`text-5xl md:text-7xl leading-tight ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}
+                className={`text-2xl md:text-6xl font-medium leading-[0.95] tracking-[-0.04em] ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -492,17 +534,17 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 Master your AI
                 <br />
                 <motion.span 
-                  className={`${isDarkMode ? 'bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#8b5cf6] bg-clip-text text-transparent' : 'bg-gradient-to-r from-[#CF0707] via-[#E11D48] to-[#CF0707] bg-clip-text text-transparent'}`}
+                  className={`${isDarkMode ? 'bg-gradient-to-r from-[#8b5cf6] via-[#d8b4fe] to-[#8b5cf6] bg-clip-text text-transparent' : 'bg-gradient-to-r from-[#0f172a] via-slate-600 to-[#0f172a] bg-clip-text text-transparent'}`}
                   animate={{
-                    backgroundPosition: ['0% 50%', '200% 50%', '0% 50%'],
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                   }}
                   transition={{
-                    duration: 5,
+                    duration: 10,
                     repeat: Infinity,
                     ease: "linear"
                   }}
                   style={{
-                    backgroundSize: '200% 200%'
+                    backgroundSize: '200% auto'
                   }}
                 >
                   prompt library.
@@ -510,13 +552,13 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               </motion.h1>
               
               <motion.p 
-                className={`text-xl max-w-lg ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'} leading-relaxed`}
+                className={`text-lg md:text-xl max-w-lg ${isDarkMode ? 'text-zinc-400' : 'text-slate-500'} leading-relaxed font-medium`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 The next-generation platform for AI prompt management. Organize, share, and discover 
-                prompts across GPT, Claude, Gemini, and more. Built for creators who craft the future.
+                prompts across every major LLM platform.
               </motion.p>
               
               <motion.div 
@@ -528,35 +570,25 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 <Button
                   size="lg"
                   onClick={onGetStarted}
-                  className={`group relative ${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#CF0707] text-white hover:bg-[#a80606]'} transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:-translate-y-0.5 overflow-hidden`}
+                  className={`h-14 px-8 rounded-2xl group relative ${isDarkMode 
+                    ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed] shadow-[var(--shadow-floating)]' 
+                    : 'bg-[#111111] text-white hover:bg-[#222222] shadow-[var(--shadow-floating)]'} transition-all duration-300 hover:scale-105 hover:-translate-y-1 font-bold text-lg overflow-hidden border-none`}
                 >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                    animate={{
-                      x: ['-200%', '200%'],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 1,
-                      ease: "easeInOut"
-                    }}
-                  />
                   <span className="relative z-10 flex items-center">
-                    Start for free
-                    <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+                    Get Started Now
+                    <ArrowRight className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   onClick={onDemo}
-                  className={`${isDarkMode 
-                    ? 'border-[#27272a] bg-[#0f0f11]/50 backdrop-blur-sm text-[#fafafa] hover:bg-[#18181b] hover:border-[#8b5cf6]'
-                    : 'border-[#d4d4d4] bg-white/50 backdrop-blur-sm text-[#333333] hover:bg-[#f5f5f5] hover:border-[#CF0707]'
-                  } transition-all duration-300 hover:shadow-lg hover:scale-105 hover:-translate-y-0.5`}
+                  className={`h-14 px-8 rounded-2xl ${isDarkMode 
+                    ? 'border-[#27272a] bg-black/40 backdrop-blur-xl text-white hover:bg-[#18181b] hover:border-[#8b5cf6]'
+                    : 'bg-[#f6f7f8] border-white text-zinc-600 shadow-[var(--shadow-elevated)] hover:border-zinc-300'
+                  } transition-all duration-300 font-bold text-lg hover:scale-105 hover:-translate-y-1 border-2`}
                 >
-                  Explore demo
+                  Watch Demo
                 </Button>
               </motion.div>
               
@@ -574,7 +606,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
                   >
-                    <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#18181b]' : 'bg-[#f5f5f5]'}`}>
+                    <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#18181b]' : 'bg-[#f6f7f8]'}`}>
                       <type.icon className={`h-4 w-4 ${type.color}`} />
                     </div>
                     <span className={`text-sm ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`}>
@@ -587,14 +619,14 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
 
             {/* Right content - Interactive Dashboard Preview */}
             <motion.div 
-              className="relative h-[500px] md:h-[600px]"
+              className="relative h-[500px] md:h-[600px] px-4 md:px-0"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               {/* Holographic glow effect */}
               <motion.div
-                className={`absolute -inset-4 rounded-3xl ${isDarkMode ? 'bg-gradient-to-br from-[#8b5cf6]/20 to-[#a78bfa]/10' : 'bg-gradient-to-br from-[#CF0707]/15 to-[#E11D48]/10'} blur-3xl`}
+                className={`absolute -inset-4 rounded-3xl ${isDarkMode ? 'bg-gradient-to-br from-[#8b5cf6]/20 to-[#a78bfa]/10' : 'bg-gradient-to-br from-slate-200/50 to-slate-100/30'} blur-3xl`}
                 animate={{
                   opacity: [0.4, 0.7, 0.4],
                   scale: [0.95, 1.05, 0.95],
@@ -610,7 +642,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               {[...Array(8)].map((_, i) => (
                 <motion.div
                   key={`preview-particle-${i}`}
-                  className={`absolute w-2 h-2 rounded-full ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-[#CF0707]'}`}
+                  className={`absolute w-2 h-2 rounded-full ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-[#111111]'}`}
                   style={{
                     left: `${10 + (i * 12)}%`,
                     top: `${20 + (i % 3) * 30}%`,
@@ -630,55 +662,50 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               ))}
 
               {/* Main dashboard container */}
-              <motion.div 
-                className={`relative h-full ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-2 rounded-2xl shadow-2xl overflow-hidden`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
+              <motion.div
+                className={`${isDarkMode ? 'bg-[#09090b] border-[#27272a]' : 'bg-white border-[var(--border)] shadow-[var(--shadow-dramatic)]'} border rounded-3xl overflow-hidden relative group`}
+                whileHover={{ y: -5, rotateX: 2, rotateY: -2 }}
+                transition={{ duration: 0.5 }}
               >
                 {/* Animated border gradient on hover */}
                 <motion.div
-                  className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                   style={{
                     background: isDarkMode
-                      ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.3), transparent, rgba(167, 139, 250, 0.3))'
-                      : 'linear-gradient(135deg, rgba(207, 7, 7, 0.2), transparent, rgba(225, 29, 72, 0.2))',
+                      ? 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1), transparent 70%)'
+                      : 'radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.05), transparent 70%)',
                   }}
                 />
 
                 {/* Dashboard Header */}
-                <div className={`${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#e5e5e5]'} border-b px-6 py-4`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-8 w-8 rounded-lg ${isDarkMode ? 'bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed]' : 'bg-gradient-to-br from-[#CF0707] to-[#a80606]'} flex items-center justify-center`}>
-                        <Sparkles className="h-4 w-4 text-white" />
+                <div className={`${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#e5e5e5]'} border-b px-6 py-6`}>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`h-10 w-10 rounded-2xl ${isDarkMode ? 'bg-[#8b5cf6]/10 border-[#8b5cf6]/20' : 'bg-[#0f172a]/5 border-[#0f172a]/10'} border flex items-center justify-center`}>
+                        <Sparkles className={`h-5 w-5 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#0f172a]'}`} />
                       </div>
-                      <span className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>My Prompts</span>
+                      <div>
+                        <h4 className={`text-sm font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>Workspace</h4>
+                        <div className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-zinc-500' : 'text-slate-400'}`}>Private Library</div>
+                      </div>
                     </div>
                     <motion.button
-                      className={`${isDarkMode ? 'bg-[#8b5cf6] hover:bg-[#7c3aed]' : 'bg-[#CF0707] hover:bg-[#a80606]'} text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2`}
-                      whileHover={{ scale: 1.05 }}
+                      className={`${isDarkMode ? 'bg-[#8b5cf6] hover:bg-[#7c3aed]' : 'bg-[#0f172a] hover:bg-slate-800'} text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg`}
+                      whileHover={{ scale: 1.05, translateY: -2 }}
                       whileTap={{ scale: 0.95 }}
-                      animate={{
-                        boxShadow: [
-                          `0 0 15px ${isDarkMode ? 'rgba(139, 92, 246, 0.3)' : 'rgba(207, 7, 7, 0.3)'}`,
-                          `0 0 25px ${isDarkMode ? 'rgba(139, 92, 246, 0.5)' : 'rgba(207, 7, 7, 0.5)'}`,
-                          `0 0 15px ${isDarkMode ? 'rgba(139, 92, 246, 0.3)' : 'rgba(207, 7, 7, 0.3)'}`,
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
                     >
                       <Plus className="h-4 w-4" />
-                      New Prompt
+                      Add Prompt
                     </motion.button>
                   </div>
 
                   {/* Search and Filter Bar */}
                   <div className="flex gap-2">
                     <motion.div 
-                      className={`flex-1 flex items-center gap-2 ${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-[#f5f5f5] border-[#e5e5e5]'} border rounded-lg px-3 py-2`}
+                      className={`flex-1 flex items-center gap-2 ${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-[#f6f7f8] border-[#e5e5e5]'} border rounded-lg px-3 py-2`}
                       whileHover={{ 
-                        borderColor: isDarkMode ? '#8b5cf6' : '#CF0707',
-                        boxShadow: isDarkMode ? '0 0 0 1px #8b5cf6' : '0 0 0 1px #CF0707'
+                        borderColor: isDarkMode ? '#8b5cf6' : '#111111',
+                        boxShadow: isDarkMode ? '0 0 0 1px #8b5cf6' : '0 0 0 1px #111111'
                       }}
                       transition={{ duration: 0.2 }}
                     >
@@ -688,7 +715,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                           Search prompts...
                         </span>
                         <motion.span
-                          className={`ml-1 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`}
+                          className={`ml-1 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}`}
                           animate={{ opacity: [0, 1, 0] }}
                           transition={{ duration: 1.5, repeat: Infinity }}
                         >
@@ -697,7 +724,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       </div>
                     </motion.div>
                     <motion.button
-                      className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a] text-[#a1a1aa] hover:border-[#8b5cf6] hover:text-[#8b5cf6]' : 'bg-[#f5f5f5] border-[#e5e5e5] text-[#868686] hover:border-[#CF0707] hover:text-[#CF0707]'} border rounded-lg px-3 py-2 transition-colors`}
+                      className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a] text-[#a1a1aa] hover:border-[#8b5cf6] hover:text-[#8b5cf6]' : 'bg-[#f6f7f8] border-[#e5e5e5] text-[#868686] hover:border-[#111111] hover:text-[#111111]'} border rounded-lg px-3 py-2 transition-colors`}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -707,52 +734,67 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 </div>
 
                 {/* Prompt Cards Grid */}
-                <div className="p-6 space-y-4 overflow-hidden">
+                <div className="p-6 pb-20 space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin">
                   {[
                     { 
                       id: '1',
-                      title: 'AI Blog Post Generator',
-                      description: 'Generate engaging blog posts with SEO optimization and natural flow',
-                      model: 'GPT-4',
+                      title: 'AI Content Strategist',
+                      description: 'Comprehensive content planning with semantic SEO and audience personas',
+                      model: 'GPT-4o',
                       type: 'text' as const,
-                      tags: ['content', 'seo', 'marketing'],
-                      likes: 234,
+                      tags: ['marketing', 'seo', 'strategy'],
+                      likes: 1240,
                       isLiked: true,
                       isSaved: false,
                       isPublic: true,
-                      createdAt: '2024-01-15',
-                      content: 'Write a blog post about...',
-                      delay: 0.6
+                      createdAt: '2024-03-20',
+                      content: 'Develop a 30-day content...',
+                      delay: 0.6,
+                      author: {
+                        name: 'Elena Rossi',
+                        email: 'elena@everprompt.ai',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elena'
+                      }
                     },
                     { 
                       id: '2',
-                      title: 'Video Script Creator',
-                      description: 'Create compelling video scripts for YouTube and social media',
-                      model: 'Claude',
-                      type: 'video' as const,
-                      tags: ['video', 'social', 'creative'],
-                      likes: 156,
+                      title: 'Hyper-Realistic Portait',
+                      description: 'Midjourney v6 prompt for cinematic lighting and textures',
+                      model: 'GPT-4o',
+                      type: 'image' as const,
+                      tags: ['design', 'art', 'portrait'],
+                      likes: 850,
                       isLiked: false,
                       isSaved: true,
                       isPublic: true,
-                      createdAt: '2024-01-14',
-                      content: 'Create a video script for...',
-                      delay: 0.8
+                      createdAt: '2024-03-18',
+                      content: 'Cinematic portrait of a...',
+                      delay: 0.8,
+                      author: {
+                        name: 'Marcus Vane',
+                        email: 'marcus@everprompt.ai',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus'
+                      }
                     },
                     { 
                       id: '3',
-                      title: 'Image Prompt Engineer',
-                      description: 'Craft detailed prompts for AI image generation tools',
-                      model: 'Gemini',
-                      type: 'image' as const,
-                      tags: ['art', 'design', 'midjourney'],
-                      likes: 421,
-                      isLiked: false,
-                      isSaved: false,
+                      title: 'Python Microservice',
+                      description: 'Clean, production-ready FastAPI boilerplate with Docker',
+                      model: 'Claude 3.5 Sonnet',
+                      type: 'text' as const,
+                      tags: ['coding', 'python', 'devops'],
+                      likes: 2100,
+                      isLiked: true,
+                      isSaved: true,
                       isPublic: false,
-                      createdAt: '2024-01-13',
-                      content: 'A futuristic city in the style of cyberpunk with neon lights and flying cars...',
-                      delay: 1.0
+                      createdAt: '2024-03-15',
+                      content: 'Write a FastAPI application...',
+                      delay: 1.0,
+                      author: {
+                        name: 'Dev John',
+                        email: 'john@everprompt.ai',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
+                      }
                     }
                   ].map((prompt, index) => (
                     <motion.div
@@ -768,34 +810,29 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 </div>
 
                 {/* Floating Stats */}
-                <motion.div
-                  className={`absolute top-20 right-6 ${isDarkMode ? 'bg-[#0f0f11]/95 border-[#27272a]' : 'bg-white/95 border-[#e5e5e5]'} border backdrop-blur-lg rounded-xl px-4 py-3 shadow-xl`}
-                  initial={{ opacity: 0, x: 20, rotate: -3 }}
-                  animate={{ opacity: 1, x: 0, rotate: 0 }}
-                  transition={{ duration: 0.6, delay: 1.2 }}
-                  whileHover={{ scale: 1.05, rotate: 2 }}
+                <motion.div 
+                  className={`absolute -top-8 -right-8 ${isDarkMode ? 'bg-[#0f172a] border-white/10' : 'bg-white border-[var(--border)] shadow-[var(--shadow-floating)]'} border-2 rounded-2xl p-6 shadow-2xl z-30 hidden md:block`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.8 }}
                 >
-                  {/* Notification dot */}
-                  <motion.div
-                    className={`absolute -top-1 -right-1 h-3 w-3 rounded-full ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-[#CF0707]'} border-2 ${isDarkMode ? 'border-[#0f0f11]' : 'border-white'}`}
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      opacity: [1, 0.7, 1]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
+                  <div className="absolute top-2 left-2 flex gap-1">
+                    <div className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-yellow-400" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                  </div>
                   <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className={`h-4 w-4 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`} />
-                    <span className={`text-xs ${isDarkMode ? 'text-[#71717a]' : 'text-[#868686]'}`}>Total</span>
+                    <TrendingUp className={`h-3 w-3 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}`} />
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>Monthly Views</span>
                   </div>
                   <motion.p 
-                    className={`text-2xl ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}
+                    className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
                   >
-                    2.4k
+                    12.8k
                   </motion.p>
-                  <p className={`text-xs ${isDarkMode ? 'text-[#10b981]' : 'text-[#10b981]'}`}>+24% this week</p>
+                  <p className={`text-[10px] font-bold ${isDarkMode ? 'text-emerald-500/80' : 'text-emerald-600'}`}>+14% Increase</p>
                 </motion.div>
 
                 {/* Bottom fade gradient - suggests more content below */}
@@ -821,18 +858,25 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
       </section>
 
       {/* Stats Section */}
-      <section className={`${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-y py-12`}>
+      <section className={`${isDarkMode ? 'bg-black/20 border-white/[0.03]' : 'bg-slate-50 border-black/[0.03]'} border-y py-20`}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className={`text-3xl md:text-4xl mb-2 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+            {stats.map((stat, index) => (
+              <motion.div 
+                key={stat.label} 
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className={`text-5xl md:text-7xl font-black mb-3 tracking-tighter ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>
                   {stat.value}
                 </div>
-                <div className={`text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
+                <div className={`text-[10px] uppercase tracking-[0.3em] font-bold ${isDarkMode ? 'text-zinc-500' : 'text-slate-400'}`}>
                   {stat.label}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -841,17 +885,17 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
       {/* Features Section with Slider */}
       <section className="py-20 md:py-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <Badge className={`${isDarkMode ? 'bg-[#8b5cf6]/10 text-[#8b5cf6] border-[#8b5cf6]/20' : 'bg-[#CF0707]/10 text-[#CF0707] border-[#CF0707]/20'} mb-4`}>
-              Features
+          <div className="max-w-3xl mx-auto text-center mb-20">
+            <Badge className={`px-4 py-1.5 rounded-full ${isDarkMode ? 'bg-white/[0.03] text-white/70 border-white/[0.1]' : 'bg-black/[0.03] text-black/70 border-black/[0.1]'} mb-6`}>
+              Platform Features
             </Badge>
-            <h2 className={`text-3xl md:text-5xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
-              Everything you need to
-              <br />
-              <span className={isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}>manage AI prompts</span>
+            <h2 className={`text-4xl md:text-6xl font-black mb-6 tracking-tight leading-[1.1] ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>
+              Built for the next generation of 
+              <span className={isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}> prompt engineers</span>
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-              Built for teams and individuals who want a better way to organize, share, and discover AI prompts
+            <p className={`text-lg ${isDarkMode ? 'text-zinc-400' : 'text-slate-500'} leading-relaxed`}>
+              Every tool you need to organize, refine, and deploy your AI prompts at scale. 
+              Designed for speed, built for precision.
             </p>
           </div>
 
@@ -867,7 +911,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       index === currentFeature
                         ? isDarkMode
                           ? 'w-8 bg-[#8b5cf6]'
-                          : 'w-8 bg-[#CF0707]'
+                          : 'w-8 bg-[#111111]'
                         : isDarkMode
                           ? 'w-1.5 bg-[#27272a]'
                           : 'w-1.5 bg-[#d4d4d4]'
@@ -880,7 +924,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                   variant="ghost"
                   size="icon"
                   onClick={() => setCurrentFeature((prev) => (prev === 0 ? features.length - 1 : prev - 1))}
-                  className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#8b5cf6] hover:bg-[#18181b]' : 'text-[#868686] hover:text-[#CF0707] hover:bg-[#f5f5f5]'}`}
+                  className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#8b5cf6] hover:bg-[#18181b]' : 'text-[#868686] hover:text-[#8b5cf6] hover:bg-[#f6f7f8]'}`}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -888,7 +932,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                   variant="ghost"
                   size="icon"
                   onClick={() => setCurrentFeature((prev) => (prev === features.length - 1 ? 0 : prev + 1))}
-                  className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#8b5cf6] hover:bg-[#18181b]' : 'text-[#868686] hover:text-[#CF0707] hover:bg-[#f5f5f5]'}`}
+                  className={`h-8 w-8 ${isDarkMode ? 'text-[#a1a1aa] hover:text-[#8b5cf6] hover:bg-[#18181b]' : 'text-[#868686] hover:text-[#8b5cf6] hover:bg-[#f6f7f8]'}`}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -899,25 +943,20 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentFeature}
-                  initial={{ opacity: 0, x: 100 }}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.3 }}
-                  className={`absolute inset-0 ${
-                    isDarkMode 
-                      ? 'bg-gradient-to-br from-[#0f0f11] to-[#18181b] border-[#27272a]' 
-                      : 'bg-gradient-to-br from-white to-[#f5f5f5] border-[#d4d4d4]'
-                  } border rounded-2xl p-8 md:p-12 flex flex-col justify-between overflow-hidden`}
+                  transition={{ duration: 0.5 }}
+                  className={`${isDarkMode ? 'bg-[#18181b]/50 border-white/[0.05] shadow-[var(--shadow-floating)]' : 'bg-[#f6f7f8] border-white shadow-[var(--shadow-floating)]'} border-2 rounded-3xl p-12 md:p-20 relative overflow-hidden group/feature h-full flex flex-col justify-center`}
                 >
                   {/* Decorative gradient */}
-                  <div className={`absolute top-0 right-0 w-96 h-96 ${isDarkMode ? 'bg-[#8b5cf6]/5' : 'bg-[#CF0707]/5'} rounded-full blur-3xl`} />
+                  <div className={`absolute top-0 right-0 w-96 h-96 ${isDarkMode ? 'bg-[#8b5cf6]/5' : 'bg-[#8b5cf6]/5'} rounded-full blur-3xl`} />
                   
                   <div className="relative z-10">
                     <div className={`inline-flex h-16 w-16 rounded-2xl items-center justify-center mb-6 ${
-                      isDarkMode ? 'bg-[#8b5cf6]/10 backdrop-blur-sm' : 'bg-[#CF0707]/10'
+                      isDarkMode ? 'bg-[#8b5cf6]/10 backdrop-blur-sm' : 'bg-[#8b5cf6]/10'
                     }`}>
                       {React.createElement(features[currentFeature].icon, {
-                        className: `h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`
+                        className: `h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}`
                       })}
                     </div>
                     <h3 className={`text-2xl md:text-4xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
@@ -934,7 +973,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       className={`group ${
                         isDarkMode 
                           ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white' 
-                          : 'bg-[#CF0707] hover:bg-[#a80606] text-white'
+                          : 'bg-[#111111] hover:bg-[#222222] text-white'
                       } transition-all duration-200`}
                     >
                       <Plus className="h-4 w-4 mr-2 transition-transform group-hover:rotate-90" />
@@ -949,34 +988,38 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
             </div>
 
             {/* Feature Grid - Thumbnails */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-12">
               {features.map((feature, index) => (
-                <button
+                <motion.button
                   key={index}
                   onClick={() => setCurrentFeature(index)}
+                  whileHover={{ scale: 1.05, translateY: -5 }}
+                  whileTap={{ scale: 0.95 }}
                   className={`${
                     index === currentFeature
                       ? isDarkMode
-                        ? 'bg-[#18181b] border-[#8b5cf6]'
-                        : 'bg-white border-[#CF0707]'
+                        ? 'bg-[#18181b] border-[#8b5cf6] shadow-[0_0_20px_rgba(139,92,246,0.2)]'
+                        : 'bg-white border-[#0f172a] shadow-xl'
                       : isDarkMode
-                        ? 'bg-[#0f0f11] border-[#27272a] hover:border-[#8b5cf6]/50'
-                        : 'bg-white border-[#d4d4d4] hover:border-[#CF0707]/50'
-                  } border rounded-xl p-4 transition-all duration-200 text-left`}
+                        ? 'bg-black/40 border-white/5 hover:border-white/20'
+                        : 'bg-white/40 border-slate-200 hover:border-slate-400'
+                  } border rounded-2xl p-6 transition-all duration-300 text-left backdrop-blur-xl group`}
                 >
-                  <feature.icon className={`h-5 w-5 mb-2 ${
+                  <div className={`mb-4 transition-transform duration-500 group-hover:scale-110 ${
                     index === currentFeature
-                      ? isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'
-                      : isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'
-                  }`} />
-                  <p className={`text-xs ${
-                    index === currentFeature
-                      ? isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'
-                      : isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'
+                      ? isDarkMode ? 'text-[#8b5cf6]' : 'text-[#0f172a]'
+                      : isDarkMode ? 'text-zinc-600' : 'text-slate-400'
                   }`}>
-                    {feature.title}
+                    <feature.icon className="h-6 w-6" />
+                  </div>
+                  <p className={`text-[10px] uppercase tracking-widest font-black ${
+                    index === currentFeature
+                      ? isDarkMode ? 'text-white' : 'text-[#0f172a]'
+                      : isDarkMode ? 'text-zinc-500' : 'text-slate-400'
+                  }`}>
+                    {feature.title.split(' ')[0]}
                   </p>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -994,10 +1037,10 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
             <>
               <DialogHeader>
                 <div className={`inline-flex h-14 w-14 rounded-2xl items-center justify-center mb-4 ${
-                  isDarkMode ? 'bg-[#8b5cf6]/10' : 'bg-[#CF0707]/10'
+                  isDarkMode ? 'bg-[#8b5cf6]/10' : 'bg-[#8b5cf6]/10'
                 }`}>
                   {React.createElement(features[selectedFeature].icon, {
-                    className: `h-7 w-7 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`
+                    className: `h-7 w-7 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}`
                   })}
                 </div>
                 <DialogTitle className={`text-2xl ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
@@ -1011,7 +1054,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                 <p className={`text-lg ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
                   {features[selectedFeature].description}
                 </p>
-                <div className={`${isDarkMode ? 'bg-[#18181b]' : 'bg-[#f5f5f5]'} rounded-xl p-6`}>
+                <div className={`${isDarkMode ? 'bg-[#18181b]' : 'bg-[#f6f7f8]'} rounded-xl p-6`}>
                   <p className={`${isDarkMode ? 'text-[#d4d4d8]' : 'text-[#333333]'} leading-relaxed`}>
                     {features[selectedFeature].details}
                   </p>
@@ -1022,7 +1065,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                     className={`flex-1 ${
                       isDarkMode 
                         ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white' 
-                        : 'bg-[#CF0707] hover:bg-[#a80606] text-white'
+                        : 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white'
                     }`}
                   >
                     Get Started
@@ -1034,7 +1077,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                     className={`${
                       isDarkMode 
                         ? 'border-[#27272a] text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa]' 
-                        : 'border-[#d4d4d4] text-[#868686] hover:bg-[#f5f5f5] hover:text-[#333333]'
+                        : 'border-[#d4d4d4] text-[#868686] hover:bg-[#f6f7f8] hover:text-[#333333]'
                     }`}
                   >
                     Close
@@ -1047,112 +1090,101 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
       </Dialog>
 
       {/* How It Works Section - Linear Style */}
-      <section className={`${isDarkMode ? 'bg-[#09090b]' : 'bg-white'} py-20 md:py-32`}>
+      <section className={`${isDarkMode ? 'bg-[#09090b]' : 'bg-white'} py-24 md:py-40 border-t ${isDarkMode ? 'border-white/[0.03]' : 'border-black/[0.03]'}`}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-12 gap-12 items-start mb-16">
-            <div className="lg:col-span-12">
-              <h2 className={`text-4xl md:text-6xl mb-6 leading-tight text-center ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
-                Made for AI<br />prompt enthusiasts
-              </h2>
-              <p className={`text-lg mb-6 text-center ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                EverPrompt is shaped by the practices and principles that distinguish world-class AI workflows from the rest: organization, speed, and commitment to quality.
-              </p>
-            </div>
+          <div className="max-w-3xl mx-auto text-center mb-24">
+             <Badge className={`px-4 py-1.5 rounded-full ${isDarkMode ? 'bg-white/[0.03] text-white/70 border-white/[0.1]' : 'bg-black/[0.03] text-black/70 border-black/[0.1]'} mb-6`}>
+              Our Philosophy
+            </Badge>
+            <h2 className={`text-5xl md:text-7xl font-black mb-8 tracking-tight leading-[1] ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>
+              Refine your <br />AI craft.
+            </h2>
+            <p className={`text-lg md:text-xl ${isDarkMode ? 'text-zinc-400' : 'text-[#868686]'} leading-relaxed font-medium`}>
+              EverPrompt is shaped by the principles that distinguish world-class AI workflows: 
+              organization, speed, and collaborative intelligence.
+            </p>
           </div>
 
           {/* Steps Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className={`group relative ${
                   isDarkMode 
-                    ? 'bg-[#0f0f11] border-[#27272a] hover:border-[#8b5cf6]/50' 
-                    : 'bg-[#fafafa] border-[#e5e5e5] hover:border-[#CF0707]/50'
-                } border rounded-2xl p-8 transition-all duration-300 cursor-pointer overflow-hidden`}
+                    ? 'bg-[#18181b]/40 border-white/[0.05] hover:border-[#8b5cf6]/50 shadow-[var(--shadow-floating)]' 
+                    : 'bg-white border-slate-200/50 hover:border-[#111111]/20 shadow-[var(--shadow-floating)]'
+                } border rounded-[2.5rem] p-10 transition-all duration-500 cursor-pointer overflow-hidden backdrop-blur-3xl flex flex-col h-full`}
                 onClick={() => setSelectedStep(index)}
               >
                 {/* Visual Element */}
-                <div className="mb-20 relative h-48 flex items-center justify-center">
+                <div className="mb-12 relative h-40 flex items-center justify-center">
                   {step.visual === "account" && (
-                    <div className="relative">
-                      {/* Stacked cards effect */}
-                      <div className={`absolute inset-0 ${isDarkMode ? 'bg-[#18181b]' : 'bg-white'} rounded-xl border ${isDarkMode ? 'border-[#27272a]' : 'border-[#e5e5e5]'} transform -rotate-6 scale-95 opacity-40`} />
-                      <div className={`absolute inset-0 ${isDarkMode ? 'bg-[#18181b]' : 'bg-white'} rounded-xl border ${isDarkMode ? 'border-[#27272a]' : 'border-[#e5e5e5]'} transform -rotate-3 scale-97 opacity-60`} />
-                      <div className={`relative ${isDarkMode ? 'bg-[#18181b]' : 'bg-white'} rounded-xl border ${isDarkMode ? 'border-[#8b5cf6]' : 'border-[#CF0707]'} p-6 w-32 h-32 flex items-center justify-center shadow-xl`}>
-                        <Users className={`h-12 w-12 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`} />
+                    <div className="relative group-hover:scale-110 transition-transform duration-500">
+                      <div className={`absolute inset-0 ${isDarkMode ? 'bg-[#8b5cf6]/20' : 'bg-blue-500/10'} blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity`} />
+                      <div className={`relative ${isDarkMode ? 'bg-[#18181b]' : 'bg-white'} rounded-3xl border-2 ${isDarkMode ? 'border-[#8b5cf6]' : 'border-[#0f172a]'} p-8 w-28 h-28 flex items-center justify-center shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)]`}>
+                        <Users className={`h-12 w-12 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#0f172a]'}`} />
                       </div>
                     </div>
                   )}
                   
                   {step.visual === "speed" && (
-                    <div className="relative w-full">
-                      {/* Speed lines */}
-                      <div className="space-y-3">
-                        {[...Array(5)].map((_, i) => (
+                    <div className="relative w-full px-4 group-hover:scale-110 transition-transform duration-500">
+                      <div className="space-y-4">
+                        {[...Array(3)].map((_, i) => (
                           <motion.div
                             key={i}
-                            initial={{ width: "40%" }}
-                            animate={{ width: ["40%", "80%", "40%"] }}
-                            transition={{ duration: 2, delay: i * 0.2, repeat: Infinity }}
-                            className={`h-2 rounded-full ${isDarkMode ? 'bg-[#27272a]' : 'bg-[#e5e5e5]'}`}
-                            style={{ marginLeft: `${i * 10}%` }}
+                            initial={{ width: "30%" }}
+                            animate={{ width: ["30%", "100%", "30%"] }}
+                            transition={{ duration: 1.5, delay: i * 0.2, repeat: Infinity, ease: "easeInOut" }}
+                            className={`h-1.5 rounded-full ${isDarkMode ? 'bg-gradient-to-r from-[#8b5cf6] to-transparent' : 'bg-gradient-to-r from-[#0f172a] to-transparent'} opacity-40`}
                           />
                         ))}
-                      </div>
-                      <div className={`absolute -top-8 right-8 text-3xl ${isDarkMode ? 'text-[#52525b]' : 'text-[#d4d4d4]'}`}>
-                        50ms
                       </div>
                     </div>
                   )}
                   
                   {step.visual === "share" && (
-                    <div className="relative">
-                      {/* Collaboration circles */}
-                      <div className="flex items-center justify-center gap-2">
-                        <div className={`h-16 w-16 rounded-full ${isDarkMode ? 'bg-[#8b5cf6]/20 border-[#8b5cf6]' : 'bg-[#CF0707]/20 border-[#CF0707]'} border-2 flex items-center justify-center`}>
-                          <Users className={`h-7 w-7 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`} />
-                        </div>
-                        <div className={`h-12 w-12 rounded-full ${isDarkMode ? 'bg-[#27272a]' : 'bg-[#e5e5e5]'} flex items-center justify-center -ml-4`}>
-                          <Shield className={`h-5 w-5 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`} />
+                    <div className="relative group-hover:scale-110 transition-transform duration-500">
+                      <div className="flex items-center justify-center">
+                        <div className={`h-24 w-24 rounded-full ${isDarkMode ? 'bg-[#8b5cf6]/10 border-[#8b5cf6]/30' : 'bg-blue-600/10 border-blue-600/30'} border-2 flex items-center justify-center relative z-10 animate-pulse`}>
+                          <Share2 className={`h-10 w-10 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-blue-600'}`} />
                         </div>
                       </div>
                     </div>
                   )}
                   
                   {step.visual === "optimize" && (
-                    <div className="relative">
-                      {/* Keyboard shortcut style */}
-                      <div className={`${isDarkMode ? 'bg-[#18181b] border-[#27272a]' : 'bg-white border-[#e5e5e5]'} border-2 rounded-xl px-8 py-4 flex items-center gap-3 shadow-xl`}>
-                        <TrendingUp className={`h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`} />
-                        <span className={`text-2xl ${isDarkMode ? 'text-[#52525b]' : 'text-[#d4d4d4]'}`}>+</span>
-                        <Star className={`h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`} />
+                    <div className="relative group-hover:scale-110 transition-transform duration-500">
+                      <div className={`${isDarkMode ? 'bg-[#18181b] border-white/10' : 'bg-white border-slate-200'} border-2 rounded-2xl px-10 py-6 flex items-center gap-4 shadow-2xl`}>
+                        <TrendingUp className={`h-10 w-10 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#0f172a]'}`} />
+                        <div className={`h-8 w-[2px] ${isDarkMode ? 'bg-white/10' : 'bg-slate-200'}`} />
+                        <Star className={`h-10 w-10 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#0f172a]'}`} />
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* Title */}
-                <h3 className={`text-xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
+                <h3 className={`text-2xl font-black mb-4 leading-tight ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>
                   {step.title}
                 </h3>
+                
+                <p className={`text-sm mb-8 flex-grow ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>
+                  {step.description}
+                </p>
 
-                {/* Plus button */}
-                <button 
-                  className={`absolute bottom-8 right-8 h-10 w-10 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-[#18181b] border-[#27272a] hover:border-[#8b5cf6] hover:bg-[#8b5cf6]/10' 
-                      : 'bg-white border-[#e5e5e5] hover:border-[#CF0707] hover:bg-[#CF0707]/10'
-                  } border flex items-center justify-center transition-all group-hover:scale-110`}
-                >
-                  <Plus className={`h-5 w-5 ${
-                    isDarkMode ? 'text-[#a1a1aa] group-hover:text-[#8b5cf6]' : 'text-[#868686] group-hover:text-[#CF0707]'
-                  } transition-colors`} />
-                </button>
+                {/* Arrow Link */}
+                <div className="flex items-center gap-2 group/btn">
+                   <div className={`h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 ${isDarkMode ? 'bg-white/5 border-white/10 group-hover:bg-[#8b5cf6] text-white' : 'bg-slate-100 border-slate-200 group-hover:bg-[#0f172a] group-hover:text-white'} border`}>
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                   </div>
+                   <span className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? 'text-zinc-400' : 'text-slate-600'}`}>See Details</span>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -1171,10 +1203,10 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
               <DialogHeader>
                 <div className="flex items-center gap-4 mb-4">
                   <div className={`h-14 w-14 rounded-xl ${
-                    isDarkMode ? 'bg-[#8b5cf6]/10' : 'bg-[#CF0707]/10'
+                    isDarkMode ? 'bg-[#8b5cf6]/10' : 'bg-[#8b5cf6]/10'
                   } flex items-center justify-center`}>
                     {React.createElement(steps[selectedStep].icon, {
-                      className: `h-7 w-7 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`
+                      className: `h-7 w-7 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}`
                     })}
                   </div>
                   <div>
@@ -1200,7 +1232,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                     className={`${
                       isDarkMode 
                         ? 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white' 
-                        : 'bg-[#CF0707] hover:bg-[#a80606] text-white'
+                        : 'bg-[#8b5cf6] hover:bg-[#7c3aed] text-white'
                     }`}
                   >
                     Get Started
@@ -1212,7 +1244,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                     className={`${
                       isDarkMode 
                         ? 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa]' 
-                        : 'text-[#868686] hover:bg-[#f5f5f5] hover:text-[#333333]'
+                        : 'text-[#868686] hover:bg-[#f6f7f8] hover:text-[#333333]'
                     }`}
                   >
                     Close
@@ -1225,94 +1257,148 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
       </Dialog>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-32">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className={`${isDarkMode ? 'bg-gradient-to-br from-[#0f0f11] to-[#18181b] border-[#27272a]' : 'bg-gradient-to-br from-white to-[#f5f5f5] border-[#d4d4d4]'} border rounded-2xl p-12 md:p-16 relative overflow-hidden`}>
-            {/* Decorative gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${isDarkMode ? 'from-[#8b5cf6]/10 to-transparent' : 'from-[#CF0707]/5 to-transparent'} pointer-events-none`} />
+      <section className="py-32 md:py-48 relative overflow-hidden flex items-center justify-center">
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] ${isDarkMode ? 'bg-[#8b5cf6]/5' : 'bg-blue-500/5'} rounded-full blur-[160px] pointer-events-none`} />
+        
+        <div className="max-w-6xl mx-auto px-6 text-center relative z-10 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true }}
+            className={`${isDarkMode ? 'bg-[#09090b] border-white/[0.08] shadow-[var(--shadow-dramatic)]' : 'bg-white border-black/[0.03] shadow-[var(--shadow-dramatic)]'} border-2 rounded-[4rem] p-16 md:px-24 md:py-32 relative overflow-hidden group`}
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${isDarkMode ? 'from-white/[0.02] to-transparent' : 'from-black/[0.01] to-transparent'} pointer-events-none`} />
             
-            <div className="relative z-10">
-              <h2 className={`text-4xl md:text-5xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
-                Ready to organize your
+            {/* Ambient animated blobs inside CTA */}
+            <motion.div 
+              className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[80px] pointer-events-none opacity-20 ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-slate-200'}`}
+              animate={{
+                scale: [1, 1.2, 1],
+                x: [0, 50, 0],
+                y: [0, 30, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div 
+              className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[80px] pointer-events-none opacity-20 ${isDarkMode ? 'bg-[#8b5cf6]' : 'bg-slate-100'}`}
+              animate={{
+                scale: [1.2, 1, 1.2],
+                x: [0, -40, 0],
+                y: [0, -20, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            />
+            
+            <div className="relative z-10 max-w-4xl mx-auto">
+              <h2 className={`text-6xl md:text-9xl font-black mb-10 leading-[0.9] tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>
+                Your library,
                 <br />
-                <span className={isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}>AI workflow?</span>
+                <span className={isDarkMode ? 'text-[#8b5cf6]' : 'text-[#111111]'}>elevated.</span>
               </h2>
-              <p className={`text-lg mb-8 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                Join thousands of creators and teams using PromptVault to streamline their AI prompts
+              <p className={`text-xl md:text-2xl mb-14 max-w-2xl mx-auto font-medium ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>
+                Join 10,000+ engineers crafting the future with EverPrompt.
+                Started in seconds, used for years.
               </p>
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-wrap gap-6 justify-center">
                 <Button
                   size="lg"
                   onClick={onGetStarted}
-                  className={`${isDarkMode ? 'bg-[#8b5cf6] text-white hover:bg-[#7c3aed]' : 'bg-[#CF0707] text-white hover:bg-[#a80606]'} transition-all duration-300 hover:shadow-xl hover:scale-105 group`}
+                  className={`h-16 px-10 rounded-full ${isDarkMode ? 'bg-white text-black hover:bg-zinc-200 shadow-2xl shadow-white/10' : 'bg-[#0f172a] text-white hover:bg-slate-900 shadow-2xl shadow-black/10'} transition-all duration-500 hover:scale-105 active:scale-95 font-bold text-lg group`}
                 >
-                  Get Started Free
-                  <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+                  Create Your Library
+                  <ArrowRight className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
+                  variant="ghost"
                   onClick={onLogin}
-                  className={`${isDarkMode 
-                    ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] hover:bg-[#27272a] hover:border-[#8b5cf6] hover:text-[#fafafa]'
-                    : 'border-[#d4d4d4] text-[#333333] hover:bg-[#f5f5f5] hover:border-[#CF0707] hover:text-[#333333]'
-                  } transition-all duration-300 hover:shadow-lg hover:scale-105`}
+                  className={`h-16 px-10 rounded-full ${isDarkMode 
+                    ? 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
+                    : 'text-slate-500 hover:text-[#111111] hover:bg-black/[0.03]'
+                  } transition-all duration-300 font-bold text-lg border-2 border-transparent hover:border-current`}
                 >
                   Sign In
                 </Button>
               </div>
-              <p className={`text-sm mt-6 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                No credit card required • Free 14-day trial
-              </p>
+              
+              <div className={`mt-16 pt-16 border-t ${isDarkMode ? 'border-white/[0.05]' : 'border-black/[0.05]'} flex flex-wrap items-center justify-center gap-x-12 gap-y-6 ${isDarkMode ? 'text-zinc-600' : 'text-slate-400'} text-[10px] font-black uppercase tracking-[0.3em]`}>
+                 <div className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4" /> Free Forever Plan</div>
+                 <div className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4" /> API First Architecture</div>
+                 <div className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4" /> Team Collaboration</div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className={`${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'} border-t py-12`}>
+      <footer className={`${isDarkMode ? 'bg-black border-white/[0.03]' : 'bg-slate-50 border-black/[0.03]'} border-t pt-32 pb-16 overflow-hidden`}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`h-8 w-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${isDarkMode ? 'from-[#8b5cf6] to-[#7c3aed]' : 'from-[#CF0707] to-[#a80606]'}`}>
-                  <Sparkles className="h-5 w-5 text-white" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-12 gap-24 mb-32">
+            <div className="lg:col-span-5">
+              <div className="flex items-center gap-3 mb-10 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                <div className={`p-1.5 rounded-xl transition-all duration-500 ${isDarkMode 
+                  ? 'bg-white/5 group-hover:bg-white/10 ring-1 ring-white/10' 
+                  : 'bg-[#f6f7f8] shadow-[var(--shadow-elevated)] ring-1 ring-white'}`}>
+                   <img src={logoSrc} alt="EverPrompt Logo" className="h-6 w-6" />
                 </div>
-                <span className={isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}>EverPrompt</span>
+                <span className={`text-2xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>EverPrompt</span>
               </div>
-              <p className={`text-sm max-w-64 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                Your central hub for AI prompt management
+              <p className={`text-xl mb-10 leading-relaxed max-w-md ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>
+                The central hub for professional AI prompt engineering and management.
               </p>
+              <div className="flex gap-4">
+                 {[1,2,3,4].map(i => (
+                    <div key={i} className={`h-11 w-11 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${isDarkMode ? 'bg-white/[0.02] border-white/[0.05] hover:border-white/20 text-white shadow-xl shadow-black/20' : 'bg-white border-black/[0.05] hover:border-black/20 text-slate-600 shadow-xl shadow-black/5'} hover:-translate-y-1`}>
+                       <Share2 className="h-5 w-5" />
+                    </div>
+                 ))}
+              </div>
             </div>
-            <div>
-              <h4 className={`mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>Product</h4>
-              <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Features</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Pricing</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Templates</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>API</a></li>
+            
+            <div className="lg:col-span-2">
+              <h4 className={`text-xs uppercase tracking-[0.2em] font-black mb-10 ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>Product</h4>
+              <ul className={`space-y-5 text-sm font-semibold ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Features</a></li>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Pricing</a></li>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Integrations</a></li>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Changelog</a></li>
               </ul>
             </div>
-            <div>
-              <h4 className={`mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>Resources</h4>
-              <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Documentation</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Guides</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Blog</a></li>
-                <li><a href="#" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Support</a></li>
+            
+            <div className="lg:col-span-2">
+              <h4 className={`text-xs uppercase tracking-[0.2em] font-black mb-10 ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>Resources</h4>
+              <ul className={`space-y-5 text-sm font-semibold ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Documentation</a></li>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Guides</a></li>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Prompt Tips</a></li>
+                <li><a href="#" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Community</a></li>
               </ul>
             </div>
-            <div>
-              <h4 className={`mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>Company</h4>
-              <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                <li><a href="/about" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>About</a></li>
-                <li><a href="/privacy" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Privacy</a></li>
-                <li><a href="/terms" className={isDarkMode ? 'hover:text-[#8b5cf6] transition-colors' : 'hover:text-[#CF0707]'}>Terms</a></li>
-              </ul>
+
+            <div className="lg:col-span-3">
+               <h4 className={`text-xs uppercase tracking-[0.2em] font-black mb-10 ${isDarkMode ? 'text-white' : 'text-[#0f172a]'}`}>Stay Inspired</h4>
+               <p className={`text-sm mb-8 leading-relaxed ${isDarkMode ? 'text-zinc-500' : 'text-slate-500'}`}>Get the latest prompt engineering insights delivered to your inbox.</p>
+               <div className="flex gap-2">
+                  <input 
+                    type="email" 
+                    placeholder="email@example.com" 
+                    className={`flex-1 h-12 px-5 rounded-xl text-sm border focus:outline-none transition-all ${isDarkMode ? 'bg-white/[0.03] border-white/[0.05] focus:border-white/20 text-white' : 'bg-white border-black/[0.05] focus:border-black/20 text-[#0f172a] shadow-sm'}`} 
+                  />
+                  <Button className={`h-12 w-12 rounded-xl flex items-center justify-center p-0 transition-all ${isDarkMode ? 'bg-white text-black hover:bg-zinc-200' : 'bg-[#0f172a] text-white hover:bg-slate-900'}`}>
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+               </div>
             </div>
           </div>
-          <div className={`pt-8 border-t ${isDarkMode ? 'border-[#27272a]' : 'border-[#d4d4d4]'} text-center text-sm ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-            <p>© 2025 EverPrompt. All rights reserved.</p>
+          
+          <div className={`pt-12 border-t flex flex-col md:flex-row items-center justify-between gap-8 ${isDarkMode ? 'border-white/[0.03] text-zinc-600' : 'border-black/[0.03] text-slate-400'} text-[10px] font-bold uppercase tracking-[0.2em]`}>
+            <p>© 2025 EverPrompt. Crafted for the future of AI.</p>
+            <div className="flex gap-10">
+              <a href="/privacy" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Privacy Policy</a>
+              <a href="/terms" className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-black'}`}>Terms of Service</a>
+            </div>
           </div>
         </div>
       </footer>

@@ -1,5 +1,16 @@
 export type PromptType = "video" | "audio" | "image" | "text";
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+  avatar?: string; // Optional for compatibility
+  bio?: string;
+  is_public?: boolean;
+  created_at: string;
+}
+
 export interface PromptAuthor {
   name: string;
   email: string;

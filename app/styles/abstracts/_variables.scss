@@ -1,0 +1,23 @@
+$base-font-size: 16 !default;
+
+@use "sass:math";
+
+@function rem($px) {
+  $value: math.div($px, 1px);
+  @return math.div($value, $base-font-size) * 1rem;
+}
+
+// Color Accessors
+$color-bg: var(--bg);
+$color-surface: var(--surface);
+$color-surface-raised: var(--surface-raised);
+$color-text: var(--text);
+$color-subtext: var(--subtext);
+$color-accent: var(--accent);
+
+// Shadow Accessors
+// Refined for high-end polish: optimized offsets and blurs
+$shadow-raised: 8px 8px 20px var(--neuro-dark), -8px -8px 20px var(--neuro-light);
+$shadow-raised-sm: 4px 4px 10px var(--neuro-dark), -4px -4px 10px var(--neuro-light);
+$shadow-pressed: inset 6px 6px 12px var(--neuro-dark), inset -6px -6px 12px var(--neuro-light);
+$shadow-pressed-sm: inset 3px 3px 6px var(--neuro-dark), inset -3px -3px 6px var(--neuro-light);

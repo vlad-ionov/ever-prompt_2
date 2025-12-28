@@ -69,12 +69,12 @@ export function AddCollectionDialog({
                 className={`p-2 rounded-lg ${
                   isDarkMode
                     ? "bg-gradient-to-br from-[#8b5cf6]/10 to-[#a78bfa]/5 border-[#8b5cf6]/20"
-                    : "bg-gradient-to-br from-[#CF0707]/10 to-[#E11D48]/5 border-[#CF0707]/20"
+                    : "bg-gradient-to-br from-[#8b5cf6]/10 to-[#8b5cf6]/5 border-[#8b5cf6]/20"
                 } border`}
               >
                 <FolderOpen
                   className={`h-5 w-5 ${
-                    isDarkMode ? "text-[#8b5cf6]" : "text-[#CF0707]"
+                    isDarkMode ? "text-[#8b5cf6]" : "text-[#8b5cf6]"
                   }`}
                 />
               </div>
@@ -142,7 +142,7 @@ export function AddCollectionDialog({
               className={
                 isDarkMode
                   ? "border-[#27272a] bg-transparent text-[#fafafa] hover:bg-[#18181b]"
-                  : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f5f5f5]"
+                  : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f1f5f9]"
               }
             >
               Cancel
@@ -152,7 +152,7 @@ export function AddCollectionDialog({
               className={
                 isDarkMode
                   ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-                  : "bg-[#CF0707] text-white hover:bg-[#a80606]"
+                  : "bg-[#8b5cf6] text-white hover:bg-[#a80606]"
               }
             >
               Create Collection
