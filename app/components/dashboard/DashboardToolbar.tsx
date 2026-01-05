@@ -67,10 +67,10 @@ export function DashboardToolbar({
   if (activeView === "analytics") return null;
 
   return (
-    <div className={`sticky top-[0rem] z-20 -mx-4 px-4 py-2 md:-mx-8 md:px-8 md:py-2.5 backdrop-blur-xl border-b transition-all duration-500 ${
+    <div className={`sticky top-[0rem] z-20 -mx-4 px-4 py-2 md:-mx-8 md:px-8 md:py-2.5 backdrop-blur-2xl backdrop-saturate-150 border-b transition-all duration-500 ${
       isDarkMode 
-        ? "bg-[#020617]/95 border-white/[0.03]" 
-        : "bg-white/95 border-[var(--border)] shadow-sm"
+        ? "bg-gradient-to-r from-[#020617]/80 via-[#0f172a]/70 to-[#020617]/80 border-white/5 shadow-2xl shadow-black/20 supports-[backdrop-filter]:bg-opacity-60" 
+        : "bg-gradient-to-r from-white/70 via-slate-50/60 to-white/70 border-white/40 shadow-[0_4px_30px_rgba(0,0,0,0.03)] supports-[backdrop-filter]:bg-opacity-60"
     }`}>
       <div className="mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {/* Mobile Top Row: Title + View Toggle */}

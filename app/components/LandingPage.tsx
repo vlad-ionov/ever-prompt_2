@@ -27,13 +27,15 @@ import {
   Grid3x3,
   Bookmark
 } from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { DashboardPromptCard } from "./DashboardPromptCard";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef } from "react";
 import * as React from "react";
 import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
 import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
+import HeroDashboardImg from "../assets/images/landing_hero_dashboard_3d.png";
+import FeatureAiNetworkImg from "../assets/images/landing_feature_ai_network.png";
+import CtaFutureWorkImg from "../assets/images/landing_cta_future_work.png";
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -717,6 +719,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       type: 'text' as const,
                       tags: ['content', 'seo', 'marketing'],
                       likes: 234,
+                      views: 1200,
                       isLiked: true,
                       isSaved: false,
                       isPublic: true,
@@ -732,6 +735,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       type: 'video' as const,
                       tags: ['video', 'social', 'creative'],
                       likes: 156,
+                      views: 850,
                       isLiked: false,
                       isSaved: true,
                       isPublic: true,
@@ -747,6 +751,7 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                       type: 'image' as const,
                       tags: ['art', 'design', 'midjourney'],
                       likes: 421,
+                      views: 2300,
                       isLiked: false,
                       isSaved: false,
                       isPublic: false,
@@ -912,23 +917,202 @@ export function LandingPage({ onGetStarted, onLogin, onDemo, isDarkMode, onToggl
                   {/* Decorative gradient */}
                   <div className={`absolute top-0 right-0 w-96 h-96 ${isDarkMode ? 'bg-[#8b5cf6]/5' : 'bg-[#CF0707]/5'} rounded-full blur-3xl`} />
                   
-                  <div className="relative z-10">
-                    <div className={`inline-flex h-16 w-16 rounded-2xl items-center justify-center mb-6 ${
-                      isDarkMode ? 'bg-[#8b5cf6]/10 backdrop-blur-sm' : 'bg-[#CF0707]/10'
-                    }`}>
-                      {React.createElement(features[currentFeature].icon, {
-                        className: `h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`
-                      })}
+                  <div className="relative z-10 flex flex-col-reverse md:flex-row h-full"> 
+                    {/* Left Side Content */}
+                    <div className="flex-1 md:pr-6 flex flex-col justify-center text-center md:text-left pt-6 md:pt-0">
+                      <div className={`inline-flex h-16 w-16 rounded-2xl items-center justify-center mb-6 mx-auto md:mx-0 ${
+                        isDarkMode ? 'bg-[#8b5cf6]/10 backdrop-blur-sm' : 'bg-[#CF0707]/10'
+                      }`}>
+                        {React.createElement(features[currentFeature].icon, {
+                          className: `h-8 w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`
+                        })}
+                      </div>
+                      <h3 className={`text-2xl md:text-4xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
+                        {features[currentFeature].title}
+                      </h3>
+                      <p className={`text-lg md:text-xl mb-6 max-w-xl mx-auto md:mx-0 ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
+                        {features[currentFeature].description}
+                      </p>
                     </div>
-                    <h3 className={`text-2xl md:text-4xl mb-4 ${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}`}>
-                      {features[currentFeature].title}
-                    </h3>
-                    <p className={`text-lg md:text-xl mb-6 max-w-2xl ${isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}`}>
-                      {features[currentFeature].description}
-                    </p>
-                  </div>
 
-                  <div className="relative z-10 flex items-center justify-between">
+                    {/* Right Side Image */}
+                    <div className="w-full md:w-1/2 relative h-48 md:h-full flex items-center justify-center"> 
+                      <motion.div
+                       className="relative w-full h-full flex items-center justify-center"
+                       initial={{ opacity: 0, scale: 0.8 }}
+                       animate={{ opacity: 1, scale: 1 }}
+                       transition={{ duration: 0.4, delay: 0.2 }}
+                      >
+                       {/* Feature 0: AI Organization - Floating organized cubes */}
+                       {currentFeature === 0 && (
+                         <div className="relative w-40 h-40 md:w-56 md:h-56">
+                           {[...Array(6)].map((_, i) => (
+                             <motion.div
+                               key={i}
+                               className={`absolute rounded-xl border backdrop-blur-sm ${isDarkMode ? 'bg-[#8b5cf6]/20 border-[#8b5cf6]/40' : 'bg-[#CF0707]/10 border-[#CF0707]/30'}`}
+                               style={{
+                                 width: `${30 + i * 8}%`,
+                                 height: `${30 + i * 8}%`,
+                                 left: `${10 + i * 5}%`,
+                                 top: `${10 + i * 5}%`,
+                               }}
+                               animate={{
+                                 y: [0, -10, 0],
+                                 rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                               }}
+                               transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: i * 0.2 }}
+                             />
+                           ))}
+                           <motion.div
+                             className={`absolute inset-0 flex items-center justify-center`}
+                             animate={{ scale: [1, 1.1, 1] }}
+                             transition={{ duration: 2, repeat: Infinity }}
+                           >
+                             <Sparkles className={`h-16 w-16 md:h-24 md:w-24 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'} drop-shadow-[0_0_20px_rgba(139,92,246,0.6)]`} />
+                           </motion.div>
+                         </div>
+                       )}
+
+                       {/* Feature 1: Smart Search - Magnifying glass with data nodes */}
+                       {currentFeature === 1 && (
+                         <div className="relative w-40 h-40 md:w-56 md:h-56">
+                           <motion.div
+                             className={`absolute inset-0 rounded-full border-4 ${isDarkMode ? 'border-[#8b5cf6]/50' : 'border-[#CF0707]/40'}`}
+                             animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
+                             transition={{ duration: 2, repeat: Infinity }}
+                           />
+                           {[...Array(5)].map((_, i) => (
+                             <motion.div
+                               key={i}
+                               className={`absolute w-3 h-3 md:w-4 md:h-4 rounded-full ${isDarkMode ? 'bg-[#a78bfa]' : 'bg-[#E11D48]'}`}
+                               style={{
+                                 left: `${20 + Math.cos(i * 1.2) * 35}%`,
+                                 top: `${20 + Math.sin(i * 1.2) * 35}%`,
+                               }}
+                               animate={{
+                                 scale: [1, 1.5, 1],
+                                 opacity: [0.3, 1, 0.3],
+                               }}
+                               transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                             />
+                           ))}
+                           <motion.div
+                             className="absolute inset-0 flex items-center justify-center"
+                             animate={{ rotate: [0, 10, 0] }}
+                             transition={{ duration: 3, repeat: Infinity }}
+                           >
+                             <Search className={`h-16 w-16 md:h-24 md:w-24 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'} drop-shadow-[0_0_20px_rgba(139,92,246,0.6)]`} />
+                           </motion.div>
+                         </div>
+                       )}
+
+                       {/* Feature 2: Collaborate - Connected avatars */}
+                       {currentFeature === 2 && (
+                         <div className="relative w-48 h-40 md:w-64 md:h-56 flex items-center justify-center">
+                           {[0, 1, 2].map((i) => (
+                             <motion.div
+                               key={i}
+                               className={`absolute w-12 h-12 md:w-16 md:h-16 rounded-full border-2 flex items-center justify-center ${isDarkMode ? 'bg-[#18181b] border-[#8b5cf6]/60' : 'bg-white border-[#CF0707]/50'} shadow-xl`}
+                               style={{
+                                 left: `${20 + i * 25}%`,
+                                 top: i === 1 ? '25%' : '50%',
+                               }}
+                               animate={{ y: [0, -8, 0] }}
+                               transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                             >
+                               <Users className={`h-6 w-6 md:h-8 md:w-8 ${isDarkMode ? 'text-[#a78bfa]' : 'text-[#E11D48]'}`} />
+                             </motion.div>
+                           ))}
+                           {/* Connection lines */}
+                           <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
+                             <motion.line x1="35%" y1="55%" x2="50%" y2="35%" stroke={isDarkMode ? '#8b5cf6' : '#CF0707'} strokeWidth="2" strokeDasharray="5,5" animate={{ strokeDashoffset: [0, 10] }} transition={{ duration: 1, repeat: Infinity }} />
+                             <motion.line x1="50%" y1="35%" x2="65%" y2="55%" stroke={isDarkMode ? '#8b5cf6' : '#CF0707'} strokeWidth="2" strokeDasharray="5,5" animate={{ strokeDashoffset: [0, 10] }} transition={{ duration: 1, repeat: Infinity, delay: 0.5 }} />
+                           </svg>
+                           <motion.div
+                             className={`absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold ${isDarkMode ? 'bg-[#8b5cf6]/20 text-[#a78bfa]' : 'bg-[#CF0707]/10 text-[#CF0707]'}`}
+                             animate={{ opacity: [0.5, 1, 0.5] }}
+                             transition={{ duration: 2, repeat: Infinity }}
+                           >
+                             Synced
+                           </motion.div>
+                         </div>
+                       )}
+
+                       {/* Feature 3: Multi-Format - Floating format icons */}
+                       {currentFeature === 3 && (
+                         <div className="relative w-48 h-48 md:w-64 md:h-64">
+                           {[
+                             { Icon: FileText, x: 15, y: 20, color: 'text-blue-400' },
+                             { Icon: Video, x: 60, y: 10, color: 'text-purple-400' },
+                             { Icon: Music, x: 70, y: 55, color: 'text-green-400' },
+                             { Icon: ImageIcon, x: 20, y: 65, color: 'text-pink-400' },
+                           ].map(({ Icon, x, y, color }, i) => (
+                             <motion.div
+                               key={i}
+                               className={`absolute w-12 h-12 md:w-14 md:h-14 rounded-xl border flex items-center justify-center backdrop-blur-sm ${isDarkMode ? 'bg-[#18181b]/80 border-white/10' : 'bg-white/80 border-slate-200'} shadow-lg`}
+                               style={{ left: `${x}%`, top: `${y}%` }}
+                               animate={{ y: [0, -10, 0], rotate: [0, i % 2 === 0 ? 5 : -5, 0] }}
+                               transition={{ duration: 3, repeat: Infinity, delay: i * 0.4 }}
+                             >
+                               <Icon className={`h-6 w-6 md:h-7 md:w-7 ${color}`} />
+                             </motion.div>
+                           ))}
+                         </div>
+                       )}
+
+                       {/* Feature 4: Favorites - Glowing heart */}
+                       {currentFeature === 4 && (
+                         <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center">
+                           <motion.div
+                             className={`absolute w-32 h-32 md:w-44 md:h-44 rounded-full ${isDarkMode ? 'bg-[#8b5cf6]/10' : 'bg-[#CF0707]/5'} blur-2xl`}
+                             animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.7, 0.3] }}
+                             transition={{ duration: 2, repeat: Infinity }}
+                           />
+                           <motion.div
+                             animate={{ scale: [1, 1.15, 1] }}
+                             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                           >
+                             <Heart className={`h-20 w-20 md:h-28 md:w-28 ${isDarkMode ? 'text-[#8b5cf6] fill-[#8b5cf6]/30' : 'text-[#CF0707] fill-[#CF0707]/20'} drop-shadow-[0_0_25px_rgba(139,92,246,0.7)]`} />
+                           </motion.div>
+                           {[...Array(4)].map((_, i) => (
+                             <motion.div
+                               key={i}
+                               className={`absolute w-2 h-2 rounded-full ${isDarkMode ? 'bg-[#a78bfa]' : 'bg-[#E11D48]'}`}
+                               style={{ left: `${30 + i * 15}%`, top: `${20 + i * 10}%` }}
+                               animate={{ y: [-20, 0], opacity: [1, 0] }}
+                               transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
+                             />
+                           ))}
+                         </div>
+                       )}
+
+                       {/* Feature 5: Performance - Trending chart */}
+                       {currentFeature === 5 && (
+                         <div className="relative w-48 h-40 md:w-64 md:h-56 flex items-end justify-center gap-2 md:gap-3 pb-4">
+                           {[40, 60, 45, 80, 65, 95].map((h, i) => (
+                             <motion.div
+                               key={i}
+                               className={`w-6 md:w-8 rounded-t-lg ${isDarkMode ? 'bg-gradient-to-t from-[#8b5cf6] to-[#a78bfa]' : 'bg-gradient-to-t from-[#CF0707] to-[#E11D48]'}`}
+                               initial={{ height: 0 }}
+                               animate={{ height: `${h}%` }}
+                               transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
+                             />
+                           ))}
+                           <motion.div
+                             className="absolute top-2 right-2 flex items-center gap-1"
+                             animate={{ y: [0, -5, 0] }}
+                             transition={{ duration: 2, repeat: Infinity }}
+                           >
+                             <TrendingUp className={`h-6 w-6 md:h-8 md:w-8 ${isDarkMode ? 'text-[#8b5cf6]' : 'text-[#CF0707]'}`} />
+                             <span className={`text-sm md:text-lg font-bold ${isDarkMode ? 'text-[#a78bfa]' : 'text-[#CF0707]'}`}>+24%</span>
+                           </motion.div>
+                         </div>
+                       )}
+                      </motion.div>
+                    </div>
+                  </div>
+                  
+                  <div className="relative z-10 flex items-center justify-between mt-auto">
                     <Button
                       onClick={() => setSelectedFeature(currentFeature)}
                       className={`group ${

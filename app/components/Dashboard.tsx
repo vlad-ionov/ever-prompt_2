@@ -14,7 +14,7 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from "./ui/sheet";
 import { VisuallyHidden } from "./ui/visually-hidden";
 import { useIsMobile } from "./ui/use-mobile";
 import { Button } from "./ui/button";
-import { PlusCircle } from "@phosphor-icons/react/dist/ssr";
+import { PlusCircle } from "@phosphor-icons/react";
 import {
   SquaresFour,
   Heart,
@@ -31,12 +31,12 @@ import {
   VideoCamera,
   SpeakerHifi,
   Image as ImageIcon,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@phosphor-icons/react";
 
 import MainLogoDark from "../assets/icons/logo-everprompt-dark.svg";
 import MainLogoLight from "../assets/icons/logo-everprompt-light.svg";
 
-import { useDashboard } from "../hooks/useDashboard";
+import { useDashboard } from "@/hooks/useDashboard";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { DashboardToolbar } from "./dashboard/DashboardToolbar";
 import { DashboardContent } from "./dashboard/DashboardContent";
@@ -347,7 +347,7 @@ export function Dashboard({
         <div className="flex-1 flex flex-col overflow-hidden relative">
           <div className={`flex-1 overflow-y-auto ${isDarkMode ? "bg-[var(--bg)]" : "bg-[var(--bg)]"}`}>
             <div className={`mx-auto max-w-[1920px] ${viewingCollection ? "" : "px-4 md:px-8 pb-8"}`}>
-              {!viewingCollection && (
+              <div className={viewingCollection ? "hidden" : ""}>
                 <DashboardToolbar
                   isDarkMode={isDarkMode}
                   activeViewLabel={VIEW_LABELS[activeView] || "Prompts"}
@@ -374,9 +374,9 @@ export function Dashboard({
                     return Array.from(tags).sort();
                   }, [prompts])}
                 />
-              )}
+              </div>
 
-              <div className="mb-3 px-4 md:px-0">
+              <div className="mb-3 pt-4 px-4 md:px-0">
                 <Breadcrumbs 
                   items={breadcrumbItems} 
                   isDarkMode={isDarkMode} 
@@ -445,7 +445,15 @@ export function Dashboard({
       />
       <UserSettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} isDarkMode={isDarkMode} onToggleDarkMode={onToggleDarkMode} />
       <AddCollectionDialog open={isAddCollectionOpen} onOpenChange={setIsAddCollectionOpen} onAdd={handleAddCollection} isDarkMode={isDarkMode} />
-      <EditCollectionDialog open={isEditCollectionOpen} onOpenChange={setIsEditCollectionOpen} collection={collectionToEdit} onEdit={handleUpdateCollection} isDarkMode={isDarkMode} />
+      {collectionToEdit && (
+        <EditCollectionDialog 
+          open={isEditCollectionOpen} 
+          onOpenChange={setIsEditCollectionOpen} 
+          collection={collectionToEdit} 
+          onEdit={handleUpdateCollection} 
+          isDarkMode={isDarkMode} 
+        />
+      )}
       <AddToCollectionDialog 
         open={isAddToCollectionOpen} onOpenChange={setIsAddToCollectionOpen} promptId={promptToAddToCollection || ""} collections={collections}
          onAddToCollections={(cids) => handleAddToSelectedCollections(promptToAddToCollection!, cids)} isDarkMode={isDarkMode}

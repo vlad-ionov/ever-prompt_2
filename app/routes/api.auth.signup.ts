@@ -20,6 +20,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const { email, password, name } = (payload ?? {}) as Record<string, string | undefined>;
+  console.log("Signup request received:", { email, name, hasPassword: !!password });
 
   if (!email || !password || !name) {
     return json({ error: "email, password and name are required" }, { status: 400 });
@@ -41,8 +42,8 @@ export async function action({ request }: ActionFunctionArgs) {
         Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE}`,
         apikey: env.SUPABASE_SERVICE_ROLE,
       },
-      body: JSON.stringify({ 
-        email, 
+      body: JSON.stringify({
+        email,
         password,
         email_confirm: true, // Auto-confirm email
         user_metadata: {
@@ -53,8 +54,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      return json({ 
-        error: errorData?.message ?? errorData?.error_description ?? "Failed to create user" 
+      console.error("Supabase signup error:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
+      return json({
+        error: errorData?.msg ?? errorData?.message ?? errorData?.error_description ?? errorData?.error ?? "Failed to create user"
       }, { status: response.status });
     }
 

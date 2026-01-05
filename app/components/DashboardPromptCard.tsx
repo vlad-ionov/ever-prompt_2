@@ -9,9 +9,11 @@ import {
   FileText,
   Lock,
   Globe,
+  Eye,
 } from "lucide-react";
 import { ModelIcon } from "./ModelIcon";
 import { motion } from "motion/react";
+import { Link } from "@remix-run/react";
 
 const TYPE_ICONS = {
   video: Video,
@@ -28,6 +30,7 @@ interface DashboardPromptCardProps {
   type: "video" | "audio" | "image" | "text";
   tags: string[];
   likes: number;
+  views: number;
   isLiked: boolean;
   isSaved: boolean;
   isPublic: boolean;
@@ -35,6 +38,7 @@ interface DashboardPromptCardProps {
   content: string;
   isDarkMode?: boolean;
   author?: {
+    id: string;
     name: string;
     email: string;
     avatar?: string;
@@ -49,6 +53,7 @@ export function DashboardPromptCard({
   type,
   tags,
   likes,
+  views,
   isLiked,
   isSaved,
   isPublic,
@@ -79,7 +84,7 @@ export function DashboardPromptCard({
 
       <div className="p-4">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <TypeIcon
               className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
@@ -113,7 +118,7 @@ export function DashboardPromptCard({
 
         {/* Description */}
         <p
-          className={`text-xs mb-3 line-clamp-2 ${
+          className={`text-[13px] mb-2 line-clamp-3 leading-snug ${
             isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"
           }`}
         >
@@ -121,14 +126,14 @@ export function DashboardPromptCard({
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap gap-1 mb-2">
           {tags.slice(0, 3).map((tag) => (
             <Badge
               key={tag}
               variant="secondary"
-              className={`text-xs px-2 py-0.5 ${
+              className={`text-[10px] px-1.5 py-0 ${
                 isDarkMode
-                  ? "bg-[#18181b] text-[#a1a1aa] border-[#27272a]"
+                  ? "bg-[#18181b] text-[#71717a] border-[#27272a]"
                   : "bg-white text-[#868686] border-[#e5e5e5]"
               }`}
             >
@@ -139,11 +144,11 @@ export function DashboardPromptCard({
 
         {/* Image Preview for image prompts */}
         {type === 'image' && content && (content.startsWith('http') || content.startsWith('blob:')) && (
-          <div className="relative mb-3 group/img overflow-hidden rounded-xl border border-border/50">
+          <div className="relative mb-2 group/img overflow-hidden rounded-xl border border-border/50">
             <img
               src={content}
               alt={title}
-              className="w-full h-40 object-cover transition-transform duration-500 group-hover/img:scale-105"
+              className="w-full h-32 object-cover transition-transform duration-500 group-hover/img:scale-105"
             />
           </div>
         )}
@@ -174,6 +179,15 @@ export function DashboardPromptCard({
                 {likes}
               </span>
             </motion.div>
+            
+            {isPublic && (
+              <div className="flex items-center gap-1.5 opacity-60">
+                <Eye className={`h-3.5 w-3.5 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`} />
+                <span className={`text-xs ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"}`}>
+                  {views}
+                </span>
+              </div>
+            )}
 
             <motion.div whileHover={{ scale: 1.1 }}>
               <Bookmark
@@ -197,7 +211,11 @@ export function DashboardPromptCard({
             transition={{ delay: 0.3 }}
           >
             {isPublic && author ? (
-              <>
+              <Link 
+                to={`/app/profiles/${author.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
                 <div className={`h-5 w-5 rounded-full overflow-hidden border ${isDarkMode ? "border-[#27272a]" : "border-gray-200"}`}>
                   <img 
                     src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} 
@@ -208,7 +226,7 @@ export function DashboardPromptCard({
                 <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#333333]"}`}>
                   {author.name}
                 </span>
-              </>
+              </Link>
             ) : (
               <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#a1a1aa]"}`}>
                 {createdAt}

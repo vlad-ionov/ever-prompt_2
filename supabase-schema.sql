@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS prompts (
   is_public BOOLEAN DEFAULT false,
   author JSONB,
   initial_prompt TEXT,
+  view_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -134,9 +135,18 @@ ON storage.objects FOR SELECT
 TO public
 USING ( bucket_id = 'prompt-images' );
 
--- Policy to allow users to delete their own uploaded images
 CREATE POLICY "Users can delete their own uploaded images"
 ON storage.objects FOR DELETE
 TO authenticated
 USING ( bucket_id = 'prompt-images' AND auth.uid() = owner );
+
+-- Function to increment prompt views
+CREATE OR REPLACE FUNCTION increment_prompt_views(prompt_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE prompts
+  SET view_count = view_count + 1
+  WHERE id = prompt_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 

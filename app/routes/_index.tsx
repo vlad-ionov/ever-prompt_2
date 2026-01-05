@@ -119,7 +119,6 @@ export default function Index() {
           isDarkMode={isDarkMode}
         />
       </div>
-      <Toaster />
     </div>
   );
 }

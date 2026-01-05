@@ -206,6 +206,15 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ success: true });
     }
 
+    if (intent === "increment-views") {
+      const id = formData.get("id")?.toString();
+      if (!id) return json({ error: "id is required" }, { status: 400 });
+
+      const { incrementPromptViews } = await import("@/lib/mock.server");
+      await incrementPromptViews(id);
+      return json({ success: true });
+    }
+
     return json({ error: "Invalid intent" }, { status: 400 });
   } catch (error) {
     console.error("Prompt action error:", error);

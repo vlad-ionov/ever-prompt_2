@@ -1,4 +1,4 @@
-import { MagnifyingGlass, SunDim, MoonStars, CloudArrowDown, PlusCircle, FolderSimplePlus, ListBullets, List, UserCircle, SignOut } from "@phosphor-icons/react/dist/ssr";
+import { MagnifyingGlass, SunDim, MoonStars, CloudArrowDown, PlusCircle, FolderSimplePlus, ListBullets, List, UserCircle, SignOut } from "@phosphor-icons/react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -72,7 +72,7 @@ export function DashboardHeader({
         ? 'bg-[#020617]/80 border-white/5' 
         : 'bg-white border-[var(--border)] shadow-sm'
     } border-b sticky top-0 z-30 backdrop-blur-xl transition-all duration-500`}>
-      <div className="px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="px-4 md:px-6 h-20 flex items-center justify-between gap-4">
         {/* Left: Logo */}
         <div className="flex items-center gap-3 flex-shrink-0 min-w-[200px]">
           {isMobile && (
@@ -274,9 +274,7 @@ export function DashboardHeader({
                      onSignOut();
                    }
                  }}
-                 className={`rounded-xl px-3 py-2 cursor-pointer ${
-                   demoMode ? (isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]') : 'text-[#111111]'
-                 }`}
+                 className={`${isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'} rounded-xl px-3 py-2 cursor-pointer`}
                >
                  <SignOut className="mr-3 h-4 w-4" weight="regular" />
                  {demoMode ? 'Exit Demo' : 'Sign Out'}
