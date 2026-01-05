@@ -1,9 +1,7 @@
 import type { MouseEvent } from "react";
-
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +29,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { ModelIcon } from "./ModelIcon";
 import TextPlaceholder from "../assets/images/text-placeholder.png";
 import VideoPlaceholder from "../assets/images/video-placeholder.png";
@@ -67,11 +66,13 @@ interface PromptCardProps {
   content?: string;
   tags: string[];
   likes: number;
+  views: number;
   isLiked: boolean;
   isSaved: boolean;
   isPublic: boolean;
   createdAt: string;
   author?: {
+    id: string;
     name: string;
     email: string;
     avatar?: string;
@@ -87,6 +88,7 @@ interface PromptCardProps {
   onClick?: (id: string) => void;
   onToggleVisibility?: (id: string) => void;
   onAddToCollection?: (id: string) => void;
+  isOwner?: boolean;
 }
 
 export function PromptCard({
@@ -97,6 +99,7 @@ export function PromptCard({
   type,
   tags,
   likes,
+  views,
   isLiked,
   isSaved,
   isPublic,
@@ -114,6 +117,7 @@ export function PromptCard({
   onToggleVisibility,
   onAddToCollection,
   content,
+  isOwner = true,
 }: PromptCardProps) {
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
@@ -154,177 +158,221 @@ export function PromptCard({
   // List view layout
   if (viewMode === "list") {
     return (
-      <Card
-        className={`group h-full relative overflow-hidden transition-all duration-300 cursor-pointer border-none flex flex-col ${isDarkMode ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50" : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"}`}
-        onClick={() => onClick?.(id)}
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ y: -2 }}
+        className="h-full"
       >
-        <div className="p-4 md:p-5">
-          <div className="flex items-center gap-4">
-            {/* Type Icon */}
-            <div
-              className={`p-3 rounded-2xl transition-all ${isDarkMode ? "bg-[#18181b]" : "bg-white shadow-none border border-slate-200/50"}`}
-            >
-              <TypeIcon
-                className={`h-5 w-5 md:h-6 md:w-6 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
-              />
-            </div>
+        <Card
+          className={`group h-full relative overflow-hidden transition-all duration-300 cursor-pointer border border-transparent flex flex-col ${
+            isDarkMode 
+              ? "bg-[#0f0f12]/80 backdrop-blur-sm shadow-[var(--shadow-floating)] hover:bg-[#16161a] hover:border-[#8b5cf6]/30" 
+              : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] hover:border-slate-200"
+          }`}
+          onClick={() => onClick?.(id)}
+        >
+          {/* Subtle accent hover line */}
+          <motion.div 
+            className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#8b5cf6]"
+            initial={{ scaleY: 0 }}
+            whileHover={{ scaleY: 1 }}
+            transition={{ duration: 0.2 }}
+          />
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h3
-                  className={`${isDarkMode ? "text-[#fafafa]" : "text-[#333333]"} line-clamp-1 font-semibold`}
-                  title={title}
+          <div className="p-4 md:p-5">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+              {/* Type Icon Section */}
+              <div className="flex-shrink-0">
+                <div
+                  className={`p-3 md:p-4 rounded-2xl transition-all duration-300 ${
+                    isDarkMode 
+                      ? "bg-[#18181b] group-hover:bg-[#1c1c21] group-hover:scale-105" 
+                      : "bg-slate-50 border border-slate-100 group-hover:bg-white group-hover:shadow-sm"
+                  }`}
                 >
-                  {truncatedTitle}
-                </h3>
-              </div>
-              <p
-                className={`text-sm ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"} line-clamp-1 mb-3`}
-              >
-                {description}
-              </p>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge
-                  variant="secondary"
-                  className={`${
-                    isDarkMode
-                      ? "bg-[#18181b] text-[#fafafa] hover:bg-[#8b5cf6] hover:text-white"
-                    : "bg-white text-[#333333] hover:bg-[#111111] hover:text-white"
-                  } transition-colors flex items-center gap-1.5 h-6 text-[10px]`}
-                >
-                  <ModelIcon model={model} size={12} isDarkMode={isDarkMode} />
-                  {model}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className={`${
-                    isPublic
-                      ? isDarkMode
-                        ? "border-[#8b5cf6] text-[#8b5cf6] bg-[#8b5cf6]/10"
-                        : "border-[#111111] text-[#111111] bg-[#111111]/10"
-                      : isDarkMode
-                        ? "border-[#27272a] text-[#71717a] bg-[#18181b]"
-                        : "border-[#d4d4d4] text-[#868686] bg-white"
-                  } flex items-center gap-1.5 h-6 text-[10px]`}
-                >
-                  {isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                  {isPublic ? "Public" : "Private"}
-                </Badge>
-                
-                {/* Mobile Tags (hidden on desktop tags column) */}
-                <div className="flex lg:hidden flex-wrap gap-1">
-                   {tags.slice(0, 2).map(tag => (
-                      <Badge key={tag} variant="outline" className="h-6 text-[10px] flex items-center gap-1 px-2 rounded-full">
-                         <Tag className="h-2.5 w-2.5 opacity-50" />
-                         {tag}
-                      </Badge>
-                   ))}
-                   {tags.length > 2 && <span className="text-[10px] text-muted-foreground">+{tags.length-2}</span>}
+                  <TypeIcon
+                    className={`h-5 w-5 md:h-6 w-6 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
+                  />
                 </div>
               </div>
-            </div>
 
-            {/* Tags Column (Desktop) */}
-            <div className="hidden lg:flex w-48 flex-col gap-2 border-l border-border/10 pl-4 h-full">
-               <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground/60">Categories</span>
-               <div className="flex flex-wrap gap-1.5 max-h-[60px] overflow-hidden">
-                 {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className={`${
-                        isDarkMode
-                          ? "border-[#27272a] text-[#a1a1aa] hover:border-[#8b5cf6] hover:text-[#8b5cf6]"
-                          : "border-[#d4d4d4] text-[#868686] hover:border-[#111111] hover:text-[#111111]"
-                      } transition-colors flex items-center gap-1 px-2 py-0.5 rounded-full font-medium text-[9px]`}
-                    >
-                      <Tag className="h-2.5 w-2.5 opacity-60" />
-                      {tag}
-                    </Badge>
-                  ))}
-               </div>
-            </div>
+              {/* Main Content: Title & Description */}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col gap-1 mb-3">
+                  <h3
+                    className={`${
+                      isDarkMode ? "text-white" : "text-[#0f172a]"
+                    } font-bold text-base md:text-lg tracking-tight truncate group-hover:text-[#8b5cf6] transition-colors`}
+                    title={title}
+                  >
+                    {title}
+                  </h3>
+                  <p
+                    className={`text-[13px] md:text-sm ${
+                      isDarkMode ? "text-[#94a3b8]" : "text-[#64748b]"
+                    } line-clamp-2 md:line-clamp-1 leading-relaxed max-w-2xl`}
+                  >
+                    {description}
+                  </p>
+                </div>
 
-            {/* Actions & Meta */}
-            <div className="flex flex-col items-end gap-2 min-w-[120px]">
-               <div className="flex items-center gap-1">
-                  {isPublic && (
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-pink-500/5 text-pink-500 text-xs font-bold">
-                       <Heart className={`h-3 w-3 ${liked ? "fill-current" : ""}`} />
-                       <span>{likeCount}</span>
-                    </div>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(event: MouseEvent<HTMLElement>) => event.stopPropagation()}
-                        className={`h-8 w-8 transition-opacity ${isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#0f172a]"} hover:bg-transparent`}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge
+                    variant="secondary"
+                    className={`${
+                      isDarkMode
+                        ? "bg-[#1e293b] text-white hover:bg-[#8b5cf6]"
+                        : "bg-slate-100 text-slate-900"
+                    } transition-colors flex items-center gap-1.5 h-6 text-[10px] font-bold uppercase tracking-wider px-2`}
+                  >
+                    <ModelIcon model={model} size={12} isDarkMode={isDarkMode} />
+                    {model}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={`${
+                      isPublic
+                        ? isDarkMode
+                          ? "border-[#8b5cf6]/40 text-[#8b5cf6] bg-[#8b5cf6]/5"
+                          : "border-emerald-200 text-emerald-600 bg-emerald-50"
+                        : isDarkMode
+                          ? "border-zinc-700 text-zinc-400 bg-zinc-800/50"
+                          : "border-slate-200 text-slate-400 bg-slate-50"
+                    } flex items-center gap-1.5 h-6 text-[10px] font-bold uppercase tracking-wider px-2`}
+                  >
+                    {isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                    {isPublic ? "Public" : "Private"}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Categories Column (Desktop) */}
+              <div className={`hidden lg:flex flex-col gap-2 min-w-[140px] max-w-[200px] border-l ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'} pl-6 h-full`}>
+                 <span className={`${isDarkMode ? "text-zinc-500" : "text-slate-400"} text-[10px] uppercase font-bold tracking-[0.1em]`}>Categories</span>
+                 <div className="flex flex-wrap gap-1.5 max-h-[48px] overflow-hidden">
+                   {tags.length > 0 ? (
+                     tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className={`${
+                          isDarkMode
+                            ? "border-zinc-800 text-zinc-400 hover:border-[#8b5cf6] hover:text-[#8b5cf6]"
+                            : "border-slate-200 text-slate-500 hover:border-slate-900 hover:text-slate-900"
+                        } transition-all duration-300 flex items-center gap-1 px-2 py-0 h-5 rounded-full font-medium text-[9px]`}
                       >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className={isDarkMode ? "bg-[#0f0f11] border-[#27272a]" : "bg-white border-[#d4d4d4]"}>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleLike(); }} className="cursor-pointer">
-                        <Heart className={`h-4 w-4 mr-2 ${liked ? "fill-current" : ""}`} /> {liked ? (isPublic ? "Unlike" : "Unfavorite") : (isPublic ? "Like" : "Favorite")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(id); }} className="cursor-pointer">
-                        <Edit className="h-4 w-4 mr-2" /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onCopy?.(id); }} className="cursor-pointer">
-                        <Copy className="h-4 w-4 mr-2" /> Copy
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleSave(); }} className="cursor-pointer">
-                        <Bookmark className={`h-4 w-4 mr-2 ${saved ? "fill-current" : ""}`} /> {saved ? "Unsave" : "Save"}
-                      </DropdownMenuItem>
-                      {!isPublic && onAddToCollection && (
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToCollection?.(id); }} className="cursor-pointer">
-                           <FolderOpen className="h-4 w-4 mr-2" /> Add to Collection
+                        {tag}
+                      </Badge>
+                    ))
+                   ) : (
+                     <span className="text-[10px] italic opacity-30">No tags</span>
+                   )}
+                 </div>
+              </div>
+
+              {/* Actions & Meta - Right Aligned */}
+              <div className={`flex items-center md:flex-col md:items-end md:justify-between gap-3 md:min-w-[140px] border-t md:border-t-0 md:border-l ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'} pt-3 md:pt-0 md:pl-6`}>
+                  <div className="flex items-center gap-1.5 md:mb-1">
+                    {isPublic && (
+                      <div className="flex items-center gap-3 mr-2">
+                        <div className="flex items-center gap-1 text-pink-500 text-xs font-bold">
+                          <Heart className={`h-3.5 w-3.5 ${liked ? "fill-current" : ""}`} />
+                          <span>{likeCount}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-500 text-xs font-bold">
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>{views}</span>
+                        </div>
+                      </div>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(event: MouseEvent<HTMLElement>) => event.stopPropagation()}
+                          className={`h-9 w-9 rounded-xl transition-all ${
+                            isDarkMode 
+                              ? "text-zinc-500 hover:text-white hover:bg-zinc-800" 
+                              : "text-slate-400 hover:text-slate-900 hover:bg-slate-100"
+                          }`}
+                        >
+                          <MoreVertical className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent 
+                        align="end" 
+                        className={`w-52 p-1.5 ${isDarkMode ? "bg-[#0f0f12] border-zinc-800 text-zinc-200" : "bg-white border-slate-200 text-slate-900"}`}
+                      >
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleLike(); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                          <Heart className={`h-4 w-4 mr-2 ${liked ? "fill-current" : ""}`} /> {liked ? (isPublic ? "Unlike" : "Unfavorite") : (isPublic ? "Like" : "Favorite")}
                         </DropdownMenuItem>
-                      )}
-                      {onToggleVisibility && (
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onToggleVisibility?.(id); }} className="cursor-pointer">
-                           {isPublic ? <><EyeOff className="h-4 w-4 mr-2" /> Make Private</> : <><Eye className="h-4 w-4 mr-2" /> Make Public</>}
+                        {isOwner && onEdit && (
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                            <Edit className="h-4 w-4 mr-2" /> Edit
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onCopy?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                          <Copy className="h-4 w-4 mr-2" /> Copy
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onShare?.(id); }} className="cursor-pointer">
-                        <Share2 className="h-4 w-4 mr-2" /> Share
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete?.(id); }} className="cursor-pointer text-red-500 hover:text-red-600 font-medium">
-                        <Trash className="h-4 w-4 mr-2" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-               </div>
-               
-               <div className="flex items-center gap-2 mt-auto">
-                  {isPublic && author ? (
-                    <div className="flex items-center gap-1.5 opacity-60">
-                      <Avatar className="h-4 w-4">
-                        <AvatarFallback className="text-[8px]">{author.name?.slice(0, 1)}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-[10px] font-medium">{author.name}</span>
-                    </div>
-                  ) : (
-                    <span className="text-[10px] font-medium opacity-40">{createdAt}</span>
-                  )}
-               </div>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleSave(); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                          <Bookmark className={`h-4 w-4 mr-2 ${saved ? "fill-current" : ""}`} /> {saved ? "Unsave" : "Save"}
+                        </DropdownMenuItem>
+                        {isOwner && !isPublic && onAddToCollection && (
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToCollection?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                             <FolderOpen className="h-4 w-4 mr-2" /> Add to Collection
+                          </DropdownMenuItem>
+                        )}
+                        {isOwner && onToggleVisibility && (
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onToggleVisibility?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                             {isPublic ? <><EyeOff className="h-4 w-4 mr-2" /> Make Private</> : <><Eye className="h-4 w-4 mr-2" /> Make Public</>}
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onShare?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                          <Share2 className="h-4 w-4 mr-2" /> Share
+                        </DropdownMenuItem>
+                        {isOwner && onDelete && (
+                          <>
+                            <div className="h-px bg-border/50 my-1" />
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete?.(id); }} className="cursor-pointer rounded-lg text-red-500 focus:bg-red-500 focus:text-white font-medium">
+                              <Trash className="h-4 w-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                 </div>
+                 
+                 <div className="flex-1 md:flex-initial flex items-center justify-end">
+                    <span className={`text-[11px] font-bold tracking-tight ${isDarkMode ? "text-zinc-600" : "text-slate-400"}`}>{createdAt}</span>
+                 </div>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
     );
   }
 
   // Grid view layout (default)
   return (
-    <Card
-      className={`group relative overflow-hidden transition-all duration-500 cursor-pointer flex flex-col border-none ${isDarkMode ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50" : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] hover:-translate-y-1 active:shadow-[var(--shadow-elevated)]"}`}
-      onClick={() => onClick?.(id)}
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -4 }}
+      className="h-full"
     >
+      <Card
+        className={`group relative overflow-hidden transition-all duration-500 cursor-pointer flex flex-col border-none ${isDarkMode ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50" : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"}`}
+        onClick={() => onClick?.(id)}
+      >
       <div className="p-0">
         <div className={`w-full aspect-video relative overflow-hidden bg-muted/20 border-b ${isDarkMode ? 'border-white/[0.02]' : 'border-black/[0.03]'}`}>
           <img 
@@ -348,23 +396,23 @@ export function PromptCard({
              <span className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-sm backdrop-blur-md ${isDarkMode ? "bg-black/50 text-white" : "bg-white/90 text-black/80"}`} title={model}>
                 <ModelIcon model={model} size={16} isDarkMode={isDarkMode} />
              </span>
-             <span className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-sm backdrop-blur-md ${isDarkMode ? "bg-black/50 text-white" : "bg-white/90 text-black/80"}`} title={isPublic ? "Public" : "Private"}>
-                {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-             </span>
+              <span className={`flex h-8 w-8 items-center justify-center rounded-lg shadow-sm backdrop-blur-md ${isDarkMode ? "bg-black/50 text-white" : "bg-white/90 text-black/80"}`} title={isPublic ? "Public" : "Private"}>
+                 {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+              </span>
           </div>
         </div>
       </div>
-      <div className="p-4 md:p-5 flex flex-col flex-1 gap-3 md:gap-4">
+      <div className="p-3 md:p-4 flex flex-col flex-1 gap-2">
         {/* Header Row: Title & Menu */}
         <div className="flex items-start justify-between gap-3">
-           <h3
-             className={`${
-               isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
-             } line-clamp-2 text-base font-semibold leading-tight flex-1`}
-             title={title}
-           >
-             {title}
-           </h3>
+            <h3
+              className={`${
+                isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
+              } line-clamp-1 text-sm md:text-base font-bold leading-tight flex-1`}
+              title={title}
+            >
+              {title}
+            </h3>
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -392,154 +440,153 @@ export function PromptCard({
                 />
                 {liked ? "Unfavorite" : "Favorite"}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(event: MouseEvent<HTMLElement>) => {
-                  event.stopPropagation();
-                  onEdit?.(id);
-                }}
-                className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(event: MouseEvent<HTMLElement>) => {
-                  event.stopPropagation();
-                  onCopy?.(id);
-                }}
-                className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
-              >
-                <Copy className="h-4 w-4 mr-2" />
-                Copy
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(event: MouseEvent<HTMLElement>) => {
-                  event.stopPropagation();
-                  handleSave();
-                }}
-                className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
-              >
-                <Bookmark
-                  className={`h-4 w-4 mr-2 ${saved ? "fill-current" : ""}`}
-                />
-                {saved ? "Unsave" : "Save"}
-              </DropdownMenuItem>
-              {!isPublic && onAddToCollection && (
+                {isOwner && onEdit && (
+                  <DropdownMenuItem
+                    onClick={(event: MouseEvent<HTMLElement>) => {
+                      event.stopPropagation();
+                      onEdit?.(id);
+                    }}
+                    className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={(event: MouseEvent<HTMLElement>) => {
                     event.stopPropagation();
-                    onAddToCollection?.(id);
+                    onCopy?.(id);
                   }}
                   className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
                 >
-                  <FolderOpen className="h-4 w-4 mr-2" />
-                  Add to Collection
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy
                 </DropdownMenuItem>
-              )}
-              {onToggleVisibility && (
                 <DropdownMenuItem
                   onClick={(event: MouseEvent<HTMLElement>) => {
                     event.stopPropagation();
-                    onToggleVisibility?.(id);
+                    handleSave();
                   }}
                   className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
                 >
-                  {isPublic ? (
-                    <>
-                      <EyeOff className="h-4 w-4 mr-2" />
-                      Make Private
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Make Public
-                    </>
-                  )}
+                  <Bookmark
+                    className={`h-4 w-4 mr-2 ${saved ? "fill-current" : ""}`}
+                  />
+                  {saved ? "Unsave" : "Save"}
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                onClick={(event: MouseEvent<HTMLElement>) => {
-                  event.stopPropagation();
-                  onShare?.(id);
-                }}
-                className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(event: MouseEvent<HTMLElement>) => {
-                  event.stopPropagation();
-                  onDelete?.(id);
-                }}
-                className={`${isDarkMode ? "hover:bg-[#18181b] text-[#f87171]" : "hover:bg-white text-[#111111]"} cursor-pointer`}
-              >
-                <Trash className="h-4 w-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
+                {isOwner && !isPublic && onAddToCollection && (
+                  <DropdownMenuItem
+                    onClick={(event: MouseEvent<HTMLElement>) => {
+                      event.stopPropagation();
+                      onAddToCollection?.(id);
+                    }}
+                    className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
+                  >
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    Add to Collection
+                  </DropdownMenuItem>
+                )}
+                {isOwner && onToggleVisibility && (
+                  <DropdownMenuItem
+                    onClick={(event: MouseEvent<HTMLElement>) => {
+                      event.stopPropagation();
+                      onToggleVisibility?.(id);
+                    }}
+                    className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
+                  >
+                    {isPublic ? (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        Make Private
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Make Public
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={(event: MouseEvent<HTMLElement>) => {
+                    event.stopPropagation();
+                    onShare?.(id);
+                  }}
+                  className={`${isDarkMode ? "hover:bg-[#18181b] text-[#fafafa]" : "hover:bg-white"} cursor-pointer`}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </DropdownMenuItem>
+                {isOwner && onDelete && (
+                  <DropdownMenuItem
+                    onClick={(event: MouseEvent<HTMLElement>) => {
+                      event.stopPropagation();
+                      onDelete?.(id);
+                    }}
+                    className={`${isDarkMode ? "hover:bg-[#18181b] text-[#f87171]" : "hover:bg-white text-[#111111]"} cursor-pointer`}
+                  >
+                    <Trash className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         <p
-           className={`text-sm ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"} line-clamp-2 leading-relaxed`}
+           className={`text-[13px] ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"} line-clamp-3 leading-snug`}
         >
            {description}
         </p>
 
-        <div className="flex flex-wrap gap-2 mt-auto pt-2">
+        <div className="flex flex-wrap gap-1.5 mt-auto pt-1">
           {tags.map((tag) => (
             <Badge
               key={tag}
               variant="secondary"
               className={`${
                 isDarkMode
-                  ? "bg-[#18181b] text-[#a1a1aa] border-[#27272a]/50"
-                  : "bg-slate-50 text-[#64748b] border-slate-200/50"
-              } transition-all duration-300 hover:scale-105 border flex items-center gap-1.5 px-3 py-1 rounded-full font-medium text-[11px]`}
+                  ? "bg-[#18181b] text-[#71717a] border-[#27272a]/30"
+                  : "bg-slate-50 text-[#64748b] border-slate-100"
+              } transition-all duration-300 hover:scale-105 border flex items-center gap-1 px-2 py-0.5 rounded-full font-medium text-[10px]`}
             >
-              <Tag className="h-3 w-3 opacity-50" />
+              <Tag className="h-2.5 w-2.5 opacity-40" />
               {tag}
             </Badge>
           ))}
         </div>
 
-        <div className="flex items-center justify-between mt-4 border-t pt-4 border-dashed border-border/50">
-           <div className="flex items-center gap-4">
+        <div className={`flex items-center justify-between mt-3 border-t pt-3 ${isDarkMode ? 'border-white/5 border-solid' : 'border-solid border-border/05'}`}>
+           <div className="flex items-center gap-3">
               <button 
                  onClick={(e) => { e.stopPropagation(); handleLike(); }}
-                 className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${liked ? "text-pink-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
+                 className={`flex items-center gap-1 text-[13px] font-semibold transition-colors ${liked ? "text-pink-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
               >
-                 <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
+                 <Heart className={`h-3.5 w-3.5 ${liked ? "fill-current" : ""}`} />
                  <span>{likeCount}</span>
               </button>
+              {isPublic && (
+                <div className={`flex items-center gap-1 text-[13px] font-semibold opacity-60 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
+                   <Eye className="h-3.5 w-3.5" />
+                   <span>{views}</span>
+                </div>
+              )}
               <button
                  onClick={(e) => { e.stopPropagation(); handleSave(); }} 
-                 className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${saved ? "text-blue-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
+                 className={`flex items-center gap-1 text-[13px] font-semibold transition-colors ${saved ? "text-blue-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
               >
-                 <Bookmark className={`h-4 w-4 ${saved ? "fill-current" : ""}`} />
+                 <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
               </button>
            </div>
            
-           <div className="flex items-center gap-2">
-              {isPublic && author ? (
-                <>
-                  <Avatar className="h-5 w-5">
-                    <AvatarImage src={author.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${author.email}`} />
-                    <AvatarFallback className="text-[10px]">{author.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#333333]"}`}>
-                    {author.name}
-                  </span>
-                </>
-              ) : (
-                <span className={`text-xs font-medium ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
-                  {createdAt}
-                </span>
-              )}
+           <div className="flex items-center gap-1.5">
+              <span className={`text-[11px] font-bold ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
+                {createdAt}
+              </span>
            </div>
         </div>
       </div>
     </Card>
+    </motion.div>
   );
 }

@@ -12,6 +12,7 @@ import { getClientEnv } from "@/lib/env.server";
 import { AuthProvider } from "@/contexts/AuthContext";
 import tailwindStylesheet from "./tailwind.css?url";
 import rootStylesheet from "./root.scss?url";
+import { Toaster } from "./components/ui/sonner";
 
 export async function loader() {
   try {
@@ -53,6 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster closeButton position="top-center" expand={false} richColors />
         <ScrollRestoration />
         <Scripts />
       </body>

@@ -1,4 +1,4 @@
-import { FolderSimplePlus, MagnifyingGlass, SquaresFour, Heart, Flame, BookmarkSimple, GlobeHemisphereEast, ChartLineUp } from "@phosphor-icons/react/dist/ssr";
+import { FolderSimplePlus, MagnifyingGlass, SquaresFour, Heart, Flame, BookmarkSimple, GlobeHemisphereEast, ChartLineUp } from "@phosphor-icons/react";
 import { Button } from "../ui/button";
 import { CollectionCard } from "../CollectionCard";
 import { PromptCard } from "../PromptCard";

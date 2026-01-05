@@ -198,6 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!supabase) {
         throw new Error("Supabase client is not available");
       }
+      console.log("Calling signup API:", { email, name });
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
@@ -211,12 +212,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         let errorMessage = "Failed to sign up";
         try {
           const data = await response.json();
+          console.error("Signup API error response:", data);
           errorMessage = data.error ?? errorMessage;
         } catch (_error) {
-          // ignore parse errors
+          console.error("Failed to parse signup error response:", _error);
         }
         throw new Error(errorMessage);
       }
+      console.log("Signup API success");
 
       await signIn(email, password);
     },

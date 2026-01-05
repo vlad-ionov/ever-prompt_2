@@ -24,10 +24,15 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   invariant(id, "Prompt id is required");
 
   const prompt = await findPrompt(id, user.id);
-
+  
   if (!prompt) {
     throw new Response("Prompt not found", { status: 404 });
   }
+
+  // Increment views in the background
+  await import("@/lib/mock.server").then(({ incrementPromptViews }) => 
+    incrementPromptViews(id)
+  ).catch(err => console.error("Failed to increment views:", err));
 
   return json<LoaderData>({ prompt });
 }
