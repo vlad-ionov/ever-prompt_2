@@ -56,14 +56,14 @@ export function AddCollectionDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`sm:max-w-[500px] ${
+        className={`sm:max-w-[500px] p-0 overflow-hidden flex flex-col gap-0 ${
           isDarkMode
             ? "bg-[#0f0f11] border-[#27272a]"
             : "bg-white border-[#d4d4d4]"
         }`}
       >
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
+        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+          <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f1f5f9]'}`}>
             <div className="flex items-center gap-3 mb-2">
               <div
                 className={`p-2 rounded-lg ${
@@ -91,7 +91,7 @@ export function AddCollectionDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 px-6 py-6">
             <div className="space-y-2">
               <Label
                 htmlFor="name"
@@ -106,8 +106,8 @@ export function AddCollectionDialog({
                 onChange={(e) => setName(e.target.value)}
                 className={
                   isDarkMode
-                    ? "bg-[#18181b] border-[#27272a] text-[#fafafa] placeholder:text-[#52525b]"
-                    : "bg-white border-[#d4d4d4] text-[#333333] placeholder:text-[#868686]"
+                    ? "bg-[#18181b] border-[#27272a] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]"
+                    : "bg-[#fafafa] border-[#d4d4d4] text-[#333333] placeholder:text-[#868686] focus-visible:ring-[#111111]"
                 }
                 required
               />
@@ -127,22 +127,22 @@ export function AddCollectionDialog({
                 onChange={(e) => setDescription(e.target.value)}
                 className={
                   isDarkMode
-                    ? "bg-[#18181b] border-[#27272a] text-[#fafafa] placeholder:text-[#52525b] min-h-[100px]"
-                    : "bg-white border-[#d4d4d4] text-[#333333] placeholder:text-[#868686] min-h-[100px]"
+                    ? "bg-[#18181b] border-[#27272a] text-[#fafafa] placeholder:text-[#52525b] min-h-[100px] focus-visible:ring-[#8b5cf6]"
+                    : "bg-[#fafafa] border-[#d4d4d4] text-[#333333] placeholder:text-[#868686] min-h-[100px] focus-visible:ring-[#111111]"
                 }
               />
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className={`px-6 py-4 border-t ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11]' : 'border-[#f1f5f9] bg-white'}`}>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={handleCancel}
               className={
                 isDarkMode
-                  ? "border-[#27272a] bg-transparent text-[#fafafa] hover:bg-[#18181b]"
-                  : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f1f5f9]"
+                  ? "text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a]"
+                  : "text-[#666666] hover:text-[#333333] hover:bg-[#f1f5f9]"
               }
             >
               Cancel
@@ -152,7 +152,7 @@ export function AddCollectionDialog({
               className={
                 isDarkMode
                   ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed]"
-                  : "bg-[#8b5cf6] text-white hover:bg-[#a80606]"
+                  : "bg-[#111111] text-white hover:bg-[#222222]"
               }
             >
               Create Collection

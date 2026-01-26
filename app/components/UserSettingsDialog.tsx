@@ -156,38 +156,39 @@ export function UserSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-background/80 backdrop-blur-md border-border sm:max-w-2xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">
+      <DialogContent className={`sm:max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col gap-0 ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
+        <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f1f5f9]'}`}>
+          <DialogTitle className={isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}>
             Settings
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className={isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}>
             Manage your account settings and preferences
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="profile" className="mt-4">
-          <TabsList className="grid w-full grid-cols-4 bg-muted">
-            <TabsTrigger value="profile" className="text-xs sm:text-sm">
-              <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="text-xs sm:text-sm">
-              <Bell className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="security" className="text-xs sm:text-sm">
-              <Lock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Security
-            </TabsTrigger>
-            <TabsTrigger value="appearance" className="text-xs sm:text-sm">
-              <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Appearance
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex-1 overflow-hidden flex flex-col px-6 py-6 pt-2">
+          <Tabs defaultValue="profile" className="w-full flex-1 flex flex-col overflow-hidden">
+            <TabsList className={`grid w-full grid-cols-4 mb-6 ${isDarkMode ? 'bg-[#18181b]' : 'bg-[#f4f4f5]'}`}>
+              <TabsTrigger value="profile" className="text-xs sm:text-sm data-[state=active]:shadow-lg">
+                <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="text-xs sm:text-sm data-[state=active]:shadow-lg">
+                <Bell className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                Notifications
+              </TabsTrigger>
+              <TabsTrigger value="security" className="text-xs sm:text-sm data-[state=active]:shadow-lg">
+                <Lock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                Security
+              </TabsTrigger>
+              <TabsTrigger value="appearance" className="text-xs sm:text-sm data-[state=active]:shadow-lg">
+                <Palette className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                Appearance
+              </TabsTrigger>
+            </TabsList>
 
-          <ScrollArea className="h-[400px] mt-6">
-            <TabsContent value="profile" className="space-y-6 pr-4">
+            <ScrollArea className="flex-1 -mr-4 pr-4">
+              <TabsContent value="profile" className="space-y-6 mt-0">
               {/* Profile Picture */}
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
@@ -471,6 +472,7 @@ export function UserSettingsDialog({
             </TabsContent>
           </ScrollArea>
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

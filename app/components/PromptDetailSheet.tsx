@@ -23,12 +23,14 @@ import {
   FolderSimplePlus,
   X,
   Shapes,
-  Clock,
+  Calendar,
+  Star,
   TextAa,
-  ArrowSquareOut
+  ArrowSquareOut,
+  Lightbulb
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
-import { ModelIcon } from "./ModelIcon";
+import { ModelIcon } from "./ui/model-icon";
 import type { Prompt } from "@/lib/types";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -161,8 +163,9 @@ export function PromptDetailSheet({
       >
         {/* Decorative Background Glows */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className={`absolute top-0 right-0 w-64 h-64 blur-[100px] opacity-20 rounded-full ${isDarkMode ? "bg-violet-500" : "bg-rose-500"}`} />
-          <div className={`absolute bottom-0 left-0 w-64 h-64 blur-[100px] opacity-10 rounded-full ${isDarkMode ? "bg-blue-500" : "bg-blue-400"}`} />
+          <div className={`absolute top-0 right-0 w-80 h-80 blur-[120px] opacity-[0.15] rounded-full ${isDarkMode ? "bg-violet-600" : "bg-rose-400"}`} />
+          <div className={`absolute bottom-0 left-0 w-80 h-80 blur-[120px] opacity-[0.12] rounded-full ${isDarkMode ? "bg-blue-600" : "bg-blue-300"}`} />
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.03] ${isDarkMode ? "bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" : "bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"}`} />
         </div>
 
         {/* Header Section */}
@@ -208,17 +211,26 @@ export function PromptDetailSheet({
                         variants={itemVariants}
                         className="w-full bg-black/5 dark:bg-black/40 border-b border-border/50 relative group"
                     >
-                        <div className="w-full flex items-center justify-center p-0 overflow-hidden">
+                        <div className="w-full flex items-center justify-center p-0 overflow-hidden bg-black/20">
                             <img 
                                 src={prompt.content} 
                                 alt={prompt.title}
-                                className="w-full h-auto object-cover max-h-[450px] transition-transform duration-700 group-hover:scale-105"
+                                className="w-full h-auto object-cover max-h-[400px] transition-transform duration-700 group-hover:scale-[1.02]"
                             />
                         </div>
-                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                            <Button variant="secondary" size="sm" className="bg-white/20 backdrop-blur-md text-white border-white/20 hover:bg-white/30 gap-2" onClick={() => window.open(prompt.content, '_blank')}>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-between p-6">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-white/60 text-[10px] font-bold uppercase tracking-wider">Image Preview</span>
+                                <span className="text-white text-xs font-medium">Click to view full resolution</span>
+                            </div>
+                            <Button 
+                                variant="secondary" 
+                                size="sm" 
+                                className="bg-white/10 backdrop-blur-xl text-white border-white/20 hover:bg-white/20 hover:border-white/40 gap-2 rounded-xl transition-all shadow-xl" 
+                                onClick={() => window.open(prompt.content, '_blank')}
+                            >
                                 <ArrowSquareOut weight="bold" className="h-4 w-4" />
-                                View Full Image
+                                <span className="font-bold">Original</span>
                             </Button>
                         </div>
                     </motion.div>
@@ -235,7 +247,7 @@ export function PromptDetailSheet({
                              </div>
                              
                              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
-                                <Clock weight="bold" className="h-3.5 w-3.5" />
+                                <Calendar weight="bold" className="h-3.5 w-3.5" />
                                 <span>{prompt.createdAt}</span>
                              </div>
 
@@ -283,22 +295,57 @@ export function PromptDetailSheet({
                                 {copied ? "Copied" : "Copy to Clipboard"}
                             </Button>
                          </div>
-                         
-                         <div className={`relative rounded-3xl border p-6 overflow-hidden ${
-                            isDarkMode 
-                                ? "bg-[#111113] border-white/10 shadow-[inner_0_2px_4px_rgba(0,0,0,0.3)]" 
-                                : "bg-slate-50/50 border-slate-200 shadow-sm"
-                         }`}>
+                                                  <div className={`relative rounded-xl border p-6 overflow-hidden transition-all duration-300 ${
+                             isDarkMode 
+                                 ? "bg-[#0c0c0e] border-white/10 shadow-[inner_0_2px_4px_rgba(0,0,0,0.4)] group/prompt hover:border-violet-500/30" 
+                                 : "bg-slate-50 border-slate-200/80 shadow-sm group/prompt hover:border-rose-500/30"
+                          }`}>
                             {/* Decorative accent for content box */}
-                            <div className={`absolute top-0 left-0 w-1 h-full ${isDarkMode ? "bg-violet-500/50" : "bg-rose-500/50"}`} />
+                            <div className={`absolute top-0 left-0 w-1.5 h-full transition-all duration-300 ${isDarkMode ? "bg-violet-500/30 group-hover/prompt:bg-violet-500" : "bg-rose-500/30 group-hover/prompt:bg-rose-500"}`} />
                             
-                            <div className={`text-[15px] leading-relaxed whitespace-pre-wrap break-words text-foreground/90 ${
-                                prompt.type !== 'image' ? "font-mono" : "italic font-serif"
+                            <div className={`text-[14px] leading-relaxed whitespace-pre-wrap break-words font-['Roboto_Mono',_monospace] tracking-tight ${
+                                isDarkMode ? "text-zinc-300" : "text-slate-700"
                             }`}>
                                 {prompt.type === 'image' ? (prompt.initialPrompt || prompt.content) : prompt.content}
                             </div>
-                         </div>
+
+                            {/* Corner Accent */}
+                            <div className={`absolute top-0 right-0 w-16 h-16 opacity-[0.03] pointer-events-none ${isDarkMode ? "bg-white" : "bg-black"}`} style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+                          </div>
                     </motion.div>
+
+                    {/* Use Cases Section */}
+                    {prompt.useCases && prompt.useCases.length > 0 && (
+                        <motion.div variants={itemVariants} className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <div className={`p-1.5 rounded-lg ${isDarkMode ? "bg-blue-500/10 text-blue-400" : "bg-blue-500/10 text-blue-600"}`}>
+                                    <Lightbulb weight="bold" className="h-4 w-4" />
+                                </div>
+                                <h3 className="text-sm font-bold uppercase tracking-wider opacity-60">Typical Use Cases</h3>
+                            </div>
+
+                             <div className={`rounded-xl border p-6 ${
+                                 isDarkMode 
+                                     ? "bg-[#0c0c0e] border-white/10" 
+                                     : "bg-blue-50/20 border-blue-100/50"
+                             }`}>
+                                 <ul className="space-y-4">
+                                     {prompt.useCases.map((useCase, index) => (
+                                         <li key={index} className="flex items-start gap-4 group/item">
+                                             <div className={`mt-1 h-5 w-5 shrink-0 rounded-lg flex items-center justify-center transition-all ${
+                                                 isDarkMode ? "bg-blue-500/10 text-blue-400 group-hover/item:bg-blue-500/20" : "bg-blue-500/10 text-blue-600 group-hover/item:bg-blue-500/20"
+                                             }`}>
+                                                 <Check weight="bold" className="h-3 w-3" />
+                                             </div>
+                                             <span className={`text-[14px] leading-relaxed ${isDarkMode ? "text-zinc-400" : "text-slate-600"}`}>
+                                                 {useCase}
+                                             </span>
+                                         </li>
+                                     ))}
+                                 </ul>
+                             </div>
+                        </motion.div>
+                    )}
                 </div>
             </motion.div>
         </ScrollArea>
@@ -315,29 +362,37 @@ export function PromptDetailSheet({
                     variant="ghost"
                     size="sm"
                     onClick={handleLike}
-                    className={`h-11 flex-1 gap-2 rounded-xl border transition-all ${
+                    className={`h-11 flex-1 gap-2 rounded-lg border transition-all duration-300 ${
                         isLiked 
-                          ? "text-rose-500 bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20" 
-                          : isDarkMode ? "bg-white/5 border-white/5 text-zinc-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-900"
+                          ? (prompt.isPublic ? "text-rose-500 bg-rose-500/10 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]" : "text-amber-500 bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]")
+                          : (isDarkMode ? "bg-[#161618] border-white/5 text-zinc-400 hover:text-white hover:border-white/10" : "bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-900")
                     }`}
                 >
-                    <Heart weight={isLiked ? "fill" : "bold"} className="h-4 w-4" />
-                    <span className="text-xs font-bold tracking-tight">{likeCount}</span>
+                    {prompt.isPublic ? (
+                      <Heart weight={isLiked ? "fill" : "bold"} className="h-4 w-4" />
+                    ) : (
+                      <Star weight={isLiked ? "fill" : "bold"} className="h-4 w-4" />
+                    )}
+                    <span className="text-xs font-bold tracking-tight uppercase">
+                        {prompt.isPublic ? likeCount : (isLiked ? "Favorited" : "Favorite")}
+                    </span>
                 </Button>
 
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSave}
-                    className={`h-11 flex-1 gap-2 rounded-xl border transition-all ${
-                        isSaved 
-                          ? "text-blue-500 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20" 
-                          : isDarkMode ? "bg-white/5 border-white/5 text-zinc-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-900"
-                    }`}
-                >
-                    <BookmarkSimple weight={isSaved ? "fill" : "bold"} className="h-4 w-4" />
-                    <span className="text-xs font-bold tracking-tight">{isSaved ? "Saved" : "Save"}</span>
-                </Button>
+                {prompt.isPublic && (
+                  <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSave}
+                      className={`h-11 flex-1 gap-2 rounded-lg border transition-all duration-300 ${
+                          isSaved 
+                            ? "text-blue-500 bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]" 
+                            : isDarkMode ? "bg-[#161618] border-white/5 text-zinc-400 hover:text-white hover:border-white/10" : "bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-900"
+                      }`}
+                  >
+                      <BookmarkSimple weight={isSaved ? "fill" : "bold"} className="h-4 w-4" />
+                      <span className="text-xs font-bold tracking-tight uppercase">{isSaved ? "Saved" : "Save"}</span>
+                  </Button>
+                )}
 
                 {isOwner && (
                     <>
@@ -346,7 +401,7 @@ export function PromptDetailSheet({
                         <Button 
                             variant="outline" 
                             size="icon" 
-                            className={`h-11 w-11 shrink-0 rounded-xl transition-all ${isDarkMode ? "border-white/10 hover:bg-white/5" : "border-slate-200 hover:bg-slate-50"}`}
+                            className={`h-11 w-11 shrink-0 rounded-lg transition-all ${isDarkMode ? "border-white/10 bg-[#161618] hover:bg-white/5" : "border-slate-200 bg-white hover:bg-slate-50"}`}
                             onClick={() => onEdit?.(prompt.id)}
                             title="Edit Prompt"
                         >
@@ -356,7 +411,7 @@ export function PromptDetailSheet({
                         <Button 
                             variant="outline" 
                             size="icon" 
-                            className={`h-11 w-11 shrink-0 rounded-xl transition-all ${isDarkMode ? "border-white/10 hover:bg-white/5" : "border-slate-200 hover:bg-slate-50"}`}
+                            className={`h-11 w-11 shrink-0 rounded-lg transition-all ${isDarkMode ? "border-white/10 bg-[#161618] hover:bg-white/5" : "border-slate-200 bg-white hover:bg-slate-50"}`}
                             onClick={() => onToggleVisibility?.(prompt.id)}
                             title={prompt.isPublic ? "Make Private" : "Make Public"}
                         >
@@ -366,7 +421,7 @@ export function PromptDetailSheet({
                         <Button 
                             variant="outline" 
                             size="icon" 
-                            className={`h-11 w-11 shrink-0 rounded-xl transition-all border-rose-500/20 hover:bg-rose-500/10 text-rose-500`}
+                            className={`h-11 w-11 shrink-0 rounded-lg transition-all border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500`}
                             onClick={() => onDelete?.(prompt.id)}
                             title="Delete Prompt"
                         >
@@ -379,24 +434,24 @@ export function PromptDetailSheet({
              {/* Primary Action Row */}
              <div className="flex gap-4">
                 <Button 
-                    className={`flex-1 h-12 text-sm font-bold shadow-xl transition-all hover:scale-[1.01] active:scale-[0.98] ${
+                    className={`flex-1 h-12 text-sm font-bold rounded-lg shadow-xl transition-all hover:scale-[1.01] active:scale-[0.98] ${
                         isDarkMode 
-                            ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/20" 
-                            : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-500/20"
+                            ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/30" 
+                            : "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-500/30"
                     }`} 
                     onClick={handleCopy}
                 >
                     <div className="flex items-center gap-2">
                         {copied ? <Check weight="bold" className="h-5 w-5" /> : <Copy weight="bold" className="h-5 w-5" />}
-                        {copied ? "Copied to Clipboard" : "Copy Original Prompt"}
+                        <span className="uppercase tracking-tight">{copied ? "Copied" : "Copy Original Prompt"}</span>
                     </div>
                 </Button>
                 
                 <Button 
                     variant="outline" 
                     size="icon" 
-                    className={`h-12 w-12 shrink-0 rounded-xl transition-all hover:scale-105 active:scale-95 ${
-                        isDarkMode ? "border-white/10 hover:bg-white/5" : "border-slate-200 hover:bg-slate-50"
+                    className={`h-12 w-12 shrink-0 rounded-lg transition-all hover:scale-105 active:scale-95 ${
+                        isDarkMode ? "border-white/10 bg-[#161618] hover:bg-white/5" : "border-slate-200 bg-white hover:bg-slate-50"
                     }`}
                     onClick={handleShare}
                     title="Share Link"

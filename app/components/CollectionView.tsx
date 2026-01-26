@@ -14,8 +14,8 @@ interface CollectionViewProps {
   prompts: Prompt[];
   allPrompts: Prompt[];
   isDarkMode?: boolean;
-  viewMode?: "grid" | "list";
-  onViewModeChange?: (mode: "grid" | "list") => void;
+  viewMode?: "grid" | "list" | "table";
+  onViewModeChange?: (mode: "grid" | "list" | "table") => void;
   onBack?: () => void;
   onRemovePrompt?: (promptId: string) => void;
   onAddPrompts?: (promptIds: string[]) => void;

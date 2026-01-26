@@ -65,6 +65,7 @@ export function useDashboard({
                 id: Date.now().toString(),
                 ...newPrompt,
                 likes: 0,
+                views: 0,
                 isLiked: false,
                 isSaved: false,
                 isPublic: false,

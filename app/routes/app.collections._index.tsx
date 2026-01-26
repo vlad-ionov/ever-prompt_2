@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/sonner";
 import type { AppOutletContext } from "./app";
 import type { Collection } from "@/lib/types";
 
+import { useTheme } from "@/hooks/useTheme";
+
 export async function action() {
   // TODO: wire Supabase mutations
   return null;
@@ -15,14 +17,10 @@ export async function action() {
 export default function CollectionsIndexRoute() {
   const { collections: initialCollections } = useOutletContext<AppOutletContext>();
   const navigate = useNavigate();
-  const [isDarkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [collectionState, setCollectionState] = useState<Collection[]>(initialCollections);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
 
   const filteredCollections = useMemo(() => {
     return collectionState.filter((collection) =>
@@ -54,7 +52,7 @@ export default function CollectionsIndexRoute() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setDarkMode((value) => !value)}
+                onClick={toggleDarkMode}
                 className={`rounded-md border px-3 py-2 text-sm ${
                   isDarkMode
                     ? "border-[#27272a] text-[#fafafa] hover:bg-[#18181b]"

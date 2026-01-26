@@ -27,10 +27,11 @@ import {
   Eye,
   EyeOff,
   Tag,
+  Star,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ModelIcon } from "./ModelIcon";
+import { ModelIcon } from "./ui/model-icon";
 import TextPlaceholder from "../assets/images/text-placeholder.png";
 import VideoPlaceholder from "../assets/images/video-placeholder.png";
 import AudioPlaceholder from "../assets/images/audio-placeholder.png";
@@ -78,7 +79,7 @@ interface PromptCardProps {
     avatar?: string;
   };
   isDarkMode?: boolean;
-  viewMode?: "grid" | "list";
+  viewMode?: "grid" | "list" | "table";
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onShare?: (id: string) => void;
@@ -168,10 +169,10 @@ export function PromptCard({
         className="h-full"
       >
         <Card
-          className={`group h-full relative overflow-hidden transition-all duration-300 cursor-pointer border border-transparent flex flex-col ${
+          className={`group h-full relative overflow-hidden transition-all duration-300 cursor-pointer border flex flex-col ${
             isDarkMode 
-              ? "bg-[#0f0f12]/80 backdrop-blur-sm shadow-[var(--shadow-floating)] hover:bg-[#16161a] hover:border-[#8b5cf6]/30" 
-              : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] hover:border-slate-200"
+              ? "bg-[#0f0f12]/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:bg-[#16161a]/60 hover:border-violet-500/40" 
+              : "bg-white/80 backdrop-blur-md border-slate-200 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] hover:border-slate-300"
           }`}
           onClick={() => onClick?.(id)}
         >
@@ -309,7 +310,11 @@ export function PromptCard({
                         className={`w-52 p-1.5 ${isDarkMode ? "bg-[#0f0f12] border-zinc-800 text-zinc-200" : "bg-white border-slate-200 text-slate-900"}`}
                       >
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleLike(); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
-                          <Heart className={`h-4 w-4 mr-2 ${liked ? "fill-current" : ""}`} /> {liked ? (isPublic ? "Unlike" : "Unfavorite") : (isPublic ? "Like" : "Favorite")}
+                          {isPublic ? (
+                            <><Heart className={`h-4 w-4 mr-2 ${liked ? "fill-current" : ""}`} /> {liked ? "Unlike" : "Like"}</>
+                          ) : (
+                            <><Star className={`h-4 w-4 mr-2 ${liked ? "fill-current" : ""}`} /> {liked ? "Remove from Favorites" : "Mark as Favorite"}</>
+                          )}
                         </DropdownMenuItem>
                         {isOwner && onEdit && (
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
@@ -319,9 +324,11 @@ export function PromptCard({
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onCopy?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
                           <Copy className="h-4 w-4 mr-2" /> Copy
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleSave(); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
-                          <Bookmark className={`h-4 w-4 mr-2 ${saved ? "fill-current" : ""}`} /> {saved ? "Unsave" : "Save"}
-                        </DropdownMenuItem>
+                        {isPublic && (
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleSave(); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
+                            <Bookmark className={`h-4 w-4 mr-2 ${saved ? "fill-current" : ""}`} /> {saved ? "Unsave" : "Save"}
+                          </DropdownMenuItem>
+                        )}
                         {isOwner && !isPublic && onAddToCollection && (
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToCollection?.(id); }} className="cursor-pointer rounded-lg focus:bg-[#8b5cf6] focus:text-white">
                              <FolderOpen className="h-4 w-4 mr-2" /> Add to Collection
@@ -346,10 +353,10 @@ export function PromptCard({
                       </DropdownMenuContent>
                     </DropdownMenu>
                  </div>
-                 
-                 <div className="flex-1 md:flex-initial flex items-center justify-end">
+                                  <div className="flex-1 md:flex-initial flex items-center justify-end gap-1.5">
+                    <Calendar className={`h-3 w-3 ${isDarkMode ? "text-zinc-600" : "text-slate-400"}`} />
                     <span className={`text-[11px] font-bold tracking-tight ${isDarkMode ? "text-zinc-600" : "text-slate-400"}`}>{createdAt}</span>
-                 </div>
+                  </div>
               </div>
             </div>
           </div>
@@ -370,9 +377,17 @@ export function PromptCard({
       className="h-full"
     >
       <Card
-        className={`group relative overflow-hidden transition-all duration-500 cursor-pointer flex flex-col border-none ${isDarkMode ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50" : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"}`}
+        className={`group relative overflow-hidden transition-all duration-500 cursor-pointer flex flex-col border h-full ${
+          isDarkMode 
+            ? "bg-[#0f0f12]/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-violet-500/50 hover:shadow-violet-500/10" 
+            : "bg-white border-slate-200 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)]"
+        }`}
         onClick={() => onClick?.(id)}
       >
+        {/* Liquid Glass Inner Glow */}
+        {isDarkMode && (
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/[0.02] to-transparent opacity-50" />
+        )}
       <div className="p-0">
         <div className={`w-full aspect-video relative overflow-hidden bg-muted/20 border-b ${isDarkMode ? 'border-white/[0.02]' : 'border-black/[0.03]'}`}>
           <img 
@@ -557,33 +572,40 @@ export function PromptCard({
         </div>
 
         <div className={`flex items-center justify-between mt-3 border-t pt-3 ${isDarkMode ? 'border-white/5 border-solid' : 'border-solid border-border/05'}`}>
-           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <button 
                  onClick={(e) => { e.stopPropagation(); handleLike(); }}
-                 className={`flex items-center gap-1 text-[13px] font-semibold transition-colors ${liked ? "text-pink-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
+                 className={`flex items-center gap-1 text-[13px] font-semibold transition-colors ${liked ? (isPublic ? "text-pink-500" : "text-amber-500") : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
+                 title={isPublic ? (liked ? "Unlike" : "Like") : (liked ? "Remove from Favorites" : "Mark as Favorite")}
               >
-                 <Heart className={`h-3.5 w-3.5 ${liked ? "fill-current" : ""}`} />
-                 <span>{likeCount}</span>
+                 {isPublic ? (
+                   <Heart className={`h-3.5 w-3.5 ${liked ? "fill-current" : ""}`} />
+                 ) : (
+                   <Star className={`h-3.5 w-3.5 ${liked ? "fill-current text-amber-500" : ""}`} />
+                 )}
+                 {isPublic && <span>{likeCount}</span>}
               </button>
               {isPublic && (
-                <div className={`flex items-center gap-1 text-[13px] font-semibold opacity-60 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
-                   <Eye className="h-3.5 w-3.5" />
-                   <span>{views}</span>
-                </div>
+                <>
+                  <div className={`flex items-center gap-1 text-[13px] font-semibold opacity-60 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>{views}</span>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleSave(); }} 
+                    className={`flex items-center gap-1 text-[13px] font-semibold transition-colors ${saved ? "text-blue-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
+                  >
+                    <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
+                  </button>
+                </>
               )}
-              <button
-                 onClick={(e) => { e.stopPropagation(); handleSave(); }} 
-                 className={`flex items-center gap-1 text-[13px] font-semibold transition-colors ${saved ? "text-blue-500" : (isDarkMode ? "text-[#71717a] hover:text-[#fafafa]" : "text-[#868686] hover:text-[#333333]")}`}
-              >
-                 <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
-              </button>
-           </div>
-           
-           <div className="flex items-center gap-1.5">
+            </div>
+                      <div className="flex items-center gap-1.5">
+              <Calendar className={`h-3 w-3 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`} />
               <span className={`text-[11px] font-bold ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`}>
                 {createdAt}
               </span>
-           </div>
+            </div>
         </div>
       </div>
     </Card>

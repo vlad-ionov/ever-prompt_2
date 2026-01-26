@@ -5,6 +5,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -63,13 +64,13 @@ export function AddToCollectionDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`sm:max-w-[500px] ${
+        className={`sm:max-w-[500px] p-0 overflow-hidden flex flex-col gap-0 ${
           isDarkMode
             ? "bg-[#0f0f11] border-[#27272a]"
             : "bg-white border-[#d4d4d4]"
         }`}
       >
-        <DialogHeader>
+        <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f1f5f9]'}`}>
           <div className="flex items-center gap-3 mb-2">
             <div
               className={`p-2 rounded-lg ${
@@ -97,10 +98,10 @@ export function AddToCollectionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 px-6 py-6 overflow-hidden flex flex-col">
           {/* Already in collections */}
           {collectionsWithPrompt.length > 0 && (
-            <div>
+            <div className="mb-2">
               <p
                 className={`text-sm mb-2 ${
                   isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"
@@ -149,31 +150,31 @@ export function AddToCollectionDialog({
           ) : (
             <>
               <p
-                className={`text-sm ${
+                className={`text-sm font-medium ${
                   isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
                 }`}
               >
                 Select collections:
               </p>
-              <ScrollArea className="max-h-[300px]">
-                <div className="space-y-2">
+              <ScrollArea className="max-h-[300px] flex-1">
+                <div className="space-y-2 pr-4">
                   {availableCollections.map((collection) => (
                     <div
                       key={collection.id}
                       onClick={() => handleToggleCollection(collection.id)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                      className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
                         selectedCollections.includes(collection.id)
                           ? isDarkMode
-                            ? "bg-[#8b5cf6]/10 border-[#8b5cf6]"
-                            : "bg-[#8b5cf6]/10 border-[#8b5cf6]"
+                            ? "bg-[#8b5cf6]/10 border-[#8b5cf6] shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                            : "bg-[#8b5cf6]/10 border-[#8b5cf6] shadow-[0_0_15px_rgba(139,92,246,0.1)]"
                           : isDarkMode
-                          ? "bg-[#18181b] border-[#27272a] hover:border-[#8b5cf6]/50"
+                          ? "bg-[#18181b]/50 border-[#27272a] hover:border-[#8b5cf6]/50"
                           : "bg-white border-[#d4d4d4] hover:border-[#8b5cf6]/50"
                       }`}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-4">
                         <div
-                          className={`mt-1 h-4 w-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                          className={`mt-1 h-5 w-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                             selectedCollections.includes(collection.id)
                               ? isDarkMode
                                 ? "bg-[#8b5cf6] border-[#8b5cf6]"
@@ -184,13 +185,13 @@ export function AddToCollectionDialog({
                           }`}
                         >
                           {selectedCollections.includes(collection.id) && (
-                            <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                            <Check className="h-3.5 w-3.5 text-white" strokeWidth={4} />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h4
-                              className={`text-sm ${
+                              className={`text-sm font-bold ${
                                 isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
                               }`}
                             >
@@ -198,13 +199,13 @@ export function AddToCollectionDialog({
                             </h4>
                             <Badge
                               variant="outline"
-                              className={`text-xs ${
+                              className={`text-[10px] h-4 px-1.5 ${
                                 isDarkMode
                                   ? "border-[#27272a] text-[#71717a]"
                                   : "border-[#d4d4d4] text-[#868686]"
                               }`}
                             >
-                              {collection.promptIds.length} prompts
+                              {collection.promptIds.length}
                             </Badge>
                           </div>
                           {collection.description && (
@@ -226,10 +227,10 @@ export function AddToCollectionDialog({
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-4">
+        <DialogFooter className={`px-6 py-4 border-t flex items-center justify-between ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11]' : 'border-[#f1f5f9] bg-white'}`}>
           <p
-            className={`text-sm ${
-              isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"
+            className={`text-xs font-medium ${
+              isDarkMode ? "text-[#71717a]" : "text-[#868686]"
             }`}
           >
             {selectedCollections.length > 0 &&
@@ -237,12 +238,12 @@ export function AddToCollectionDialog({
           </p>
           <div className="flex gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={handleCancel}
               className={
                 isDarkMode
-                  ? "border-[#27272a] bg-transparent text-[#fafafa] hover:bg-[#18181b]"
-                  : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f1f5f9]"
+                  ? "text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a]"
+                  : "text-[#666666] hover:text-[#333333] hover:bg-[#f1f5f9]"
               }
             >
               Cancel
@@ -253,7 +254,7 @@ export function AddToCollectionDialog({
               className={
                 isDarkMode
                   ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed] disabled:opacity-50"
-                  : "bg-[#8b5cf6] text-white hover:bg-[#a80606] disabled:opacity-50"
+                  : "bg-[#111111] text-white hover:bg-[#222222] disabled:opacity-50"
               }
             >
               Add to{" "}
@@ -261,7 +262,7 @@ export function AddToCollectionDialog({
                 `(${selectedCollections.length})`}
             </Button>
           </div>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

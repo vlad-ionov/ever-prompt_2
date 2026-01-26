@@ -3,7 +3,7 @@ import { Skeleton } from "./ui/skeleton";
 
 interface PromptCardSkeletonProps {
   isDarkMode?: boolean;
-  viewMode?: "grid" | "list";
+  viewMode?: "grid" | "list" | "table";
 }
 
 export function PromptCardSkeleton({

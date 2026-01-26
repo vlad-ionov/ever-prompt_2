@@ -1,4 +1,4 @@
-import { Globe, Lock, Eye, SquaresFour, List, Sparkle, Tag, TextT, VideoCamera, SpeakerHifi, Image as ImageIcon } from "@phosphor-icons/react";
+import { Globe, Lock, Eye, SquaresFour, List, Table, Sparkle, Tag, TextT, VideoCamera, SpeakerHifi, Image as ImageIcon } from "@phosphor-icons/react";
 import {
   Select,
   SelectContent,
@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { ModelIcon } from "../ModelIcon";
+import { ModelIcon } from "../ui/model-icon";
 import type { ElementType } from "react";
 
 interface Option {
@@ -20,8 +20,8 @@ interface DashboardToolbarProps {
   isDarkMode: boolean;
   activeViewLabel: string;
   activeViewTotal: number;
-  viewMode: "grid" | "list";
-  onViewModeChange: (mode: "grid" | "list") => void;
+  viewMode: "grid" | "list" | "table";
+  onViewModeChange: (mode: "grid" | "list" | "table") => void;
   activeView: string;
   allPromptsVisibility: "all" | "public" | "private";
   onVisibilityChange: (v: "all" | "public" | "private") => void;
@@ -97,6 +97,12 @@ export function DashboardToolbar({
                     className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
                 >
                     <List weight="regular" className="h-4 w-4" />
+                </button>
+                <button
+                    onClick={() => onViewModeChange("table")}
+                    className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "table" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                >
+                    <Table weight="regular" className="h-4 w-4" />
                 </button>
             </div>
         </div>
@@ -255,15 +261,24 @@ export function DashboardToolbar({
                 <div className={`hidden md:flex p-1 rounded-xl h-10 ${isDarkMode ? "bg-[#18181b] shadow-inner ring-1 ring-white/5" : "bg-[#f1f5f9] shadow-none border border-slate-200/50"}`}>
                     <button
                         onClick={() => onViewModeChange("grid")}
-                        className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "grid" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                        className={`w-8 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "grid" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                        title="Grid View"
                     >
                         <SquaresFour weight="regular" className="h-4 w-4" />
                     </button>
                     <button
                         onClick={() => onViewModeChange("list")}
-                        className={`w-7 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                        className={`w-8 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                        title="List View"
                     >
                         <List weight="regular" className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={() => onViewModeChange("table")}
+                        className={`w-8 h-full flex items-center justify-center rounded-md transition-all ${viewMode === "table" ? (isDarkMode ? "bg-[#27272a] text-white shadow-sm" : "bg-slate-100 text-slate-900 shadow-sm") : (isDarkMode ? "text-zinc-500 hover:text-zinc-300" : "text-slate-500 hover:text-slate-700")}`}
+                        title="Table View"
+                    >
+                        <Table weight="regular" className="h-4 w-4" />
                     </button>
                 </div>
             </div>
