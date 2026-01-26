@@ -13,6 +13,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import tailwindStylesheet from "./tailwind.css?url";
 import rootStylesheet from "./root.scss?url";
 import { Toaster } from "./components/ui/sonner";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 export async function loader() {
   try {
@@ -28,7 +29,7 @@ export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Roboto+Mono:wght@400;500&display=swap",
   },
   { rel: "stylesheet", href: tailwindStylesheet },
   { rel: "stylesheet", href: rootStylesheet },
@@ -51,10 +52,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: `window.ENV = ${serializedEnv};`,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  if (!theme) {
+                    theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+                  }
+                  document.documentElement.dataset.theme = theme;
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
         {children}
-        <Toaster closeButton position="top-center" expand={false} richColors />
+        <Toaster closeButton position="bottom-left" expand={true} richColors />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -64,8 +80,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Outlet />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

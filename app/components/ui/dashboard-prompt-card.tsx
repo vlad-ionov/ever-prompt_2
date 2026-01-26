@@ -1,5 +1,5 @@
-import { Badge } from "./ui/badge";
-import { Card } from "./ui/card";
+import { Badge } from "./badge";
+import { Card } from "./card";
 import {
   Heart,
   Bookmark,
@@ -11,9 +11,10 @@ import {
   Globe,
   Eye,
 } from "lucide-react";
-import { ModelIcon } from "./ModelIcon";
+import { ModelIcon } from "./model-icon";
 import { motion } from "motion/react";
 import { Link } from "@remix-run/react";
+import styles from "../../styles/components/dashboard-prompt-card.module.scss";
 
 const TYPE_ICONS = {
   video: Video,
@@ -63,20 +64,13 @@ export function DashboardPromptCard({
   createdAt,
 }: DashboardPromptCardProps) {
   const TypeIcon = TYPE_ICONS[type];
+  const theme = isDarkMode ? styles.dark : styles.light;
 
   return (
-    <Card
-      className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border-none ${
-        isDarkMode
-          ? "bg-[#0f0f11] shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50"
-          : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"
-      }`}
-    >
+    <Card className={`${styles.card} ${theme}`}>
       {/* Hover effect line */}
       <motion.div
-        className={`absolute left-0 top-0 bottom-0 w-1 ${
-          isDarkMode ? "bg-[#8b5cf6]" : "bg-[#111111]"
-        }`}
+        className={`${styles.accent} ${theme}`}
         initial={{ scaleY: 0 }}
         whileHover={{ scaleY: 1 }}
         transition={{ duration: 0.2 }}
@@ -86,16 +80,8 @@ export function DashboardPromptCard({
         {/* Header */}
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <TypeIcon
-              className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-[#8b5cf6]" : "text-[#111111]"}`}
-            />
-            <h3
-              className={`text-sm truncate ${
-                isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
-              }`}
-            >
-              {title}
-            </h3>
+            <TypeIcon className={`${styles.icon} ${theme}`} />
+            <h3 className={`${styles.title} ${theme}`}>{title}</h3>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ModelIcon model={model} size={16} isDarkMode={isDarkMode} />
@@ -117,13 +103,7 @@ export function DashboardPromptCard({
         </div>
 
         {/* Description */}
-        <p
-          className={`text-[13px] mb-2 line-clamp-3 leading-snug ${
-            isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"
-          }`}
-        >
-          {description}
-        </p>
+        <p className={`${styles.description} ${theme}`}>{description}</p>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1 mb-2">
@@ -131,11 +111,7 @@ export function DashboardPromptCard({
             <Badge
               key={tag}
               variant="secondary"
-              className={`text-[10px] px-1.5 py-0 ${
-                isDarkMode
-                  ? "bg-[#18181b] text-[#71717a] border-[#27272a]"
-                  : "bg-white text-[#868686] border-[#e5e5e5]"
-              }`}
+              className={`${styles.badge} ${theme}`}
             >
               {tag}
             </Badge>
@@ -171,21 +147,13 @@ export function DashboardPromptCard({
                     : "text-[#868686]"
                 }`}
               />
-              <span
-                className={`text-xs ${
-                  isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"
-                }`}
-              >
-                {likes}
-              </span>
+              <span className={`${styles.stats} ${theme}`}>{likes}</span>
             </motion.div>
             
             {isPublic && (
               <div className="flex items-center gap-1.5 opacity-60">
                 <Eye className={`h-3.5 w-3.5 ${isDarkMode ? "text-[#71717a]" : "text-[#868686]"}`} />
-                <span className={`text-xs ${isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"}`}>
-                  {views}
-                </span>
+                <span className={`${styles.stats} ${theme}`}>{views}</span>
               </div>
             )}
 

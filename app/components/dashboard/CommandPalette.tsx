@@ -23,6 +23,7 @@ import {
   VideoCamera,
   SpeakerHifi,
   Image as ImageIcon,
+  Star,
 } from "@phosphor-icons/react";
 import type { Prompt } from "@/lib/types";
 
@@ -99,8 +100,8 @@ export function CommandPalette({
             <span>Public Library</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => onViewChange("favorites"))}>
-            <Heart className="mr-2 h-4 w-4" />
-            <span>Favorites</span>
+            <Star className="mr-2 h-4 w-4" />
+            <span>My Favorites</span>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => onViewChange("saved"))}>
             <BookmarkSimple className="mr-2 h-4 w-4" />

@@ -26,7 +26,7 @@ interface CollectionCardProps {
   createdAt: string;
   updatedAt: string;
   isDarkMode?: boolean;
-  viewMode?: "grid" | "list";
+  viewMode?: "grid" | "list" | "table";
   onClick?: (id: string) => void;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -62,10 +62,10 @@ export function CollectionCard({
   if (viewMode === "list") {
     return (
       <Card
-        className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border-none ${
+        className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border flex flex-col ${
           isDarkMode
-            ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50"
-            : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"
+            ? "bg-[#0f0f12]/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-violet-500/40"
+            : "bg-white/80 backdrop-blur-md border-slate-200 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)]"
         }`}
         onClick={handleClick}
       >
@@ -196,13 +196,17 @@ export function CollectionCard({
       transition={{ duration: 0.2 }}
     >
       <Card
-        className={`group relative overflow-hidden transition-all duration-300 cursor-pointer h-full border-none ${
+        className={`group relative overflow-hidden transition-all duration-300 cursor-pointer h-full border ${
           isDarkMode
-            ? "bg-[#0f0f11] shadow-[var(--shadow-floating)] hover:border-[#8b5cf6]/50"
-            : "bg-white shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)] active:shadow-[var(--shadow-elevated)]"
+            ? "bg-[#0f0f12]/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-violet-500/50"
+            : "bg-white border-slate-200 shadow-[var(--shadow-elevated)] hover:shadow-[var(--shadow-floating)]"
         }`}
         onClick={handleClick}
       >
+        {/* Liquid Glass Inner Glow */}
+        {isDarkMode && (
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/[0.02] to-transparent opacity-50" />
+        )}
         {/* Hover effect gradient */}
         <motion.div
           className={`absolute inset-0 ${

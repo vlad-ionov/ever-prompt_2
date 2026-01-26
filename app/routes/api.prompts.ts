@@ -94,6 +94,7 @@ export async function action({ request }: ActionFunctionArgs) {
         tags,
         content: finalContent,
         initialPrompt,
+        useCases: parseStringArray(formData.get("useCases")) ?? [],
       });
 
       return json({ prompt });
@@ -136,6 +137,19 @@ export async function action({ request }: ActionFunctionArgs) {
       }
       if (formData.has("initialPrompt")) {
         updates.initial_prompt = (formData.get("initialPrompt") ?? "").toString();
+      }
+      if (formData.has("useCases")) {
+        try {
+          const parsedUseCases = parseStringArray(formData.get("useCases"));
+          if (parsedUseCases) {
+            updates.use_cases = parsedUseCases;
+          }
+        } catch (error) {
+          return json(
+            { error: error instanceof Error ? error.message : "Invalid useCases payload" },
+            { status: 400 },
+          );
+        }
       }
       if (formData.has("is_public")) {
         const next = parseBoolean(formData.get("is_public"));

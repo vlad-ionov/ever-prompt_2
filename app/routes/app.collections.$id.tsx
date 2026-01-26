@@ -6,10 +6,11 @@ import invariant from "tiny-invariant";
 import { toast } from "sonner";
 
 import { CollectionView } from "@/components/CollectionView";
-import { Toaster } from "@/components/ui/sonner";
 import { findCollection, listPrompts, listPromptsForCollection } from "@/lib/mock.server";
 import type { Collection, Prompt } from "@/lib/types";
 import { requireUser } from "@/lib/auth.server";
+
+import { useTheme } from "@/hooks/useTheme";
 
 type LoaderData = {
   collection: Collection;
@@ -48,17 +49,13 @@ export default function CollectionDetailRoute() {
   const { collection, prompts, allPrompts } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
 
-  const [isDarkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [collectionState, setCollectionState] = useState<Collection>(
     collection,
   );
   const [collectionPrompts, setCollectionPrompts] = useState<Prompt[]>(prompts);
   const [allPromptsState, setAllPromptsState] = useState<Prompt[]>(allPrompts);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
 
   const handleAddPrompts = (promptIds: string[]) => {
     const promptsToAdd = allPromptsState.filter((prompt) =>
@@ -156,7 +153,7 @@ export default function CollectionDetailRoute() {
         <div className="px-4 py-10">
           <button
             type="button"
-            onClick={() => setDarkMode((value) => !value)}
+            onClick={toggleDarkMode}
             className={`mb-5 rounded-md border px-3 py-2 text-sm ${
               isDarkMode
                 ? "border-[#27272a] text-[#fafafa] hover:bg-[#18181b]"
@@ -188,7 +185,6 @@ export default function CollectionDetailRoute() {
           />
         </div>
       </div>
-      <Toaster />
     </div>
   );
 }

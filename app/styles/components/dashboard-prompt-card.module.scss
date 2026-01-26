@@ -1,0 +1,125 @@
+.card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  
+  &.dark {
+    background-color: #0f0f11;
+    box-shadow: var(--shadow-elevated);
+    
+    &:hover {
+      box-shadow: var(--shadow-floating);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+  }
+  
+  &.light {
+    background-color: #ffffff;
+    box-shadow: var(--shadow-elevated);
+    
+    &:hover {
+      box-shadow: var(--shadow-floating);
+    }
+    
+    &:active {
+      box-shadow: var(--shadow-elevated);
+    }
+  }
+}
+
+.accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  
+  &.dark {
+    background-color: #8b5cf6;
+  }
+  
+  &.light {
+    background-color: #111111;
+  }
+}
+
+.title {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  
+  &.dark {
+    color: #fafafa;
+  }
+  
+  &.light {
+    color: #333333;
+  }
+}
+
+.description {
+  font-size: 13px;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+  
+  &.dark {
+    color: #a1a1aa;
+  }
+  
+  &.light {
+    color: #868686;
+  }
+}
+
+.badge {
+  font-size: 10px;
+  padding: 0 0.375rem;
+  height: 1.25rem;
+  
+  &.dark {
+    background-color: #18181b;
+    color: #71717a;
+    border-color: #27272a;
+  }
+  
+  &.light {
+    background-color: #ffffff;
+    color: #868686;
+    border-color: #e5e5e5;
+  }
+}
+
+.stats {
+  font-size: 0.75rem;
+  
+  &.dark {
+    color: #a1a1aa;
+  }
+  
+  &.light {
+    color: #868686;
+  }
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  
+  &.dark {
+    color: #8b5cf6;
+  }
+  
+  &.light {
+    color: #111111;
+  }
+}

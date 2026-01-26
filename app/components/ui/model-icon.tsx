@@ -1,11 +1,11 @@
 import { Bot } from "lucide-react";
 
-import ClaudeIcon from "../assets/icons/claude-color.svg";
-import OpenAIIcon from "../assets/icons/openai.svg";
-import GeminiIcon from "../assets/icons/gemini-color.svg";
-import MidjourneyIcon from "../assets/icons/midjourney.svg";
-import GrokIcon from "../assets/icons/grok.svg";
-import QwenIcon from "../assets/icons/qwen-color.svg";
+import ClaudeIcon from "../../assets/icons/claude-color.svg";
+import OpenAIIcon from "../../assets/icons/openai.svg";
+import GeminiIcon from "../../assets/icons/gemini-color.svg";
+import MidjourneyIcon from "../../assets/icons/midjourney.svg";
+import GrokIcon from "../../assets/icons/grok.svg";
+import QwenIcon from "../../assets/icons/qwen-color.svg";
 
 interface ModelConfig {
   keywords: string[];
@@ -14,7 +14,7 @@ interface ModelConfig {
 
 const MODEL_MAPPINGS: ModelConfig[] = [
   {
-    keywords: ["gpt", "openai"],
+    keywords: ["gpt", "openai", "o1", "dall-e", "dalle", "sora"],
     icon: OpenAIIcon,
   },
   {

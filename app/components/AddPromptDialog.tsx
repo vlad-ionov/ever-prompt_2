@@ -19,10 +19,10 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Video, Music, Image as ImageIcon, FileText, Upload } from "lucide-react";
-import { ModelIcon } from "./ModelIcon";
+import { ModelIcon } from "./ui/model-icon";
 import type { Prompt, PromptType } from "@/lib/types";
 
-export type PromptDraft = Pick<Prompt, "title" | "description" | "model" | "type" | "tags" | "content" | "initialPrompt"> & { file?: File };
+export type PromptDraft = Pick<Prompt, "title" | "description" | "model" | "type" | "tags" | "content" | "initialPrompt" | "useCases"> & { file?: File };
 
 interface AddPromptDialogProps {
   open: boolean;
@@ -42,6 +42,7 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
   const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
   const [initialPrompt, setInitialPrompt] = useState("");
+  const [useCases, setUseCases] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -59,6 +60,7 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
       setTags("");
       setContent("");
       setInitialPrompt("");
+      setUseCases("");
       setFile(null);
     }
   }, [open, initialType]);
@@ -82,6 +84,7 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
         tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
         content: content,
         initialPrompt: initialPrompt || undefined,
+        useCases: useCases.split("\n").map((line) => line.trim()).filter(Boolean),
         file: file || undefined,
       });
       
@@ -224,6 +227,19 @@ export function AddPromptDialog({ open, onOpenChange, isDarkMode = false, onSave
               />
             </div>
           )}
+
+          <div className="grid gap-2">
+            <Label htmlFor="use-cases" className={`text-sm font-medium ${isDarkMode ? 'text-[#e4e4e7]' : 'text-[#333333]'}`}>
+              Use Cases <span className={`text-xs font-normal ${isDarkMode ? 'text-[#71717a]' : 'text-[#a1a1aa]'}`}>(Optional, one per line)</span>
+            </Label>
+            <Textarea
+              id="use-cases"
+              value={useCases}
+              onChange={(e) => setUseCases(e.target.value)}
+              placeholder="e.g. Generating creative story ideas&#10;Drafting professional emails&#10;Summarizing long articles"
+              className={`min-h-[100px] resize-none ${isDarkMode ? 'border-[#27272a] bg-[#18181b] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]' : 'border-[#d4d4d4] bg-[#fafafa] focus-visible:ring-[#111111]'}`}
+            />
+          </div>
 
           <div className="grid gap-2">
             <Label htmlFor="tags" className={`text-sm font-medium ${isDarkMode ? 'text-[#e4e4e7]' : 'text-[#333333]'}`}>

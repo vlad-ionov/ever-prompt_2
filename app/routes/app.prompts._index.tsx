@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/sonner";
 import type { AppOutletContext } from "./app";
 import type { Prompt } from "@/lib/types";
 
+import { useTheme } from "@/hooks/useTheme";
+
 export async function action() {
   // TODO: wire Supabase mutations
   return null;
@@ -14,16 +16,12 @@ export async function action() {
 
 export default function PromptsIndexRoute() {
   const { prompts: initialPrompts } = useOutletContext<AppOutletContext>();
-  const [isDarkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [promptState, setPromptState] = useState<Prompt[]>(initialPrompts);
   const [searchQuery, setSearchQuery] = useState("");
   const [modelFilter, setModelFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
 
   const filteredPrompts = useMemo(() => {
     return promptState.filter((prompt) => {
@@ -101,7 +99,7 @@ export default function PromptsIndexRoute() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setDarkMode((value) => !value)}
+                onClick={toggleDarkMode}
                 className={`rounded-md border px-3 py-2 text-sm ${
                   isDarkMode
                     ? "border-[#27272a] text-[#fafafa] hover:bg-[#18181b]"

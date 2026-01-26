@@ -9,7 +9,6 @@ import { EditPromptDialog } from "./EditPromptDialog";
 import { AddCollectionDialog } from "./AddCollectionDialog";
 import { EditCollectionDialog } from "./EditCollectionDialog";
 import { AddToCollectionDialog } from "./AddToCollectionDialog";
-import { Toaster } from "./ui/sonner";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "./ui/sheet";
 import { VisuallyHidden } from "./ui/visually-hidden";
 import { useIsMobile } from "./ui/use-mobile";
@@ -91,7 +90,7 @@ const VIEW_LABELS: Record<string, string> = {
   "public-image": "Public Images",
   "public-video": "Public Videos",
   "public-audio": "Public Audio",
-  favorites: "Liked",
+  favorites: "My Favorites",
   saved: "Saved",
   collections: "Collections",
   analytics: "Analytics",
@@ -143,7 +142,7 @@ export function Dashboard({
   const [selectedType, setSelectedType] = useState("all");
   const [selectedTag, setSelectedTag] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "table">("grid");
   const [activeView, setActiveView] = useState<string>("all");
   const [allPromptsVisibility, setAllPromptsVisibility] = useState<"all" | "public" | "private">("public");
   
@@ -472,7 +471,6 @@ export function Dashboard({
         onNewPrompt={() => setIsDialogOpen(true)}
         onNewCollection={() => setIsAddCollectionOpen(true)}
       />
-      <Toaster />
     </div>
   );
 }

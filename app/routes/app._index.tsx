@@ -2,7 +2,6 @@ import { useNavigate, useOutletContext, useSearchParams } from "@remix-run/react
 import { useEffect, useState } from "react";
 
 import { Dashboard } from "@/components/Dashboard";
-import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import type { AppOutletContext } from "./app";
 
@@ -29,7 +28,6 @@ export default function AppHomeRoute() {
           onExitDemo={demoMode ? () => navigate("/?login=1") : undefined}
         />
       </div>
-      <Toaster />
     </div>
   );
 }

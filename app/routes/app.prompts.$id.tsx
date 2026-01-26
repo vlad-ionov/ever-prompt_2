@@ -9,10 +9,10 @@ import invariant from "tiny-invariant";
 import { toast } from "sonner";
 
 import { PromptDetailSheet } from "@/components/PromptDetailSheet";
-import { Toaster } from "@/components/ui/sonner";
 import { findPrompt } from "@/lib/mock.server";
 import type { Prompt } from "@/lib/types";
 import { requireUser } from "@/lib/auth.server";
+import { useTheme } from "@/hooks/useTheme";
 
 type LoaderData = {
   prompt: Prompt;
@@ -46,13 +46,9 @@ export default function PromptDetailRoute() {
   const { prompt } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
 
-  const [isDarkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [open, setOpen] = useState(true);
   const [promptState, setPromptState] = useState<Prompt>(prompt);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
 
   useEffect(() => {
     if (!open) {
@@ -70,7 +66,7 @@ export default function PromptDetailRoute() {
         <div className="px-4 py-10">
           <button
             type="button"
-            onClick={() => setDarkMode((value) => !value)}
+            onClick={toggleDarkMode}
             className={`mb-4 rounded-md border px-3 py-2 text-sm ${
               isDarkMode
                 ? "border-[#27272a] text-[#fafafa] hover:bg-[#18181b]"
@@ -117,7 +113,6 @@ export default function PromptDetailRoute() {
         onShare={() => toast.info("Share coming soon")}
         onAddToCollection={() => toast.info("Add to collection coming soon")}
       />
-      <Toaster />
     </div>
   );
 }

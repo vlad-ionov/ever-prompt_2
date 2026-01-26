@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
 
 import type { Collection, Prompt } from "@/lib/types";
@@ -292,16 +292,15 @@ export function CollectionDetailSheet({
         </SheetContent>
       </Sheet>
 
-      {/* Add Prompts Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent
-          className={`sm:max-w-3xl ${
+          className={`sm:max-w-3xl p-0 overflow-hidden flex flex-col gap-0 ${
             isDarkMode
               ? "bg-[#0f0f11] border-[#27272a]"
               : "bg-white border-[#d4d4d4]"
           }`}
         >
-          <DialogHeader>
+          <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f1f5f9]'}`}>
             <DialogTitle
               className={isDarkMode ? "text-[#fafafa]" : "text-[#333333]"}
             >
@@ -314,7 +313,7 @@ export function CollectionDetailSheet({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="px-6 py-6 space-y-4">
             {/* Search */}
             <div className="relative">
               <Search
@@ -328,8 +327,8 @@ export function CollectionDetailSheet({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`pl-10 ${
                   isDarkMode
-                    ? "bg-[#18181b] border-[#27272a] text-[#fafafa] placeholder:text-[#52525b]"
-                    : "bg-white border-[#d4d4d4] text-[#333333] placeholder:text-[#868686]"
+                    ? "bg-[#18181b] border-[#27272a] text-[#fafafa] placeholder:text-[#52525b] focus-visible:ring-[#8b5cf6]"
+                    : "bg-[#fafafa] border-[#d4d4d4] text-[#333333] placeholder:text-[#868686] focus-visible:ring-[#111111]"
                 }`}
               />
             </div>
@@ -349,24 +348,24 @@ export function CollectionDetailSheet({
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 pr-4">
                   {filteredAvailablePrompts.map((prompt) => (
                     <div
                       key={prompt.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
                         selectedPrompts.includes(prompt.id)
                           ? isDarkMode
-                            ? "bg-[#8b5cf6]/10 border-[#8b5cf6]"
-                            : "bg-zinc-100 border-zinc-300"
+                            ? "bg-[#8b5cf6]/10 border-[#8b5cf6] shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                            : "bg-zinc-100 border-zinc-300 shadow-[0_0_15px_rgba(0,0,0,0.05)]"
                           : isDarkMode
-                          ? "bg-[#18181b] border-[#27272a] hover:border-[#8b5cf6]/50"
+                          ? "bg-[#18181b]/50 border-[#27272a] hover:border-[#8b5cf6]/50"
                           : "bg-white border-[#d4d4d4] hover:border-[#111111]/50"
                       }`}
                       onClick={() => togglePromptSelection(prompt.id)}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-4">
                         <div
-                          className={`mt-1 h-4 w-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                          className={`mt-1 h-5 w-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                             selectedPrompts.includes(prompt.id)
                               ? isDarkMode
                                 ? "bg-[#8b5cf6] border-[#8b5cf6]"
@@ -377,12 +376,12 @@ export function CollectionDetailSheet({
                           }`}
                         >
                           {selectedPrompts.includes(prompt.id) && (
-                            <X className="h-3 w-3 text-white" strokeWidth={3} />
+                            <X className="h-3.5 w-3.5 text-white" strokeWidth={4} />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4
-                            className={`text-sm mb-1 ${
+                            className={`text-sm font-bold ${
                               isDarkMode ? "text-[#fafafa]" : "text-[#333333]"
                             }`}
                           >
@@ -398,7 +397,7 @@ export function CollectionDetailSheet({
                         </div>
                         <Badge
                           variant="outline"
-                          className={`flex-shrink-0 text-xs ${
+                          className={`flex-shrink-0 text-[10px] h-5 px-2 ${
                             isDarkMode
                               ? "border-[#27272a] text-[#a1a1aa]"
                               : "border-[#d4d4d4] text-[#868686]"
@@ -414,17 +413,17 @@ export function CollectionDetailSheet({
             </ScrollArea>
           </div>
 
-          <div className="flex items-center justify-between pt-4">
+          <DialogFooter className={`px-6 py-4 border-t flex items-center justify-between ${isDarkMode ? 'border-[#27272a] bg-[#0f0f11]' : 'border-[#f1f5f9] bg-white'}`}>
             <p
-              className={`text-sm ${
-                isDarkMode ? "text-[#a1a1aa]" : "text-[#868686]"
+              className={`text-xs font-medium ${
+                isDarkMode ? "text-[#71717a]" : "text-[#868686]"
               }`}
             >
               {selectedPrompts.length} selected
             </p>
             <div className="flex gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => {
                   setShowAddDialog(false);
                   setSelectedPrompts([]);
@@ -432,8 +431,8 @@ export function CollectionDetailSheet({
                 }}
                 className={
                   isDarkMode
-                    ? "border-[#27272a] bg-transparent text-[#fafafa] hover:bg-[#18181b]"
-                    : "border-[#d4d4d4] bg-transparent text-[#333333] hover:bg-[#f1f5f9]"
+                    ? "text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a]"
+                    : "text-[#666666] hover:text-[#333333] hover:bg-[#f1f5f9]"
                 }
               >
                 Cancel
@@ -444,13 +443,13 @@ export function CollectionDetailSheet({
                 className={
                   isDarkMode
                     ? "bg-[#8b5cf6] text-white hover:bg-[#7c3aed] disabled:opacity-50"
-                    : "bg-[#111111] text-white hover:bg-zinc-800 disabled:opacity-50"
+                    : "bg-[#111111] text-white hover:bg-[#222222] disabled:opacity-50"
                 }
               >
                 Add {selectedPrompts.length > 0 && `(${selectedPrompts.length})`}
               </Button>
             </div>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

@@ -80,7 +80,7 @@ export function AppSidebar({
       id: "private",
       items: [
         { id: "personal", icon: User, label: "My Library", count: promptCounts.personal },
-        { id: "favorites", icon: Heart, label: "Liked", count: promptCounts.favorites },
+        { id: "favorites", icon: Star, label: "My Favorites", count: promptCounts.favorites },
         { id: "saved", icon: Bookmark, label: "Saved", count: promptCounts.saved || 0 },
         { id: "collections", icon: Folders, label: "Collections", count: collectionsCount },
       ],

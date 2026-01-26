@@ -31,6 +31,7 @@ type PromptRow = {
   content: string | null;
   initial_prompt: string | null;
   is_public: boolean | null;
+  use_cases: string[] | null;
   user_id: string;
   author: { name?: string; email?: string; avatar?: string } | null;
 };
@@ -104,6 +105,7 @@ function mapPrompt(row: PromptRow): Prompt {
     isSaved: row.is_saved ?? false,
     createdAt: formatDate(row.created_at),
     content: row.content ?? "",
+    useCases: row.use_cases ?? [],
     initialPrompt: row.initial_prompt ?? undefined,
     isPublic: row.is_public ?? false,
     author: mapAuthor(row.author, row.user_id),
@@ -282,6 +284,7 @@ export async function createPrompt(userId: string, promptData: {
   type: string;
   tags: string[];
   content: string;
+  useCases?: string[];
   initialPrompt?: string;
 }): Promise<Prompt> {
   const supabase = requireSupabaseClient();
@@ -306,6 +309,7 @@ export async function createPrompt(userId: string, promptData: {
       tags: promptData.tags,
       content: promptData.content,
       initial_prompt: promptData.initialPrompt,
+      use_cases: promptData.useCases || [],
       is_public: false,
       author: authorData,
     })
@@ -327,6 +331,7 @@ export async function updatePrompt(id: string, userId: string, updates: {
   tags?: string[];
   content?: string;
   initial_prompt?: string;
+  use_cases?: string[];
   is_public?: boolean;
   is_saved?: boolean;
   is_liked?: boolean;

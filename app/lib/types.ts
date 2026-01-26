@@ -37,6 +37,7 @@ export interface Prompt {
   isSaved: boolean;
   createdAt: string;
   content: string;
+  useCases?: string[];
   initialPrompt?: string;
   isPublic: boolean;
   author?: PromptAuthor;

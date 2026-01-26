@@ -67,17 +67,17 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card dark:bg-background/80 backdrop-blur-md border-border sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className={`sm:max-w-md p-0 overflow-hidden flex flex-col gap-0 ${isDarkMode ? 'bg-[#0f0f11] border-[#27272a]' : 'bg-white border-[#d4d4d4]'}`}>
+        <DialogHeader className={`px-6 py-5 border-b ${isDarkMode ? 'border-[#27272a]' : 'border-[#f1f5f9]'}`}>
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-primary">
+            <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed] shadow-lg shadow-[#8b5cf6]/20">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <DialogTitle className="text-foreground">
+            <DialogTitle className={isDarkMode ? 'text-[#fafafa]' : 'text-[#333333]'}>
               {isSignUp ? "Create Account" : "Welcome Back"}
             </DialogTitle>
           </div>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className={isDarkMode ? 'text-[#a1a1aa]' : 'text-[#868686]'}>
             {isSignUp 
               ? "Sign up to start managing your AI prompts" 
               : "Sign in to access your prompt library"
@@ -85,7 +85,7 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
           {isSignUp && (
             <div className="space-y-2">
               <Label htmlFor="name" className="text-foreground">

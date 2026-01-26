@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS prompts (
   author JSONB,
   initial_prompt TEXT,
   view_count INTEGER DEFAULT 0,
+  use_cases TEXT[] DEFAULT ARRAY[]::TEXT[],
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
