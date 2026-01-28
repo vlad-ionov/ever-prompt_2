@@ -178,7 +178,7 @@ export function useDashboard({
     const handleDeletePrompt = async (id: string) => {
         if (demoMode) {
             setPrompts((current) => current.filter((p) => p.id !== id));
-            toast.success("Prompt deleted");
+            toast.info("Prompt deleted");
             return;
         }
 
@@ -199,7 +199,7 @@ export function useDashboard({
             }
 
             setPrompts((current) => current.filter((p) => p.id !== id));
-            toast.success("Prompt deleted");
+            toast.info("Prompt deleted");
         } catch (error) {
             console.error("Error deleting prompt:", error);
             toast.error(error instanceof Error ? error.message : "Failed to delete prompt");

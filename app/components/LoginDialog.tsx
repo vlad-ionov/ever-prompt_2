@@ -7,6 +7,7 @@ import { Separator } from "./ui/separator";
 import { Sparkles, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
+import { createClient } from "../utils/supabase/client";
 
 interface LoginDialogProps {
   open: boolean;
@@ -57,12 +58,36 @@ export function LoginDialog({ open, onOpenChange, isDarkMode }: LoginDialogProps
     }
   };
 
-  const handleGoogleLogin = () => {
-    toast.info("Google login coming soon!");
+  const handleGoogleLogin = async () => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      toast.error(error.message || "Failed to sign in with Google");
+    }
   };
 
-  const handleGithubLogin = () => {
-    toast.info("GitHub login coming soon!");
+  const handleGithubLogin = async () => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('GitHub login error:', error);
+      toast.error(error.message || "Failed to sign in with GitHub");
+    }
   };
 
   return (

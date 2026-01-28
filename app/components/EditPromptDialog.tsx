@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -104,9 +105,10 @@ export function EditPromptDialog({ open, onOpenChange, isDarkMode = false, promp
       });
       
       onOpenChange(false);
+      toast.success("Prompt successfully updated");
     } catch (error) {
       console.error("Error saving prompt:", error);
-      alert(`Failed to save prompt: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error("Error updating prompt");
     }
   };
 

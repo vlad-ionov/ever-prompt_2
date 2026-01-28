@@ -70,7 +70,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        <Toaster closeButton position="bottom-left" expand={true} richColors />
+        <Toaster closeButton position="top-center" expand={true} richColors />
         <ScrollRestoration />
         <Scripts />
       </body>

@@ -27,7 +27,8 @@ import {
   Star,
   TextAa,
   ArrowSquareOut,
-  Lightbulb
+  Lightbulb,
+  Tag
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { ModelIcon } from "./ui/model-icon";
@@ -195,6 +196,35 @@ export function PromptDetailSheet({
                         {prompt.description}
                     </p>
                 )}
+                
+                {/* Minimalistic Metadata */}
+                <div className={`flex items-center gap-4 pt-3 text-[10px] font-bold uppercase tracking-wider ${
+                    isDarkMode ? "text-zinc-500" : "text-slate-400"
+                }`}>
+                    <div className="flex items-center gap-1.5 transition-colors hover:text-zinc-300 dark:hover:text-zinc-300">
+                        {prompt.isPublic ? <Globe weight="bold" className="h-3 w-3 text-blue-500/70" /> : <Lock weight="bold" className="h-3 w-3 text-amber-500/70" />}
+                        <span>{prompt.isPublic ? "Public" : "Private"}</span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-current opacity-20" />
+                    <div className="flex items-center gap-1.5">
+                        <Calendar weight="bold" className="h-3 w-3" />
+                        <span>{prompt.createdAt}</span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-current opacity-20" />
+                    <div className="flex items-center gap-1.5">
+                        <TextAa weight="bold" className="h-3 w-3" />
+                        <span>{wordCount} words</span>
+                    </div>
+                    {prompt.isPublic && (
+                        <>
+                            <div className="w-1 h-1 rounded-full bg-current opacity-20" />
+                            <div className="flex items-center gap-1.5">
+                                <Eye weight="bold" className="h-3 w-3" />
+                                <span>{prompt.views}</span>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
 
@@ -239,42 +269,23 @@ export function PromptDetailSheet({
                 <div className="px-6 py-8 space-y-10">
                     {/* Header Info / Description */}
                     <motion.div variants={itemVariants} className="space-y-4">
-                        {/* Metadata Strip */}
-                        <div className="flex flex-wrap items-center gap-4 text-xs">
-                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
-                                {prompt.isPublic ? <Globe weight="bold" className="h-3.5 w-3.5 text-blue-500" /> : <Lock weight="bold" className="h-3.5 w-3.5 text-amber-500" />}
-                                <span className="font-medium">{prompt.isPublic ? "Public Access" : "Private Vault"}</span>
-                             </div>
-                             
-                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
-                                <Calendar weight="bold" className="h-3.5 w-3.5" />
-                                <span>{prompt.createdAt}</span>
-                             </div>
-
-                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
-                                <TextAa weight="bold" className="h-3.5 w-3.5" />
-                                <span>{wordCount} words</span>
-                             </div>
-
-                             {prompt.isPublic && (
-                                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDarkMode ? "bg-white/5 border-white/10 text-zinc-300" : "bg-white border-slate-200 text-slate-600"}`}>
-                                    <Eye weight="bold" className="h-3.5 w-3.5" />
-                                    <span>{prompt.views} views</span>
-                                </div>
-                             )}
-                        </div>
-                         
                         {prompt.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {prompt.tags.map(tag => (
-                                    <span key={tag} className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all ${
-                                        isDarkMode 
-                                            ? "bg-white/5 border-white/10 text-zinc-400 hover:text-violet-400 hover:border-violet-400/30" 
-                                            : "bg-slate-50 border-slate-200 text-slate-500 hover:text-rose-500 hover:border-rose-500/30"
-                                    }`}>
-                                        #{tag}
-                                    </span>
-                                ))}
+                            <div className="space-y-3">
+                                <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-40 ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>
+                                    <Tag weight="bold" className="h-3.5 w-3.5" />
+                                    <span>Tags</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {prompt.tags.map(tag => (
+                                        <span key={tag} className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-default ${
+                                            isDarkMode 
+                                                ? "bg-white/5 border-white/5 text-zinc-500 hover:text-violet-400 hover:border-violet-500/30 hover:bg-violet-500/5" 
+                                                : "bg-slate-50 border-slate-100 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/5"
+                                        }`}>
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </motion.div>

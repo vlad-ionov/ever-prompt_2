@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from "motion/react";
 import {
   House,
   User,
@@ -127,47 +128,53 @@ export function AppSidebar({
 
       return (
         <Collapsible key={item.id} open={isOpen} onOpenChange={setIsOpen} className="space-y-1">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 group/collapsible">
             <Button
               variant="ghost"
-              className={`flex-1 justify-start gap-3 px-3 h-10 rounded-xl text-sm transition-all duration-300 ${
+              className={`flex-1 justify-start gap-4 px-3 h-11 rounded-2xl text-[13.5px] transition-all duration-500 relative overflow-hidden ${
                 isActive
-                  ? (isDarkMode ? "bg-[#1e293b] text-white font-semibold ring-1 ring-white/10" : "bg-[#f1f5f9] text-[#0f172a] font-bold")
-                  : (isDarkMode ? "text-[#94a3b8] hover:bg-[#1e293b]/60 hover:text-white" : "text-[#64748b] hover:bg-slate-100 hover:text-[#0f172a]")
+                  ? (isDarkMode ? "bg-[#1e293b]/60 text-white font-bold ring-1 ring-white/10" : "bg-white text-[#0f172a] font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-slate-200/50")
+                  : (isDarkMode ? "text-[#94a3b8] hover:bg-white/[0.03] hover:text-white" : "text-[#64748b] hover:bg-slate-100/40 hover:text-[#0f172a]")
               }`}
               onClick={() => onViewChange(item.id)}
             >
-              <div className={`p-1.5 rounded-lg transition-colors ${isActive ? (isDarkMode ? `text-${groupColor}-400` : `text-${groupColor}-600`) : "text-current"}`}>
-                <Icon className="h-4 w-4 shrink-0" weight={isActive ? "bold" : "regular"} />
+              {isActive && (
+                <motion.div 
+                  layoutId="sidebar-active-indicator"
+                  className={`absolute left-0 w-[4px] h-[20px] rounded-r-full ${isDarkMode ? "bg-violet-500 shadow-[0_0_12px_rgba(139,92,246,0.5)]" : "bg-zinc-900"}`} 
+                />
+              )}
+              <div className={`p-2 rounded-xl transition-all duration-500 ${isActive ? (isDarkMode ? "bg-violet-500/10 text-violet-400" : "bg-zinc-100 text-zinc-900") : (isDarkMode ? "text-[#71717a] group-hover/collapsible:scale-110" : "text-slate-400 group-hover/collapsible:scale-110")}`}>
+                <Icon className="h-[18px] w-[18px] shrink-0" weight={isActive ? "bold" : "regular"} />
               </div>
-              <span className="flex-1 text-left">{item.label}</span>
+              <span className={`flex-1 text-left transition-colors duration-300 ${isActive ? "opacity-100" : "opacity-70"}`}>{item.label}</span>
               {hasCount && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${isActive ? (isDarkMode ? `bg-${groupColor}-500/20 text-${groupColor}-400` : `bg-${groupColor}-100 text-${groupColor}-700`) : (isDarkMode ? "bg-zinc-800 text-zinc-500" : "bg-slate-100 text-slate-400")}`}>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black transition-all duration-500 ${isActive ? (isDarkMode ? `bg-violet-500/20 text-violet-400` : `bg-zinc-900 text-white`) : (isDarkMode ? "bg-white/5 text-zinc-500" : "bg-slate-100 text-slate-500")}`}>
                   {displayCount}
                 </span>
               )}
             </Button>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-6 rounded-lg opacity-40 hover:opacity-100">
-                {isOpen ? <CaretDown className="h-3 w-3" /> : <CaretRight className="h-3 w-3" />}
+              <Button variant="ghost" size="icon" className={`h-9 w-7 rounded-xl transition-all duration-300 ${isDarkMode ? "hover:bg-white/5 text-zinc-500 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-900"}`}>
+                {isOpen ? <CaretDown className="h-3.5 w-3.5" weight="bold" /> : <CaretRight className="h-3.5 w-3.5" weight="bold" />}
               </Button>
             </CollapsibleTrigger>
           </div>
-          <CollapsibleContent className="space-y-0.5 ml-4 border-l border-zinc-800/50 pl-2">
+          <CollapsibleContent className="space-y-0.5 ml-[26px] border-l-[1.5px] border-zinc-200/50 dark:border-zinc-800/50 pl-3 pt-1">
             {subItems.map((subItem) => (
               <Button
                 key={subItem.id}
                 variant="ghost"
                 onClick={() => onViewChange(subItem.id)}
-                className={`w-full justify-start gap-2 px-3 h-8 rounded-lg text-[11px] uppercase tracking-wider font-semibold transition-all ${
+                className={`w-full justify-start gap-3 px-3 h-8 rounded-xl text-[10px] uppercase tracking-[0.2em] font-semibold transition-all duration-500 group/sub ${
                   activeView === subItem.id
-                    ? (isDarkMode ? "text-white bg-white/5" : "text-[#0f172a] bg-[#f1f5f9]")
-                    : (isDarkMode ? "text-slate-500 hover:text-white" : "text-slate-500 hover:text-slate-900")
+                    ? (isDarkMode ? "text-violet-400 bg-violet-500/10 border border-violet-500/20" : "text-zinc-950 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200")
+                    : (isDarkMode ? "text-[#52525b] hover:text-white hover:bg-white/5" : "text-slate-400 hover:text-slate-900 hover:bg-slate-100")
                 }`}
               >
-                <subItem.icon className="h-3.5 w-3.5" weight={activeView === subItem.id ? "bold" : "regular"} />
+                <subItem.icon className={`h-3.5 w-3.5 transition-transform duration-300 group-hover/sub:scale-110 ${activeView === subItem.id ? "opacity-100" : "opacity-40"}`} weight={activeView === subItem.id ? "bold" : "regular"} />
                 <span className="flex-1 text-left">{subItem.label}</span>
-                {subItem.count > 0 && <span className="opacity-40">{subItem.count}</span>}
+                {subItem.count > 0 && <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${activeView === subItem.id ? (isDarkMode ? "bg-violet-500/20" : "bg-zinc-200") : "opacity-30 group-hover/sub:opacity-60"}`}>{subItem.count}</span>}
               </Button>
             ))}
           </CollapsibleContent>
@@ -178,34 +185,55 @@ export function AppSidebar({
     const buttonElement = (
       <Button
         variant="ghost"
-        className={`w-full group/navitem relative ${
-          isCollapsed ? "justify-center px-0" : "justify-start gap-2 px-3"
-        } h-10 rounded-xl text-sm transition-all duration-300 ${
+        className={`w-full group/navitem relative overflow-hidden ${
+          isCollapsed ? "justify-center px-0" : "justify-start gap-4 px-3"
+        } h-11 rounded-2xl text-[13.5px] transition-all duration-500 ${
           isActive
             ? isDarkMode
-              ? "bg-[#1e293b] text-white font-semibold shadow-inner ring-1 ring-white/10"
-              : "bg-[#f1f5f9] text-[#0f172a] font-bold"
+              ? "bg-[#1e293b]/60 text-white font-bold shadow-[0_8px_16px_rgba(0,0,0,0.2)] ring-1 ring-white/10"
+              : "bg-white text-[#0f172a] font-semibold shadow-[0_8px_20px_rgba(0,0,0,0.04)] border border-slate-200/50"
             : isDarkMode
-              ? "text-[#94a3b8] hover:bg-[#1e293b]/60 hover:text-white"
-              : "text-[#64748b] hover:bg-slate-100/80 hover:text-[#0f172a]"
+              ? "text-[#94a3b8] hover:bg-white/[0.03] hover:text-white"
+              : "text-[#64748b] hover:bg-slate-100/40 hover:text-[#0f172a]"
         }`}
         onClick={() => onViewChange(item.id)}
       >
-        <div className={`p-1.5 rounded-lg transition-colors duration-300 ${isActive && !isCollapsed ? (isDarkMode ? "bg-[#8b5cf6]/20 text-[#8b5cf6]" : "bg-[#111111]/10 text-[#111111]") : (isDarkMode ? "bg-transparent group-hover/navitem:bg-[#18181b]" : "bg-transparent group-hover/navitem:bg-slate-100")}`}>
-          <Icon className="h-4 w-4 shrink-0" weight={isActive ? "bold" : "regular"} />
+        {/* Liquid Indicator */}
+        {isActive && !isCollapsed && (
+          <motion.div 
+            layoutId="sidebar-active-indicator"
+            className={`absolute left-0 w-[4px] h-[20px] rounded-r-full group-hover/navitem:h-[24px] transition-all duration-300 ${isDarkMode ? "bg-violet-500 shadow-[0_0_12px_rgba(139,92,246,0.5)]" : "bg-zinc-900"}`} 
+          />
+        )}
+
+        <div className={`p-2 rounded-xl transition-all duration-500 ${
+          isActive 
+            ? (isDarkMode ? "bg-violet-500/10 text-violet-400" : "bg-zinc-100 text-zinc-900") 
+            : (isDarkMode ? "text-[#71717a] group-hover/navitem:text-white group-hover/navitem:scale-110" : "text-slate-400 group-hover/navitem:text-slate-900 group-hover/navitem:scale-110")
+        }`}>
+          <Icon className="h-[18px] w-[18px] shrink-0" weight={isActive ? "bold" : "regular"} />
         </div>
+
         {isCollapsed ? (
           hasCount && (
-            <span className={`absolute top-2 right-2 h-2 w-2 rounded-full ring-2 ${isDarkMode ? "bg-[#8b5cf6] ring-[#09090b]" : "bg-[#111111] ring-white"}`} />
+            <span className={`absolute top-2.5 right-2.5 h-2 w-2 rounded-full ring-2 ${isDarkMode ? "bg-violet-500 ring-[#09090b] shadow-[0_0_8px_rgba(139,92,246,0.6)]" : "bg-zinc-900 ring-white shadow-sm"}`} />
           )
         ) : (
           <>
-            <span className="flex-1 text-left">{item.label}</span>
+            <span className={`flex-1 text-left transition-colors duration-300 ${isActive ? "opacity-100" : "opacity-70 group-hover/navitem:opacity-100"}`}>
+              {item.label}
+            </span>
             {hasCount && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium transition-colors ${isActive ? (isDarkMode ? "bg-[#8b5cf6]/20 text-[#8b5cf6]" : "bg-[#111111]/10 text-[#111111]") : (isDarkMode ? "bg-[#18181b] text-[#52525b]" : "bg-slate-100 text-[#94a3b8]")}`}>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-black tracking-tight transition-all duration-500 ${
+                isActive 
+                  ? (isDarkMode ? "bg-violet-500/20 text-violet-400 border border-violet-500/20" : "bg-zinc-900 text-white") 
+                  : (isDarkMode ? "bg-white/5 text-zinc-500 group-hover/navitem:bg-white/10 group-hover/navitem:text-zinc-300" : "bg-slate-100 text-slate-500 group-hover/navitem:bg-slate-200")
+              }`}>
                 {displayCount}
               </span>
             )}
+            {/* Liquid Highlight Effect Overlay */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/navitem:opacity-100 transition-opacity" />
           </>
         )}
       </Button>
@@ -229,10 +257,14 @@ export function AppSidebar({
       <div
         className={`relative ${isCollapsed ? "w-20" : "w-64"} ${
           isDarkMode 
-            ? "bg-[#020617]/80 border-white/5 supports-[backdrop-filter]:bg-[#020617]/40" 
-            : "bg-white border-[var(--border)] shadow-sm"
-        } border-r flex flex-col transition-all duration-500 h-full backdrop-blur-xl group/sidebar`}
+            ? "bg-[#020617]/90 border-white/5 supports-[backdrop-filter]:bg-[#020617]/50" 
+            : "bg-gradient-to-br from-[#ffffff] via-slate-50 to-[#f8faff] border-[var(--border)] shadow-[var(--shadow-elevated)]"
+        } border-r flex flex-col transition-all duration-500 h-full backdrop-blur-2xl group/sidebar overflow-hidden`}
       >
+        {/* Decorative Light Glows */}
+        {!isDarkMode && (
+          <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/[0.03] to-transparent pointer-events-none" />
+        )}
         {isDarkMode && (
           <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none opacity-50" />
         )}
@@ -242,7 +274,7 @@ export function AppSidebar({
               {navGroups.map((group) => (
                 <div key={group.id} className="space-y-2">
                   {!isCollapsed && group.title && (
-                    <h4 className={`px-2 text-xs font-semibold uppercase tracking-wider ${isDarkMode ? "text-[#71717a]" : "text-[#a1a1aa]"}`}>
+                    <h4 className={`px-4 text-[10px] font-black uppercase tracking-[0.25em] ${isDarkMode ? "text-[#52525b]" : "text-slate-400"}`}>
                       {group.title}
                     </h4>
                   )}
