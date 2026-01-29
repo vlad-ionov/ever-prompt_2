@@ -84,12 +84,12 @@ const VIEW_LABELS: Record<string, string> = {
   "personal-image": "My Images",
   "personal-video": "My Videos",
   "personal-audio": "My Audio",
-  all: "Feed",
-  public: "Public Library",
-  "public-text": "Public Text",
-  "public-image": "Public Images",
-  "public-video": "Public Videos",
-  "public-audio": "Public Audio",
+  all: "Explorer",
+  public: "Explorer",
+  "public-text": "Text Prompts",
+  "public-image": "Image Prompts",
+  "public-video": "Video Prompts",
+  "public-audio": "Audio Prompts",
   favorites: "My Favorites",
   saved: "Saved",
   collections: "Collections",
@@ -143,7 +143,7 @@ export function Dashboard({
   const [selectedTag, setSelectedTag] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [viewMode, setViewMode] = useState<"grid" | "list" | "table">("grid");
-  const [activeView, setActiveView] = useState<string>("all");
+  const [activeView, setActiveView] = useState<string>("public");
   const [allPromptsVisibility, setAllPromptsVisibility] = useState<"all" | "public" | "private">("public");
   
   // Dialog/Sheet State
@@ -202,17 +202,13 @@ export function Dashboard({
         const matchesTag = selectedTag === "all" || prompt.tags.includes(selectedTag);
         
         const matchesView =
-          (activeView === "all" && (
-            allPromptsVisibility === "all" ? true : // Show both in 'All' mode
-            allPromptsVisibility === "public" ? prompt.isPublic : 
-            !prompt.isPublic // 'private' mode
-          )) ||
-          (activeView === "personal" && !prompt.isPublic) ||
-          (activeView.startsWith("personal-") && !prompt.isPublic && prompt.type === activeView.replace("personal-", "")) ||
           (activeView === "public" && prompt.isPublic) ||
           (activeView.startsWith("public-") && prompt.isPublic && prompt.type === activeView.replace("public-", "")) ||
+          (activeView === "personal" && !prompt.isPublic) ||
+          (activeView.startsWith("personal-") && !prompt.isPublic && prompt.type === activeView.replace("personal-", "")) ||
           (activeView === "favorites" && prompt.isLiked) ||
-          (activeView === "saved" && prompt.isSaved);
+          (activeView === "saved" && prompt.isSaved) ||
+          (activeView === "all" && prompt.isPublic); // 'all' now also only public as per request
           
         return matchesSearch && matchesModel && matchesType && matchesView && matchesTag;
       })
@@ -375,12 +371,37 @@ export function Dashboard({
                 />
               </div>
 
+              {(activeView === "public" || activeView.startsWith("public-")) && !viewingCollection && (
+                <div className="flex flex-wrap items-center gap-2 pt-6 px-4 md:px-0">
+                  {[
+                    { id: "public", label: "All", icon: Sparkle },
+                    { id: "public-image", label: "Images", icon: ImageIcon },
+                    { id: "public-video", icon: VideoCamera, label: "Videos" },
+                    { id: "public-audio", icon: SpeakerHifi, label: "Audio" },
+                    { id: "public-text", icon: TextT, label: "Text" },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActiveView(cat.id)}
+                      className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                        activeView === cat.id
+                          ? (isDarkMode ? "bg-violet-600 text-white border-violet-500 shadow-lg shadow-violet-600/20" : "bg-zinc-900 text-white shadow-md")
+                          : (isDarkMode ? "bg-white/5 text-zinc-500 border border-white/5 hover:bg-white/10 hover:text-zinc-300" : "bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-900 shadow-sm")
+                      }`}
+                    >
+                      <cat.icon size={14} weight={activeView === cat.id ? "bold" : "regular"} />
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div className="mb-3 pt-4 px-4 md:px-0">
                 <Breadcrumbs 
                   items={breadcrumbItems} 
                   isDarkMode={isDarkMode} 
                   onHomeClick={() => {
-                    setActiveView("all");
+                    setActiveView("public");
                     setViewingCollection(false);
                   }}
                 />

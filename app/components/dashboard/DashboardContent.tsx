@@ -2,6 +2,7 @@ import { FolderSimplePlus, MagnifyingGlass, SquaresFour, Heart, Flame, BookmarkS
 import { Button } from "../ui/button";
 import { CollectionCard } from "../CollectionCard";
 import { PromptCard } from "../PromptCard";
+import { PublicPromptCard } from "../PublicPromptCard";
 import { CollectionView } from "../CollectionView";
 import { PromptCardSkeleton } from "../PromptCardSkeleton";
 import { AnalyticsDashboard } from "./AnalyticsDashboard";
@@ -332,6 +333,25 @@ export function DashboardContent({
             </tbody>
           </table>
         </div>
+      </div>
+    );
+  }
+
+  if (activeView === "public" || activeView.startsWith("public-") || activeView === "all") {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
+        {filteredPrompts.map((prompt) => (
+          <PublicPromptCard
+            key={prompt.id}
+            prompt={prompt}
+            isDarkMode={isDarkMode}
+            onClick={onPromptClick}
+            onCopy={onPromptCopy}
+            onLike={onPromptLike}
+            onSave={onPromptSave}
+            onShare={onPromptShare}
+          />
+        ))}
       </div>
     );
   }

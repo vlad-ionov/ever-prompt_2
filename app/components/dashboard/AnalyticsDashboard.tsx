@@ -1,5 +1,5 @@
-import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
+import { motion, animate, useMotionValue, useTransform } from "motion/react";
 import {
   LineChart,
   Line,
@@ -110,6 +110,21 @@ export function AnalyticsDashboard({ prompts, isDarkMode }: AnalyticsDashboardPr
     { id: "avg", label: "Avg Likes", value: stats.avgLikes, icon: ChartLineUp, color: "text-cyan-500", bg: "bg-cyan-500/10" },
   ];
 
+  function StatCounter({ value }: { value: number }) {
+    const [displayValue, setDisplayValue] = useState(0);
+
+    useEffect(() => {
+      const controls = animate(0, value, {
+        duration: 1.5,
+        ease: "easeOut",
+        onUpdate: (latest) => setDisplayValue(Math.round(latest)),
+      });
+      return () => controls.stop();
+    }, [value]);
+
+    return <>{displayValue}</>;
+  }
+
   return (
     <div className="space-y-8 pb-10">
       {/* Summary Cards */}
@@ -117,25 +132,35 @@ export function AnalyticsDashboard({ prompts, isDarkMode }: AnalyticsDashboardPr
         {summaryCards.map((card) => (
           <div 
             key={card.id} 
-            className={`p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg ${
+            className={`group relative p-5 rounded-[28px] border transition-all duration-500 overflow-hidden ${
               isDarkMode 
-                ? "bg-[#111113] border-[#27272a] hover:border-[#8b5cf6]/30" 
-                : "bg-white border-[#e5e7eb] hover:border-purple-200"
+                ? "bg-[#0f0f12]/40 backdrop-blur-2xl border-white/5 hover:border-violet-500/40 shadow-2xl" 
+                : "bg-white/80 border-slate-200/50 hover:border-violet-500/20 shadow-sm"
             }`}
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 rounded-xl ${card.bg}`}>
-                <card.icon className={`h-5 w-5 ${card.color}`} weight="bold" />
+            {/* Liquid Background Glow */}
+            <div className={`absolute -right-2 -bottom-2 w-16 h-16 rounded-full blur-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-700 ${card.bg.replace('/10', '')}`} />
+            
+            <div className="flex flex-col gap-6 relative z-10">
+              <div className="flex items-start justify-between">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 ${card.bg}`}>
+                  <card.icon className={`h-4.5 w-4.5 ${card.color}`} weight="duotone" />
+                </div>
+                
+                <h3 className={`text-2xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                  <StatCounter value={card.value} />
+                </h3>
+              </div>
+              
+              <div>
+                <p className={`text-[10px] font-bold uppercase tracking-[0.15em] ${isDarkMode ? "text-zinc-600" : "text-slate-400"}`}>
+                  {card.label}
+                </p>
               </div>
             </div>
-            <div>
-              <p className={`text-xs font-semibold uppercase tracking-wider ${isDarkMode ? "text-zinc-500" : "text-slate-500"}`}>
-                {card.label}
-              </p>
-              <h3 className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                {card.value}
-              </h3>
-            </div>
+
+            {/* Subtle Top Shine */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent border-t border-white/[0.02]" />
           </div>
         ))}
       </div>
@@ -143,47 +168,63 @@ export function AnalyticsDashboard({ prompts, isDarkMode }: AnalyticsDashboardPr
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Activity Chart */}
-        <div className={`p-6 rounded-3xl border ${isDarkMode ? "bg-[#111113] border-[#27272a]" : "bg-white border-[#e5e7eb]"} shadow-sm`}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${isDarkMode ? "bg-purple-500/10" : "bg-purple-50"}`}>
-                <Calendar className="h-5 w-5 text-purple-500" weight="bold" />
+        <div className={`p-8 rounded-[32px] border transition-all duration-500 ${
+          isDarkMode 
+            ? "bg-[#0f0f12]/60 backdrop-blur-2xl border-white/5 shadow-2xl" 
+            : "bg-white border-slate-200/60 shadow-xl shadow-slate-200/20"
+        }`}>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-2xl ${isDarkMode ? "bg-violet-500/10" : "bg-violet-50"}`}>
+                <Calendar className="h-6 w-6 text-violet-500" weight="duotone" />
               </div>
-              <h3 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>Activity Overview</h3>
+              <div>
+                <h3 className={`text-xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>Activity Volume</h3>
+                <p className={`text-xs font-medium ${isDarkMode ? "text-zinc-500" : "text-slate-400"}`}>Prompt creation velocity over time</p>
+              </div>
             </div>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats.activityData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? "#27272a" : "#e5e7eb"} />
+                <defs>
+                  <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
                 <XAxis 
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: isDarkMode ? "#71717a" : "#64748b", fontSize: 12 }}
-                  dy={10}
+                  tick={{ fill: isDarkMode ? "#52525b" : "#94a3b8", fontSize: 11, fontWeight: 600 }}
+                  dy={15}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: isDarkMode ? "#71717a" : "#64748b", fontSize: 12 }} 
+                  tick={{ fill: isDarkMode ? "#52525b" : "#94a3b8", fontSize: 11, fontWeight: 600 }} 
                 />
                 <Tooltip 
+                  cursor={{ stroke: '#8b5cf6', strokeWidth: 2, strokeDasharray: '5 5' }}
                   contentStyle={{ 
-                    backgroundColor: isDarkMode ? "#18181b" : "#ffffff",
-                    borderColor: isDarkMode ? "#27272a" : "#e5e7eb",
-                    borderRadius: "12px",
-                    color: isDarkMode ? "#fafafa" : "#0f172a"
+                    backgroundColor: isDarkMode ? "rgba(15, 15, 18, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(12px)",
+                    borderColor: isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                    borderRadius: "20px",
+                    padding: "12px 16px",
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
                   }}
-                  itemStyle={{ color: "#8b5cf6" }}
+                  itemStyle={{ color: "#8b5cf6", fontWeight: 700 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="prompts" 
                   stroke="#8b5cf6" 
-                  strokeWidth={3} 
-                  dot={{ r: 4, fill: "#8b5cf6", strokeWidth: 2, stroke: isDarkMode ? "#111113" : "#fff" }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  strokeWidth={4} 
+                  dot={{ r: 0 }}
+                  activeDot={{ r: 6, fill: "#8b5cf6", strokeWidth: 4, stroke: "#fff" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -191,38 +232,53 @@ export function AnalyticsDashboard({ prompts, isDarkMode }: AnalyticsDashboardPr
         </div>
 
         {/* Type Distribution */}
-        <div className={`p-6 rounded-3xl border ${isDarkMode ? "bg-[#111113] border-[#27272a]" : "bg-white border-[#e5e7eb]"} shadow-sm`}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${isDarkMode ? "bg-blue-500/10" : "bg-blue-50"}`}>
-                <SquaresFour className="h-5 w-5 text-blue-500" weight="bold" />
+        <div className={`p-8 rounded-[32px] border transition-all duration-500 ${
+          isDarkMode 
+            ? "bg-[#0f0f12]/60 backdrop-blur-2xl border-white/5 shadow-2xl" 
+            : "bg-white border-slate-200/60 shadow-xl shadow-slate-200/20"
+        }`}>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-2xl ${isDarkMode ? "bg-blue-500/10" : "bg-blue-50"}`}>
+                <SquaresFour className="h-6 w-6 text-blue-500" weight="duotone" />
               </div>
-              <h3 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>Format Distribution</h3>
+              <div>
+                <h3 className={`text-xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>Format Mix</h3>
+                <p className={`text-xs font-medium ${isDarkMode ? "text-zinc-500" : "text-slate-400"}`}>Distribution by prompt type</p>
+              </div>
             </div>
           </div>
-          <div className="h-[300px] w-full flex items-center">
+          <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={stats.typeData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={80}
-                  outerRadius={100}
-                  paddingAngle={8}
+                  innerRadius={85}
+                  outerRadius={110}
+                  paddingAngle={10}
                   dataKey="value"
+                  stroke="none"
                 >
                   {stats.typeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="hover:opacity-80 transition-opacity cursor-pointer focus:outline-none" />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: isDarkMode ? "rgba(15, 15, 18, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(12px)",
+                    borderColor: isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                    borderRadius: "16px"
+                  }}
+                />
                 <Legend 
                   verticalAlign="middle" 
                   align="right" 
                   layout="vertical"
                   iconType="circle"
-                  formatter={(value) => <span className={`text-sm font-medium ${isDarkMode ? "text-zinc-400" : "text-slate-600"}`}>{value}</span>}
+                  formatter={(value) => <span className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -233,41 +289,51 @@ export function AnalyticsDashboard({ prompts, isDarkMode }: AnalyticsDashboardPr
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Model Usage */}
-        <div className={`p-6 rounded-3xl border ${isDarkMode ? "bg-[#111113] border-[#27272a]" : "bg-white border-[#e5e7eb]"} shadow-sm`}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${isDarkMode ? "bg-emerald-500/10" : "bg-emerald-50"}`}>
-                <ImageIcon className="h-5 w-5 text-emerald-500" weight="bold" />
+        <div className={`p-8 rounded-[32px] border transition-all duration-500 ${
+          isDarkMode 
+            ? "bg-[#0f0f12]/60 backdrop-blur-2xl border-white/5 shadow-2xl" 
+            : "bg-white border-slate-200/60 shadow-xl shadow-slate-200/20"
+        }`}>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-2xl ${isDarkMode ? "bg-emerald-500/10" : "bg-emerald-50"}`}>
+                <ImageIcon className="h-6 w-6 text-emerald-500" weight="duotone" />
               </div>
-              <h3 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>Top Models</h3>
+              <div>
+                <h3 className={`text-xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>Top Platforms</h3>
+                <p className={`text-xs font-medium ${isDarkMode ? "text-zinc-500" : "text-slate-400"}`}>Most used AI models \u0026 LLMs</p>
+              </div>
             </div>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.modelData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={isDarkMode ? "#27272a" : "#e5e7eb"} />
+              <BarChart data={stats.modelData} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: isDarkMode ? "#fafafa" : "#1e293b", fontSize: 13, fontWeight: 500 }}
-                  width={100}
+                  tick={{ fill: isDarkMode ? "#fafafa" : "#1e293b", fontSize: 11, fontWeight: 600, textAnchor: 'start' }}
+                  width={120}
+                  dx={-110}
                 />
                 <Tooltip 
-                  cursor={{ fill: 'transparent' }}
+                  cursor={{ fill: isDarkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}
                   contentStyle={{ 
-                    backgroundColor: isDarkMode ? "#18181b" : "#ffffff",
-                    borderColor: isDarkMode ? "#27272a" : "#e5e7eb",
-                    borderRadius: "12px"
+                    backgroundColor: isDarkMode ? "rgba(15, 15, 18, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(12px)",
+                    borderRadius: "16px",
+                    border: "none",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
                   }}
                 />
                 <Bar 
                   dataKey="value" 
                   fill="#8b5cf6" 
-                  radius={[0, 8, 8, 0]} 
-                  barSize={32}
+                  radius={[0, 12, 12, 0]} 
+                  barSize={24}
                 >
                   {stats.modelData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -279,32 +345,41 @@ export function AnalyticsDashboard({ prompts, isDarkMode }: AnalyticsDashboardPr
         </div>
 
         {/* Content Type Breakdown Detail */}
-        <div className={`p-6 rounded-3xl border ${isDarkMode ? "bg-[#111113] border-[#27272a]" : "bg-white border-[#e5e7eb]"} shadow-sm`}>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>Stats Breakdown</h3>
+        <div className={`p-8 rounded-[32px] border transition-all duration-500 ${
+          isDarkMode 
+            ? "bg-[#0f0f12]/60 backdrop-blur-2xl border-white/5 shadow-2xl" 
+            : "bg-white border-slate-200/60 shadow-xl shadow-slate-200/20"
+        }`}>
+          <div className="flex items-center justify-between mb-8">
+            <h3 className={`text-xl font-bold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>Metric Details</h3>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
              {[
-               { icon: FileText, label: "Text Prompts", value: prompts.filter(p => p.type === 'text').length, color: "text-blue-500", bg: "bg-blue-500/10" },
-               { icon: ImageIcon, label: "Image Prompts", value: prompts.filter(p => p.type === 'image').length, color: "text-pink-500", bg: "bg-pink-500/10" },
-               { icon: VideoCamera, label: "Video Prompts", value: prompts.filter(p => p.type === 'video').length, color: "text-purple-500", bg: "bg-purple-500/10" },
-               { icon: SpeakerHifi, label: "Audio Prompts", value: prompts.filter(p => p.type === 'audio').length, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+               { icon: FileText, label: "Text Elements", value: prompts.filter(p => p.type === 'text').length, color: "text-blue-500", bg: "bg-blue-500/10" },
+               { icon: ImageIcon, label: "Visual Assets", value: prompts.filter(p => p.type === 'image').length, color: "text-pink-500", bg: "bg-pink-500/10" },
+               { icon: VideoCamera, label: "Motion Clips", value: prompts.filter(p => p.type === 'video').length, color: "text-purple-500", bg: "bg-purple-500/10" },
+               { icon: SpeakerHifi, label: "Audio Waves", value: prompts.filter(p => p.type === 'audio').length, color: "text-emerald-500", bg: "bg-emerald-500/10" },
              ].map((item) => (
-               <div key={item.label} className="flex items-center justify-between p-3 rounded-2xl border border-transparent hover:border-zinc-800 transition-all duration-300">
-                 <div className="flex items-center gap-3">
-                   <div className={`p-2 rounded-xl ${item.bg}`}>
-                     <item.icon className={`h-5 w-5 ${item.color}`} weight="bold" />
-                   </div>
-                   <span className={`font-medium ${isDarkMode ? "text-zinc-300" : "text-slate-700"}`}>{item.label}</span>
-                 </div>
+               <div key={item.label} className={`group flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${
+                 isDarkMode ? "bg-white/[0.02] border-white/5 hover:border-white/10" : "bg-slate-50/50 border-slate-100 hover:border-slate-200"
+               }`}>
                  <div className="flex items-center gap-4">
-                   <div className="w-32 h-2 bg-muted rounded-full overflow-hidden hidden sm:block">
+                   <div className={`p-2.5 rounded-xl transition-transform duration-300 group-hover:scale-110 ${item.bg}`}>
+                     <item.icon className={`h-5 w-5 ${item.color}`} weight="duotone" />
+                   </div>
+                   <div className="flex flex-col">
+                     <span className={`text-sm font-bold tracking-tight ${isDarkMode ? "text-zinc-200" : "text-slate-800"}`}>{item.label}</span>
+                     <span className={`text-[10px] font-bold opacity-50 uppercase tracking-[0.1em] ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>{Math.round((item.value / prompts.length) * 100) || 0}% SHARE</span>
+                   </div>
+                 </div>
+                 <div className="flex items-center gap-6">
+                   <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden hidden sm:block">
                      <div 
-                        className={`h-full ${item.bg.replace('/10', '')}`} 
+                        className={`h-full transition-all duration-1000 ${item.bg.replace('/10', '')}`} 
                         style={{ width: `${(item.value / prompts.length) * 100}%` }} 
                      />
                    </div>
-                   <span className={`text-sm font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>{item.value}</span>
+                   <span className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>{item.value}</span>
                  </div>
                </div>
              ))}

@@ -134,7 +134,7 @@ export const promptFixtures: Prompt[] = [
     isLiked: true,
     isSaved: true,
     createdAt: "Jan 10, 2026",
-    content: "/neo-viking.jpg",
+    content: "https://images.unsplash.com/photo-1514539079130-25950c84af65?q=80&w=2000&auto=format&fit=crop",
     initialPrompt: "Hyper-realistic close-up portrait of a modern neo-viking tech CEO. Shaved sides, intricate geometric tattoos on the scalp, silver-flecked beard. Wearing a sleek, matte black carbon-fiber techwear jacket. Harsh side lighting, rainy city background at night, 8k resolution, photorealistic, shot on Sony A7R IV.",
     useCases: [
       "Character concept for film",
@@ -187,7 +187,7 @@ export const promptFixtures: Prompt[] = [
     isLiked: false,
     isSaved: false,
     createdAt: "Jan 02, 2026",
-    content: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop",
+    content: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2000&auto=format&fit=crop",
     initialPrompt: "Isometric 3D render of a futuristic glass-top desk. 5 monitors floating in air, holographic code floating above the keyboard. Glowing fiber-optic cables running across the floor. Vibrant purple and cyan neon lighting. Minimalist white room. Soft shadows, Octane Render style.",
     useCases: [
       "Backgrounds for tech-related blogs",

@@ -90,8 +90,7 @@ export function AppSidebar({
       title: "Global Space",
       id: "global",
       items: [
-        { id: "all", icon: House, label: "Feed", count: promptCounts.all },
-        { id: "public", icon: Globe, label: "Public Library", count: promptCounts.public },
+        { id: "public", icon: Globe, label: "Prompt Feed", count: promptCounts.public },
       ],
     },
     {
@@ -118,10 +117,10 @@ export function AppSidebar({
         { id: "personal-video", icon: VideoCamera, label: "Videos", count: promptCounts.personalVideos },
         { id: "personal-audio", icon: SpeakerHigh, label: "Audio", count: promptCounts.personalAudio },
       ] : [
-        { id: "public-text", icon: TextT, label: "Text", count: promptCounts.publicText },
         { id: "public-image", icon: ImageIcon, label: "Images", count: promptCounts.publicImages },
         { id: "public-video", icon: VideoCamera, label: "Videos", count: promptCounts.publicVideos },
         { id: "public-audio", icon: SpeakerHigh, label: "Audio", count: promptCounts.publicAudio },
+        { id: "public-text", icon: TextT, label: "Text", count: promptCounts.publicText },
       ];
 
       const groupColor = item.id === "personal" ? "purple" : "blue";

@@ -111,7 +111,7 @@ export function DashboardToolbar({
         <div className="w-full md:w-auto">
             <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-2">
                 {/* Visibility Filter */}
-                {activeView === "all" && (
+                {activeView !== "public" && !activeView.startsWith("public-") && activeView === "all" && (
                 <Select value={allPromptsVisibility} onValueChange={(v) => onVisibilityChange(v as any)}>
                     <SelectTrigger className={`relative min-w-[120px] h-10 rounded-xl transition-all border-none ${isDarkMode ? "bg-[#0f172a] hover:bg-[#1e293b] text-[#f8fafc]" : "bg-white hover:bg-slate-50 text-[#0f172a] shadow-sm border border-[var(--border)]"}`}>
                         <span className={`absolute -top-1.5 left-2 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider rounded-sm z-10 leading-none shadow-sm transition-transform group-hover/filter:-translate-y-0.5 ${isDarkMode ? "bg-[#8b5cf6] text-white" : "bg-zinc-100 text-zinc-900"}`}>
